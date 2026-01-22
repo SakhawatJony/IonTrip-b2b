@@ -6,8 +6,11 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
   // Get CSS variable values
   const getCSSVariable = (variableName) => {
     if (typeof window !== "undefined") {
@@ -45,6 +48,7 @@ export default function Navbar() {
             </Typography>
           ))}
           <Button
+            onClick={() => navigate("/login")}
             sx={{
               backgroundColor: primaryColor,
               color: whiteColor,

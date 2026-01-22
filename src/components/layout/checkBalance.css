@@ -1,0 +1,35 @@
+.check-balance-btn {
+  background: #123d6e !important;
+  color: #ffffff !important;
+  border-radius: 24px !important;
+  padding: 6px 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  text-wrap: nowrap !important;
+  min-width: unset !important;
+  height: 36px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.check-balance-btn:hover {
+  background: linear-gradient(180deg, #0d58b8, #0a3f86) !important;
+}
+
+.check-balance-btn .MuiButton-startIcon {
+  margin-right: 8px !important;
+  margin-left: 0 !important;
+}
+
+.check-balance-icon {
+  width: 22px;
+  height: 22px;
+  background: #ffffff;
+  color: #0b4ea2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
