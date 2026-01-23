@@ -80,10 +80,20 @@ const OnewayFlightDetails = ({ data }) => {
         variant="fullWidth"
         sx={{
           minHeight: 52,
-          borderBottom: "1px solid #E5E7EB",
+          borderTop: "2px solid #D9D9D9",
+          borderBottom: "2px solid #D9D9D9",
+        
+         
           "& .MuiTabs-indicator": {
-            backgroundColor: "#1F4FD8",
+            backgroundColor: "var(--primary-color)",
             height: 2,
+          },
+          "& .MuiTab-root": {
+            borderRight: "2px solid #D9D9D9",
+            minHeight: 52,
+          },
+          "& .MuiTab-root:last-of-type": {
+            borderRight: "none",
           },
         }}
       >

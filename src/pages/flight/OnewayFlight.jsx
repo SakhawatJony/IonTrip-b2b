@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { Box, Button, Collapse, Grid, Typography } from "@mui/material";
+import { Box, Button, Collapse, Grid, Typography, Tooltip } from "@mui/material";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import FlightIcon from "@mui/icons-material/Flight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import OnewayFlightDetails from "./OnewayFlightDetails";
+import OnewayBrandedFare from "./OnewayBrandedFare";
 
 const OnewayFlight = ({ flight }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [brandedOpen, setBrandedOpen] = useState(false);
   const data = flight || {
     airline: "Biman Bangladesh",
     flightNo: "BG 458 | BG 542 | BG 542",
@@ -26,6 +28,10 @@ const OnewayFlight = ({ flight }) => {
 
   const handleToggleDetails = () => {
     setDetailsOpen((prev) => !prev);
+  };
+
+  const handleToggleBranded = () => {
+    setBrandedOpen((prev) => !prev);
   };
 
   return (
@@ -163,19 +169,30 @@ const OnewayFlight = ({ flight }) => {
             <Typography sx={{ fontSize: 16, fontWeight: 700,color:"var(--primary-light)" }}>
               {data.price}
             </Typography>
-            <Box
-              sx={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                backgroundColor: "#FFAF00",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <KeyboardArrowDownIcon sx={{ color: "var(--white)", fontSize: 14 }} />
-            </Box>
+            <Tooltip title="Branded Fare" arrow placement="top">
+              <Box
+                onClick={handleToggleBranded}
+                sx={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  backgroundColor: "#FFAF00",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <KeyboardArrowDownIcon
+                  sx={{
+                    color: "var(--white)",
+                    fontSize: 14,
+                    transform: brandedOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.2s ease",
+                  }}
+                />
+              </Box>
+            </Tooltip>
           </Box>
 
           <Typography sx={{ fontSize: 12, color: "#A2A6A9", textAlign: "left" }}>
@@ -231,6 +248,10 @@ const OnewayFlight = ({ flight }) => {
           </Box>
         </Grid>
       </Grid>
+
+      <Collapse in={brandedOpen} timeout="auto" unmountOnExit>
+        <OnewayBrandedFare />
+      </Collapse>
 
       <Collapse in={detailsOpen} timeout="auto" unmountOnExit>
         <Box sx={{ mt: 2 }}>

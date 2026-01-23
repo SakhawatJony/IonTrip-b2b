@@ -11,6 +11,7 @@ import Contact from "./pages/home/Contact";
 import Features from "./pages/home/Features";
 import Dashboard from "./pages/dashboard/Dashboard";
 import OneWaySearchResult from "./pages/flight/OneWaySearchResult";
+import RoundWaySearchResult from "./pages/flight/RoundWaySearchResult";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="bookings" element={<Dashboard />} />
         <Route path="onewaysearchresult" element={<OneWaySearchResult />} />
+        <Route path="roundwaysearchresult" element={<RoundWaySearchResult />} />
         <Route path="settings" element={<Dashboard />} />
         <Route path="wallet" element={<Dashboard />} />
         <Route path="account" element={<Dashboard />} />

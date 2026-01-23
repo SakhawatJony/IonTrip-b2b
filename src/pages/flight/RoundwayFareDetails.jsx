@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-const OnewayFareDetails = () => {
+const RoundwayFareDetails = () => {
   const fareRows = [
     { label: "Pax Count", adult: "02", child: "01" },
     { label: "Base Fare", adult: "54,000", child: "54,000" },
@@ -143,4 +143,4 @@ const OnewayFareDetails = () => {
   );
 };
 
-export default OnewayFareDetails;
+export default RoundwayFareDetails;
