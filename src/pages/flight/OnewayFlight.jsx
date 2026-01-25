@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Collapse, Grid, Typography, Tooltip } from "@mui/material";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import FlightIcon from "@mui/icons-material/Flight";
@@ -9,6 +10,7 @@ import OnewayBrandedFare from "./OnewayBrandedFare";
 const OnewayFlight = ({ flight }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [brandedOpen, setBrandedOpen] = useState(false);
+  const navigate = useNavigate();
   const data = flight || {
     airline: "Biman Bangladesh",
     flightNo: "BG 458 | BG 542 | BG 542",
@@ -208,7 +210,6 @@ const OnewayFlight = ({ flight }) => {
 
           <Box display="flex" justifyContent="flex-end" width="100%" gap={1} mt={1}>
             <Button
-             
               endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 10 }} />}
               onClick={handleToggleDetails}
               sx={{
@@ -228,8 +229,7 @@ const OnewayFlight = ({ flight }) => {
               Flight Details
             </Button>
             <Button
-             
-              
+              onClick={() => navigate("/dashboard/flightbooking")}
               sx={{
                 textTransform: "none",
                 backgroundColor: "#0F2F56",

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import LuggageOutlinedIcon from "@mui/icons-material/LuggageOutlined";
@@ -75,6 +76,7 @@ const defaultFares = [
 ];
 
 const OnewayBrandedFare = ({ fares = defaultFares }) => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -175,6 +177,7 @@ const OnewayBrandedFare = ({ fares = defaultFares }) => {
               </Box>
               <Button
                 fullWidth
+                onClick={() => navigate("/dashboard/flightbooking")}
                 sx={{
                   mt: 1,
                   textTransform: "none",

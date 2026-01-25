@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, Collapse, Divider, Grid, Typography, Tooltip } from "@mui/material";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import FlightIcon from "@mui/icons-material/Flight";
@@ -9,8 +10,9 @@ import OnewayBrandedFare from "./OnewayBrandedFare";
 
 
 const RoundWayFlight = ({ flight }) => {
-    const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
     const [brandedOpen, setBrandedOpen] = useState(false);
+  const navigate = useNavigate();
     const data = flight || {
         segments: [
             {
@@ -222,39 +224,40 @@ const RoundWayFlight = ({ flight }) => {
                         </Typography>
 
                         <Box display="flex" justifyContent="flex-end" width="100%" gap={1} mt="auto">
-                        <Button
-                            endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 10 }} />}
-                            onClick={handleToggleDetails}
-                            sx={{
-                                textTransform: "none",
-                                border: "1px solid #D0D5DD",
-                                fontSize: 10.5,
-                                height: 30,
-                                borderRadius: 1,
-                                width: "160px",
-                                color: "#344054",
-                                fontWeight: 600,
-                                backgroundColor: "#FFFFFF",
-                                "&:hover": { backgroundColor: "#F8FAFC", borderColor: "#D0D5DD" },
-                            }}
-                        >
-                            Flight Details
-                        </Button>
-                        <Button
-                            sx={{
-                                textTransform: "none",
-                                backgroundColor: "#0F2F56",
-                                color: "#fff",
-                                fontSize: 11,
-                                height: 30,
-                                borderRadius: 1,
-                                width: "100px",
-                                fontWeight: 600,
-                                "&:hover": { backgroundColor: "#0B2442" },
-                            }}
-                        >
-                            Book Now
-                        </Button>
+                            <Button
+                                endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 10 }} />}
+                                onClick={handleToggleDetails}
+                                sx={{
+                                    textTransform: "none",
+                                    border: "1px solid #D0D5DD",
+                                    fontSize: 10.5,
+                                    height: 30,
+                                    borderRadius: 1,
+                                    width: "160px",
+                                    color: "#344054",
+                                    fontWeight: 600,
+                                    backgroundColor: "#FFFFFF",
+                                    "&:hover": { backgroundColor: "#F8FAFC", borderColor: "#D0D5DD" },
+                                }}
+                            >
+                                Flight Details
+                            </Button>
+                            <Button
+                                onClick={() => navigate("/dashboard/flightbooking")}
+                                sx={{
+                                    textTransform: "none",
+                                    backgroundColor: "#0F2F56",
+                                    color: "#fff",
+                                    fontSize: 11,
+                                    height: 30,
+                                    borderRadius: 1,
+                                    width: "100px",
+                                    fontWeight: 600,
+                                    "&:hover": { backgroundColor: "#0B2442" },
+                                }}
+                            >
+                                Book Now
+                            </Button>
                         </Box>
                     </Box>
                 </Grid>
