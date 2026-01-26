@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   Box,
   List,
@@ -20,17 +21,39 @@ import ReportIcon from "@mui/icons-material/BarChartOutlined";
 import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const menuItem = (icon, text, dropdown = false) => (
-  <ListItemButton sx={{ py: 3 }}>
-    <ListItemIcon sx={{ minWidth: 36 }}>{icon}</ListItemIcon>
-    <ListItemText sx={{fontSize:"16px",color:"var(--ions)"}} primary={text} />
-    {dropdown && (
-      <IconButton size="small">
-        <ExpandMoreIcon fontSize="small" />
-      </IconButton>
-    )}
-  </ListItemButton>
-);
+const menuItem = (icon, text, options = {}) => {
+  const { dropdown = false, path, end = false, sx } = options;
+  const buttonProps = path
+    ? { component: NavLink, to: path, end }
+    : { component: "div" };
+
+  return (
+    <ListItemButton
+      {...buttonProps}
+      sx={{
+        py: 3,
+        ...sx,
+        "&.active": {
+          bgcolor: "rgba(37, 99, 235, 0.08)",
+        },
+        "&.active .MuiListItemIcon-root, &.active .MuiListItemText-primary": {
+          color: "#2563EB",
+        },
+      }}
+    >
+      <ListItemIcon sx={{ minWidth: 36 }}>{icon}</ListItemIcon>
+      <ListItemText
+        sx={{ fontSize: "16px", color: "var(--ions)" }}
+        primary={text}
+      />
+      {dropdown && (
+        <IconButton size="small">
+          <ExpandMoreIcon fontSize="small" />
+        </IconButton>
+      )}
+    </ListItemButton>
+  );
+};
 
 const Sidebar = () => {
   return (
@@ -55,11 +78,39 @@ const Sidebar = () => {
 
       {/* Menu */}
       <List sx={{ flexGrow: 1 }}>
-        {menuItem(<DashboardIcon  sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Dashboard")}
-        {menuItem(<BookingsIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Bookings", true)}
+        {menuItem(
+          <DashboardIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />,
+          "Dashboard",
+          { path: "/dashboard", end: true }
+        )}
+        {menuItem(
+          <BookingsIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />,
+          "Bookings",
+          true
+        )}
+        {menuItem(
+          <BookingsIcon sx={{ color: "#94A3B8", fontSize: "20px" }} />,
+          "Agent Flight Booking",
+          {
+            path: "/dashboard/agentflightbooking",
+            sx: { py: 2, pl: 6 },
+          }
+        )}
         {menuItem(<SettingsIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Settings", true)}
-        {menuItem(<WalletIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Wallet")}
-        {menuItem(<AccountIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Account", true)}
+        {menuItem(<WalletIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Wallet", true)}
+        {menuItem(
+          <WalletIcon sx={{ color: "#94A3B8", fontSize: "20px" }} />,
+          "Agent Deposit",
+          {
+            path: "/dashboard/agentdeposit",
+            sx: { py: 2, pl: 6 },
+          }
+        )}
+        {menuItem(
+          <AccountIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />,
+          "Account",
+          { path: "/dashboard/account" }
+        )}
         {menuItem(<ManageIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Manage", true)}
         {menuItem(<ReportIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Ot Reports", true)}
         {menuItem(<LogoutIcon sx={{ color: "var(--ions)", fontSize: "25px" }} />, "Logout")}

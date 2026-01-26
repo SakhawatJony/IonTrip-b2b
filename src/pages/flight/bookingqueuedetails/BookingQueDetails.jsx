@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, Grid, Typography } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BookingQueDetailsCard from "./BookingQueDetailsCard";
 import BookingQuePassengerList from "./BookingQuePassengerList";
 import BookingQueFareDetails from "./BookingQueFareDetails";
@@ -23,9 +24,17 @@ const BookingQueDetails = () => {
                   mb: 1.5,
                 }}
               >
-                <Typography fontSize={14} fontWeight={700} color="#111827">
-                  Passenger Details
-                </Typography>
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+                    <Typography fontSize={14} fontWeight={700} color="#111827">
+                      Passenger Details
+                    </Typography>
+                    <InfoOutlinedIcon sx={{ fontSize: 14, color: "#94A3B8" }} />
+                  </Box>
+                  <Typography fontSize={11} color="#94A3B8">
+                    Please upload passenger information for issue this ticket
+                  </Typography>
+                </Box>
                 <Button
                   sx={{
                     height: 32,

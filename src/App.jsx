@@ -14,6 +14,10 @@ import OneWaySearchResult from "./pages/flight/OneWaySearchResult";
 import RoundWaySearchResult from "./pages/flight/RoundWaySearchResult";
 import FlightBooking from "./pages/flight/flightbooking/FlightBooking";
 import BookingQueDetails from "./pages/flight/bookingqueuedetails/BookingQueDetails";
+import AgentProfile from "./pages/agent/AgentProfile";
+import AgentFlightBooking from "./pages/agent/AgentFlightBooking";
+import AgentAllDeposit from "./pages/agent/AgentAllDeposit";
+import AddDeposit from "./pages/agent/AddDeposit";
 
 export default function App() {
   return (
@@ -32,9 +36,12 @@ export default function App() {
         <Route path="roundwaysearchresult" element={<RoundWaySearchResult />} />
         <Route path="flightbooking" element={<FlightBooking />} />
         <Route path="bookingqueuedetails" element={<BookingQueDetails />} />
+        <Route path="agentflightbooking" element={<AgentFlightBooking />} />
         <Route path="settings" element={<Dashboard />} />
         <Route path="wallet" element={<Dashboard />} />
-        <Route path="account" element={<Dashboard />} />
+        <Route path="agentdeposit" element={<AgentAllDeposit />} />
+        <Route path="adddeposit" element={<AddDeposit />} />
+        <Route path="account" element={<AgentProfile />} />
         <Route path="manage" element={<Dashboard />} />
         <Route path="reports" element={<Dashboard />} />
       </Route>
