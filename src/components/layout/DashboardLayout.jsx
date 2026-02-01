@@ -57,23 +57,23 @@ const DashboardLayout = () => {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh" }}>
-      <Grid container sx={{ minHeight: "100vh" }}>
+    <Box >
+      <Grid container >
         {/* Sidebar Grid Item */}
-        <Grid item xs={12} md={2}>
+        <Grid item md={2}>
           <Sidebar />
         </Grid>
 
         {/* Main Content Grid Item */}
         <Grid item xs={12} md={10}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid item md={12}>
               <Box
                 sx={{
+                 
                   minHeight: "100vh",
                   boxSizing: "border-box",
-                  bgcolor: "#ECECEC",
-                  py: "30px",
+                  bgcolor:"#ECECEC"
                 }}
               >
                 <BalanceNoticeBar />

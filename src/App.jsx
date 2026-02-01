@@ -18,6 +18,8 @@ import AgentProfile from "./pages/agent/AgentProfile";
 import AgentFlightBooking from "./pages/agent/AgentFlightBooking";
 import AgentAllDeposit from "./pages/agent/AgentAllDeposit";
 import AddDeposit from "./pages/agent/AddDeposit";
+import LedgerReport from "./pages/agent/LedgerReport";
+import SalesReport from "./pages/agent/SalesReport";
 
 export default function App() {
   return (
@@ -31,7 +33,22 @@ export default function App() {
       {/* Dashboard Routes with Outlet */}
       <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
-        <Route path="bookings" element={<Dashboard />} />
+        <Route
+          path="bookings"
+          element={<AgentFlightBooking title="All Booking" buttonLabel="All Booking" />}
+        />
+        <Route
+          path="bookings/confirmed"
+          element={<AgentFlightBooking title="Confirmed Booking" buttonLabel="Confirmed Booking" />}
+        />
+        <Route
+          path="bookings/refund"
+          element={<AgentFlightBooking title="Refund Booking" buttonLabel="Refund Booking" />}
+        />
+        <Route
+          path="bookings/reissue"
+          element={<AgentFlightBooking title="Reissue Booking" buttonLabel="Reissue Booking" />}
+        />
         <Route path="onewaysearchresult" element={<OneWaySearchResult />} />
         <Route path="roundwaysearchresult" element={<RoundWaySearchResult />} />
         <Route path="flightbooking" element={<FlightBooking />} />
@@ -43,7 +60,8 @@ export default function App() {
         <Route path="adddeposit" element={<AddDeposit />} />
         <Route path="account" element={<AgentProfile />} />
         <Route path="manage" element={<Dashboard />} />
-        <Route path="reports" element={<Dashboard />} />
+        <Route path="ledgerreport" element={<LedgerReport />} />
+        <Route path="salesreport" element={<SalesReport />} />
       </Route>
     </Routes>
   );

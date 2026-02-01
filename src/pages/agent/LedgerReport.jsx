@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 const headerTitleSx = {
@@ -14,8 +14,8 @@ const headerSubtitleSx = {
   mt: 0.4,
 };
 
-const cardSx = (highlighted) => ({
-  backgroundColor: highlighted ? "#FFF1F2" : "#FFFFFF",
+const cardSx = {
+  backgroundColor: "#FFFFFF",
   border: "1px solid #E5E7EB",
   borderRadius: 1.5,
   px: { xs: 2, md: 3 },
@@ -24,7 +24,7 @@ const cardSx = (highlighted) => ({
   "&:hover": {
     backgroundColor: "#FFF1F2",
   },
-});
+};
 
 const rowSx = {
   display: "grid",
@@ -45,48 +45,50 @@ const valueSx = {
   color: "#111827",
 };
 
-const bookingCards = [
+const balanceSx = {
+  fontSize: 12.5,
+  fontWeight: 600,
+  color: "#0F2F56",
+};
+
+const ledgerCards = [
   {
+    type: "Deposit",
     id: "FFB 1001",
-    highlighted: false,
+    balance: "BDT45,000",
     rows: [
       {
         label: "Remarks",
         value:
-          "Dhaka - Dubai, Oneway Airticket By Biman Bangladesh at 22 Feb 2022",
+          "BDT 20,000 Dhaka Bank to Datch Bangla Bank Trx: 525656264562",
       },
-      { label: "Status", value: "Hold at 22 Feb 2022" },
-      { label: "Attachment", value: "view" },
+      { label: "Status", value: "Approve at 22 Feb 2022" },
     ],
   },
   {
+    type: "Reissue",
     id: "FFB 1001",
-    highlighted: false,
+    balance: "BDT45,000",
     rows: [
       {
         label: "Remarks",
         value:
           "Dhaka - Dubai, Oneway Airticket By Biman Bangladesh at 22 Feb 2022",
       },
-      { label: "Status", value: "Hold at 22 Feb 2022" },
-      { label: "Attachment", value: "view" },
+      { label: "Status", value: "Reissue at 22 Feb 2022" },
     ],
   },
 ];
 
-const AgentFlightBooking = ({
-  title = "All Booking",
-  buttonLabel = "All Booking",
-  subtitle = "Basic info, for a faster booking experience",
-}) => {
+const LedgerReport = () => {
   return (
     <Box
       sx={{
         minHeight: "100vh",
         backgroundColor: "#FFFFFF",
         px: { xs: 2, md: 9.5 },
-        my:"30px",
-        mx:"80px",
+        my: "30px",
+        mx: "80px",
         py: 4,
         display: "flex",
         flexDirection: "column",
@@ -103,45 +105,46 @@ const AgentFlightBooking = ({
         }}
       >
         <Box>
-          <Typography sx={headerTitleSx}>{title}</Typography>
-          <Typography sx={headerSubtitleSx}>{subtitle}</Typography>
+          <Typography sx={headerTitleSx}>Ledger Report</Typography>
+          <Typography sx={headerSubtitleSx}>
+            Basic info, for a faster booking experience
+          </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <IconButton
-            sx={{
-              width: 38,
-              height: 38,
-              borderRadius: "50%",
-              backgroundColor: "#0F2F56",
-              color: "#FFFFFF",
-              "&:hover": { backgroundColor: "#0B2442" },
-            }}
-          >
-            <SearchOutlinedIcon fontSize="small" />
-          </IconButton>
-          <Button
-            variant="contained"
-            sx={{
-              textTransform: "none",
-              fontSize: 13,
-              fontWeight: 600,
-              px: 2.5,
-              backgroundColor: "#2F2F2F",
-              "&:hover": { backgroundColor: "#1F1F1F" },
-            }}
-          >
-            {buttonLabel}
-          </Button>
-        </Box>
+        <IconButton
+          sx={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            backgroundColor: "#0F2F56",
+            color: "#FFFFFF",
+            "&:hover": { backgroundColor: "#0B2442" },
+          }}
+        >
+          <SearchOutlinedIcon fontSize="small" />
+        </IconButton>
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-        {bookingCards.map((card, index) => (
-          <Box key={`${card.id}-${index}`} sx={cardSx(card.highlighted)}>
-            <Typography fontSize={15} fontWeight={700} color="#0F2F56" mb={1.5}>
-              Booking ID #{card.id}
-            </Typography>
+        {ledgerCards.map((card, index) => (
+          <Box key={`${card.type}-${index}`} sx={cardSx}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+                mb: 1.5,
+                flexWrap: "wrap",
+              }}
+            >
+              <Typography fontSize={15} fontWeight={700} color="#0F2F56">
+                {card.type} ID #{card.id}
+              </Typography>
+              <Typography sx={balanceSx}>
+                Remaining Balance: {card.balance}
+              </Typography>
+            </Box>
             <Box>
               {card.rows.map((row) => (
                 <Box key={row.label} sx={rowSx}>
@@ -157,4 +160,4 @@ const AgentFlightBooking = ({
   );
 };
 
-export default AgentFlightBooking;
+export default LedgerReport;
