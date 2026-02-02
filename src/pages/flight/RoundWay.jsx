@@ -25,6 +25,77 @@ const RoundWay = () => {
   const [passengerClass, setPassengerClass] = useState("1 Passenger & Economy");
   const [directFlight, setDirectFlight] = useState(false);
 
+  const labelSx = {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#1F4D8B",
+    lineHeight: 1.2,
+    height: "16px",
+  };
+
+  const inputContainerSx = {
+    backgroundColor: "#F6F8FB",
+    borderRadius: 1.5,
+    border: "1px solid #E6EDF5",
+    px: 1.5,
+    display: "flex",
+    alignItems: "center",
+    gap: 1.5,
+    height: "46px",
+    minHeight: "46px",
+  };
+
+  const inlineInputSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "transparent",
+      borderRadius: 0,
+      height: "46px",
+      minHeight: "46px",
+      "& fieldset": {
+        border: "none",
+      },
+      "&:hover fieldset": {
+        border: "none",
+      },
+      "&.Mui-focused fieldset": {
+        border: "none",
+      },
+    },
+    "& .MuiInputBase-input": {
+      fontSize: 15,
+      fontWeight: 600,
+      color: "#1F2A44",
+      py: 0,
+      height: "46px",
+      padding: "0 !important",
+    },
+  };
+
+  const boxedFieldSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#F6F8FB",
+      borderRadius: 1.5,
+      height: "46px",
+      minHeight: "46px",
+      "& fieldset": {
+        border: "1px solid #E6EDF5",
+      },
+      "&:hover fieldset": {
+        border: "1px solid #D7E0EC",
+      },
+      "&.Mui-focused fieldset": {
+        border: "1px solid #C7D3E3",
+      },
+    },
+    "& .MuiInputBase-input": {
+      fontSize: 15,
+      fontWeight: 600,
+      color: "#1F2A44",
+      py: 0,
+      height: "46px",
+    },
+  };
+
   const handleSwap = () => {
     const temp = from;
     setFrom(to);
@@ -40,45 +111,17 @@ const RoundWay = () => {
           <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             {/* Labels Row */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 0.5, gap: 1.5 }}>
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "#666666",
-                  lineHeight: 1.2,
-                  height: "16px",
-                  flex: 1,
-                }}
-              >
+              <Typography sx={{ ...labelSx, flex: 1 }}>
                 From
               </Typography>
               <Box sx={{ width: "20px", display: "flex", justifyContent: "center" }} />
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "#666666",
-                  lineHeight: 1.2,
-                  height: "16px",
-                  flex: 1,
-                }}
-              >
+              <Typography sx={{ ...labelSx, flex: 1 }}>
                 To
               </Typography>
             </Box>
             {/* Input Container */}
             <Box
-              sx={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 1,
-                border: "1px solid rgba(0, 0, 0, 0.1)",
-                p: 1.5,
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                height: "40px",
-                minHeight: "40px",
-              }}
+              sx={inputContainerSx}
             >
               {/* From Input */}
               <Box sx={{ flex: 1 }}>
@@ -87,52 +130,32 @@ const RoundWay = () => {
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
                   variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "transparent",
-                      borderRadius: 0,
-                      height: "40px",
-                      minHeight: "40px",
-                      "& fieldset": {
-                        border: "none",
-                      },
-                      "&:hover fieldset": {
-                        border: "none",
-                      },
-                      "&.Mui-focused fieldset": {
-                        border: "none",
-                      },
-                    },
-                    "& .MuiInputBase-input": {
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "#333333",
-                      py: 0,
-                      height: "40px",
-                      padding: "0 !important",
-                    },
-                  }}
+                  sx={inlineInputSx}
                 />
               </Box>
 
               {/* Swap Icon */}
               <Box
                 sx={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 1,
+                  backgroundColor: "#1F4D8B",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#163B6A",
+                  },
                 }}
+                onClick={handleSwap}
               >
                 <SwapHorizIcon
                   sx={{
-                    fontSize: 20,
-                    color: "#444444",
-                    cursor: "pointer",
-                    "&:hover": {
-                      color: "#123D6E",
-                    },
+                    fontSize: 18,
+                    color: "#FFFFFF",
                   }}
-                  onClick={handleSwap}
                 />
               </Box>
 
@@ -143,31 +166,7 @@ const RoundWay = () => {
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
                   variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "transparent",
-                      borderRadius: 0,
-                      height: "40px",
-                      minHeight: "40px",
-                      "& fieldset": {
-                        border: "none",
-                      },
-                      "&:hover fieldset": {
-                        border: "none",
-                      },
-                      "&.Mui-focused fieldset": {
-                        border: "none",
-                      },
-                    },
-                    "& .MuiInputBase-input": {
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "#333333",
-                      py: 0,
-                      height: "40px",
-                      padding: "0 !important",
-                    },
-                  }}
+                  sx={inlineInputSx}
                 />
               </Box>
             </Box>
@@ -177,16 +176,7 @@ const RoundWay = () => {
         {/* Travel Date Field */}
         <Grid item xs={12} sm={6} md={2.4}>
           <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 500,
-                color: "#666666",
-                mb: 0.5,
-                lineHeight: 1.2,
-                height: "16px",
-              }}
-            >
+            <Typography sx={{ ...labelSx, mb: 0.5 }}>
               Travel Date
             </Typography>
             <TextField
@@ -198,35 +188,12 @@ const RoundWay = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <CalendarTodayIcon
-                      sx={{ fontSize: 16, color: "#666666" }}
+                      sx={{ fontSize: 18, color: "#93A3B8" }}
                     />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 1,
-                  height: "40px",
-                  minHeight: "40px",
-                  "& fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.1)",
-                  },
-                  "&:hover fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.15)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.2)",
-                  },
-                },
-                "& .MuiInputBase-input": {
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "#333333",
-                  py: 0,
-                  height: "40px",
-                },
-              }}
+              sx={boxedFieldSx}
             />
           </Box>
         </Grid>
@@ -234,16 +201,7 @@ const RoundWay = () => {
         {/* Return Date Field */}
         <Grid item xs={12} sm={6} md={2.4}>
           <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 500,
-                color: "#666666",
-                mb: 0.5,
-                lineHeight: 1.2,
-                height: "16px",
-              }}
-            >
+            <Typography sx={{ ...labelSx, mb: 0.5 }}>
               Return Date
             </Typography>
             <TextField
@@ -255,35 +213,12 @@ const RoundWay = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <CalendarTodayIcon
-                      sx={{ fontSize: 16, color: "#666666" }}
+                      sx={{ fontSize: 18, color: "#93A3B8" }}
                     />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 1,
-                  height: "40px",
-                  minHeight: "40px",
-                  "& fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.1)",
-                  },
-                  "&:hover fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.15)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.2)",
-                  },
-                },
-                "& .MuiInputBase-input": {
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "#333333",
-                  py: 0,
-                  height: "40px",
-                },
-              }}
+              sx={boxedFieldSx}
             />
           </Box>
         </Grid>
@@ -291,16 +226,7 @@ const RoundWay = () => {
         {/* Passenger & Class Field */}
         <Grid item xs={12} sm={6} md={2.4}>
           <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 500,
-                color: "#666666",
-                mb: 0.5,
-                lineHeight: 1.2,
-                height: "16px",
-              }}
-            >
+            <Typography sx={{ ...labelSx, mb: 0.5 }}>
               Passenger & Class
             </Typography>
             <TextField
@@ -311,34 +237,11 @@ const RoundWay = () => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <PersonIcon sx={{ fontSize: 16, color: "#666666" }} />
+                    <PersonIcon sx={{ fontSize: 18, color: "#93A3B8" }} />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 1,
-                  height: "40px",
-                  minHeight: "40px",
-                  "& fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.1)",
-                  },
-                  "&:hover fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.15)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "1px solid rgba(0, 0, 0, 0.2)",
-                  },
-                },
-                "& .MuiInputBase-input": {
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "#333333",
-                  py: 0,
-                  height: "40px",
-                },
-              }}
+              sx={boxedFieldSx}
             />
           </Box>
         </Grid>
@@ -479,17 +382,17 @@ const RoundWay = () => {
         }}
       >
         <Button
-          startIcon={<SendIcon />}
+          startIcon={<SendIcon sx={{ fontSize: 18 }} />}
           sx={{
             backgroundColor: "#123D6E",
             color: "#fff",
-            px: 6,
-            height: "48px",
+            px: 4.5,
+            height: "42px",
             borderRadius: "999px",
-            fontSize: "15px",
+            fontSize: "14px",
             fontWeight: 600,
             textTransform: "none",
-            boxShadow: "0px 8px 20px rgba(18,61,110,0.3)",
+            boxShadow: "0px 6px 16px rgba(18,61,110,0.25)",
             "&:hover": {
               backgroundColor: "#0f2f56",
             },

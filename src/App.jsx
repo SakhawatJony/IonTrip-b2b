@@ -20,6 +20,7 @@ import AgentAllDeposit from "./pages/agent/AgentAllDeposit";
 import AddDeposit from "./pages/agent/AddDeposit";
 import LedgerReport from "./pages/agent/LedgerReport";
 import SalesReport from "./pages/agent/SalesReport";
+import SearchReport from "./pages/agent/SearchReport";
 
 export default function App() {
   return (
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="manage" element={<Dashboard />} />
         <Route path="ledgerreport" element={<LedgerReport />} />
         <Route path="salesreport" element={<SalesReport />} />
+        <Route path="searchreport" element={<SearchReport />} />
       </Route>
     </Routes>
   );

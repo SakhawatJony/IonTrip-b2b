@@ -117,18 +117,9 @@ const tableRows = [
     creditWallet: "412.00 ৳",
     balance: "412.00 ৳",
   },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
+  
+ 
+  
   {
     reference: "FFTRB14525",
     status: "HOLD",
@@ -145,7 +136,7 @@ const tableRows = [
 
 const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
-const LedgerReport = () => {
+const SearchReport = () => {
   const renderCell = (columnKey, value) => {
     if (columnKey === "reference") {
       return (
@@ -209,7 +200,7 @@ const LedgerReport = () => {
             flexWrap: "wrap",
           }}
         >
-          <Typography sx={headerTitleSx}>Ledger Report</Typography>
+          <Typography sx={headerTitleSx}>Search Report</Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             {statusCards.map((card) => (
@@ -259,7 +250,7 @@ const LedgerReport = () => {
                 "&:hover": { backgroundColor: "#0B2442" },
               }}
             >
-              Ledger Type
+              Search Type
             </Button>
           </Box>
         </Box>
@@ -450,4 +441,4 @@ const LedgerReport = () => {
   );
 };
 
-export default LedgerReport;
+export default SearchReport;

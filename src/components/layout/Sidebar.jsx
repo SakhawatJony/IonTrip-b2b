@@ -181,6 +181,10 @@ const Sidebar = () => {
       setExpandedMenu("reports");
       return;
     }
+    if (location.pathname.startsWith("/dashboard/searchreport")) {
+      setExpandedMenu("reports");
+      return;
+    }
     setExpandedMenu(null);
   }, [location.pathname]);
 
@@ -311,6 +315,7 @@ const Sidebar = () => {
           >
             <SubMenuItem text="Ledger Report" path="/dashboard/ledgerreport" location={location} />
             <SubMenuItem text="Sales Report" path="/dashboard/salesreport" location={location} />
+            <SubMenuItem text="Search Report" path="/dashboard/searchreport" location={location} />
           </Box>
         </Collapse>
 
