@@ -1,33 +1,25 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Collapse, Grid, Typography, Tooltip } from "@mui/material";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import FlightIcon from "@mui/icons-material/Flight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import OnewayFlightDetails from "./OnewayFlightDetails";
 import OnewayBrandedFare from "./OnewayBrandedFare";
+import dayjs from "dayjs";
+import durationIcon from "../../assets/duration icons.svg";
 
 const OnewayFlight = ({ flight }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [brandedOpen, setBrandedOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const navigate = useNavigate();
-  const data = flight || {
-    airline: "Biman Bangladesh",
-    flightNo: "BG 458 | BG 542 | BG 542",
-    departTime: "23:30",
-    departDate: "11 Apr, 2028",
-    departCode: "DXB",
-    arriveTime: "18:00",
-    arriveDate: "11 Apr, 2028",
-    arriveCode: "DAC",
-    duration: "35h 40m",
-    stops: "3 Stops",
-    price: "BDT 286,121",
-    seats: "6 Seat available",
-    baggage: "Baggage 30KG",
-    refundable: "Refundable",
-  };
-
+  const data = flight;
+  const logoUrl = data?.carrierCode
+    ? `https://tbbd-flight.s3.ap-southeast-1.amazonaws.com/airlines-logo/${data.carrierCode}.png`
+    : "";
   const handleToggleDetails = () => {
     setDetailsOpen((prev) => !prev);
   };
@@ -36,46 +28,104 @@ const OnewayFlight = ({ flight }) => {
     setBrandedOpen((prev) => !prev);
   };
 
+  const formatDate = (value) => {
+    if (!value) return "";
+    const parsed = dayjs(value);
+    return parsed.isValid() ? parsed.format("DD MMM, YYYY") : value;
+  };
+
+  const formatTime = (value) => {
+    if (!value) return "";
+    const parsed = dayjs(value);
+    if (parsed.isValid()) {
+      return parsed.format("HH:mm");
+    }
+    const match = String(value).match(/(\d{1,2}):(\d{2})/);
+    if (!match) return value;
+    const hours = String(match[1]).padStart(2, "0");
+    return `${hours}:${match[2]}`;
+  };
+
+  const formatTitleCase = (value) => {
+    if (!value) return "";
+    return String(value)
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const stopCount = useMemo(() => {
+    const rawStops = String(data?.stops || "").toLowerCase();
+    if (!rawStops) return 0;
+    if (rawStops.includes("non")) return 0;
+    const match = rawStops.match(/\d+/);
+    if (match) return Number(match[0]);
+    return 0;
+  }, [data?.stops]);
+
+  const timelineDots = useMemo(() => {
+    const count = Math.max(2, stopCount + 2);
+    return Array.from({ length: count }, (_, index) => index);
+  }, [stopCount]);
+
   return (
     <Box
       sx={{
         backgroundColor: "#FFFFFF",
         borderRadius: 2,
-        p: 2,
+        p: 1.75,
         border: "1px solid #E8EAEE",
         boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.06)",
       }}
     >
       <Grid
         container
-        spacing={2}
+        spacing={1.5}
         alignItems="center"
         wrap="nowrap"
-      
       >
         {/* Airline */}
-        <Grid item md={2.8}>
+        <Grid item md={3}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
             <Box
               sx={{
-                height: 35,
-                width: 35,
+                height: 30,
+                width: 30,
                 borderRadius: "50%",
-                backgroundColor: "#E53935",
+                backgroundColor: "#E6EEF7",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
+                overflow: "hidden",
               }}
             >
-              <FlightTakeoffIcon sx={{ color: "#FFFFFF", fontSize: 20 }} />
+              {logoUrl && !logoError ? (
+                <img
+                  src={logoUrl}
+                  alt={data?.airline || "Airline"}
+                  style={{ width: 35, height: 35 }}
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <FlightTakeoffIcon sx={{ fontSize: 20, color: "#6B7A90" }} />
+              )}
             </Box>
 
             <Box sx={{ minWidth: 0 }}>
-              <Typography noWrap sx={{ fontSize: 13, fontWeight: 700,color:"var(--marku)" }}>
-                {data.airline}
-              </Typography>
-              <Typography noWrap sx={{ fontSize: 11, color: "var(--sub)" }}>
+              <Tooltip title={formatTitleCase(data.airline)} arrow placement="top">
+                <Typography
+                  noWrap
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "var(--marku)",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {formatTitleCase(data.airline)}
+                </Typography>
+              </Tooltip>
+              <Typography noWrap sx={{ fontSize: 10.5, color: "var(--sub)" }}>
                 {data.flightNo}
               </Typography>
             </Box>
@@ -83,7 +133,7 @@ const OnewayFlight = ({ flight }) => {
         </Grid>
 
         {/* Date */}
-        <Grid item md={1.2}>
+        <Grid item md={1.1}>
           <Box
             sx={{
               display: "flex",
@@ -92,56 +142,58 @@ const OnewayFlight = ({ flight }) => {
               gap: 0.4,
             }}
           >
-            <FlightIcon sx={{ color: "var(--primary-color)", fontSize: 20 ,rotate:"90deg"}} />
-            <Typography sx={{ fontSize: 11, color: "var(--sub)", fontWeight: 600 }}>
-              {data.departDate}
+            <FlightIcon
+              sx={{
+                color: "var(--primary-color)",
+                fontSize: 18,
+                rotate: "90deg",
+              }}
+            />
+            <Typography sx={{ fontSize: 11, color: "var(--sub)", fontWeight: 600, textWrap: "nowrap" }}>
+              {formatDate(data.departDate)}
             </Typography>
           </Box>
         </Grid>
 
         {/* Departure */}
-        <Grid item md={1.2}>
+        <Grid item md={1.1}>
           <Box textAlign="right">
-            <Typography sx={{ fontSize: 19, color:"var(--primary-light)",fontWeight: 500 }}>
-              {data.departTime}
+            <Typography
+              sx={{ fontSize: 18, color: "var(--primary-light)", fontWeight: 600 }}
+            >
+              {formatTime(data.departTime)}
             </Typography>
-            <Typography sx={{ fontSize: 15, color: "var(--sub)", fontWeight: 500 ,}}>
+            <Typography sx={{ fontSize: 14, color: "var(--sub)", fontWeight: 500 }}>
               {data.departCode}
             </Typography>
           </Box>
         </Grid>
 
         {/* Timeline */}
-        <Grid item md={1.4}>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ px: 0.8 }}
-          >
-            {[0, 1, 2].map((dot) => (
-              <Box
-                key={dot}
-                sx={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  border: "1px solid #8FB3E0",
-                  mx: 0.4,
-                }}
-              />
-            ))}
-            <Box sx={{ fontSize: 16, color: "#9AA4B2", ml: 0.4 }}>→</Box>
+        <Grid item md={1.6}>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Box
+              component="img"
+              src={durationIcon}
+              alt="Duration"
+              sx={{ width: "85%", height: "100%", }}
+            />
           </Box>
+
+
+
+
         </Grid>
 
         {/* Arrival */}
-        <Grid item md={1.2}>
+        <Grid item md={1.1}>
           <Box textAlign="left">
-            <Typography sx={{ fontSize: 19, color:"var(--primary-light)",fontWeight: 500 }}>
-              {data.arriveTime}
+            <Typography
+              sx={{ fontSize: 18, color: "var(--primary-light)", fontWeight: 600 }}
+            >
+              {formatTime(data.arriveTime)}
             </Typography>
-            <Typography sx={{ fontSize: 15, color: "var(--sub)", fontWeight: 500 ,}}>
+            <Typography sx={{ fontSize: 14, color: "var(--sub)", fontWeight: 500 }}>
               {data.arriveCode}
             </Typography>
           </Box>
@@ -150,10 +202,10 @@ const OnewayFlight = ({ flight }) => {
         {/* Duration */}
         <Grid item md={1.1}>
           <Box textAlign="left">
-            <Typography sx={{ fontSize: 13, color: "#74757C" }}>
+            <Typography sx={{ fontSize: 12, color: "#74757C", fontWeight: 400 }}>
               {data.duration}
             </Typography>
-            <Typography sx={{ fontSize: 13, color: "#53555D" }}>
+            <Typography sx={{ fontSize: 11.5, color: "#53555D", fontWeight: 600 }}>
               {data.stops}
             </Typography>
           </Box>
@@ -162,46 +214,45 @@ const OnewayFlight = ({ flight }) => {
         {/* Price */}
         <Grid
           item
-          md={3.1}
+          md={3}
           sx={{
             borderLeft: "1px solid #E6E6E6",
+            pl: 2,
           }}
         >
           <Box display="flex" alignItems="center" gap={0.5} justifyContent="flex-start">
-            <Typography sx={{ fontSize: 16, fontWeight: 700,color:"var(--primary-light)" }}>
+            <Typography sx={{ fontSize: 15, fontWeight: 700, color: "var(--primary-light)" }}>
               {data.price}
             </Typography>
-            <Tooltip title="Branded Fare" arrow placement="top">
-              <Box
-                onClick={handleToggleBranded}
-                sx={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: "50%",
-                  backgroundColor: "#FFAF00",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <KeyboardArrowDownIcon
-                  sx={{
-                    color: "var(--white)",
-                    fontSize: 14,
-                    transform: brandedOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.2s ease",
-                  }}
-                />
-              </Box>
-            </Tooltip>
+            
           </Box>
 
-          <Typography sx={{ fontSize: 12, color: "#A2A6A9", textAlign: "left" }}>
+          <Typography
+            sx={{
+              fontSize: 11,
+              color: "#A2A6A9",
+              textAlign: "left",
+              display: "flex",
+              alignItems: "center",
+              gap: 0.4,
+              textWrap: "nowrap",
+            }}
+          >
+            <EventSeatIcon sx={{ fontSize: 12, color: "#A2A6A9" }} />
             {data.seats}
           </Typography>
 
-          <Typography sx={{ fontSize: 12, color: "#A2A6A9", textAlign: "left" }}>
+          <Typography
+            sx={{
+              fontSize: 11,
+              color: "#A2A6A9",
+              textAlign: "left",
+              display: "flex",
+              alignItems: "center",
+              gap: 0.4,
+            }}
+          >
+            <WorkOutlineIcon sx={{ fontSize: 12, color: "#A2A6A9" }} />
             {data.baggage}{" "}
             <Box component="span" sx={{ color: "#8DB163", fontWeight: 600 }}>
               | {data.refundable}
@@ -214,36 +265,37 @@ const OnewayFlight = ({ flight }) => {
               onClick={handleToggleDetails}
               sx={{
                 textTransform: "none",
-                border: "1px solid #D0D5DD",
-                fontSize: 10.5,
-                height: 30,
+                backgroundColor: "#0F2F56",
+                color: "#fff",
+                fontSize: 11,
+                height: 28,
                 borderRadius: 1,
-                width: "160px",
-               
-                color: "#344054",
+                width: "100%",
+                textWrap: "nowrap",
+
                 fontWeight: 600,
-                backgroundColor: "#FFFFFF",
-                "&:hover": { backgroundColor: "#F8FAFC", borderColor: "#D0D5DD" },
+                "&:hover": { backgroundColor: "#0B2442" },
               }}
             >
               Flight Details
             </Button>
             <Button
-              onClick={() => navigate("/dashboard/flightbooking")}
+             
+              onClick={handleToggleBranded}
               sx={{
                 textTransform: "none",
                 backgroundColor: "#0F2F56",
                 color: "#fff",
                 fontSize: 11,
-                height: 30,
+                height: 28,
                 borderRadius: 1,
                 width: "100px",
-               
+
                 fontWeight: 600,
                 "&:hover": { backgroundColor: "#0B2442" },
               }}
             >
-              Book Now
+              Select
             </Button>
           </Box>
         </Grid>

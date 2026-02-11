@@ -11,11 +11,20 @@ import OneWay from "./OneWay";
 import RoundWay from "./RoundWay";
 import MultiCity from "./MultiCity";
 
-const FlightSearchBox = () => {
-  const [tripType, setTripType] = useState("round-way");
+const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange }) => {
+  const [localTripType, setLocalTripType] = useState("one-way");
+  const tripType = tripTypeProp ?? localTripType;
+
+  const setTripTypeValue = (value) => {
+    if (onTripTypeChange) {
+      onTripTypeChange(value);
+      return;
+    }
+    setLocalTripType(value);
+  };
 
   const handleTripTypeChange = (event) => {
-    setTripType(event.target.value);
+    setTripTypeValue(event.target.value);
   };
 
   return (
@@ -130,7 +139,9 @@ const FlightSearchBox = () => {
       {/* Conditionally render components based on trip type */}
       <Box sx={{ mt: 3 }}>
         {tripType === "round-way" && <RoundWay />}
-        {tripType === "one-way" && <OneWay />}
+        {tripType === "one-way" && (
+          <OneWay onAddReturn={() => setTripTypeValue("round-way")} />
+        )}
         {tripType === "multi-city" && <MultiCity />}
       </Box>
     </Box>

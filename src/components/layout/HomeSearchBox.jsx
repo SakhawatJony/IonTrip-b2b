@@ -56,7 +56,7 @@ const HomeSearchBox = () => {
       >
         {tabValue === 0 && (
           <Box sx={{ width: "100%" }}>
-            <FlightSearchBox />
+            <FlightSearchBox tripType={tripType} onTripTypeChange={setTripType} />
           </Box>
         )}
         {tabValue === 1 && (

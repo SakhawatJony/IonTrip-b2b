@@ -21,6 +21,7 @@ import ManageIcon from "@mui/icons-material/Autorenew";
 import ReportIcon from "@mui/icons-material/BarChart";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import companyLogo from "../../assets/companylogo.jpg";
 
 const MENU_TEXT_COLOR = "#4B5563";
 const MENU_ICON_COLOR = "#6B7280";
@@ -204,8 +205,9 @@ const Sidebar = () => {
       }}
     >
       <Box sx={{ px: 1, py: 3, textAlign: "center" }}>
+
         <Typography fontWeight={800} fontSize={22} color={BRAND_PRIMARY}>
-          FLYFAR
+          ionTrip
         </Typography>
         <Typography
           fontWeight={700}
@@ -333,7 +335,7 @@ const Sidebar = () => {
       >
         <Avatar sx={{ width: 36, height: 36 }} />
         <Box>
-          <Typography fontSize={13} fontWeight={600}>
+          <Typography fontSize={12} fontWeight={600}>
             Sakhawat Hosen
           </Typography>
           <Typography fontSize={12} color="text.secondary">
