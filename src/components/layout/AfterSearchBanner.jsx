@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Container } from "@mui/material";
 import FlightSearchBox from "../../pages/flight/FlightSearchBox";
 
-const AfterSearchBanner = () => {
+const AfterSearchBanner = ({ initialSearchParams }) => {
   return (
     <Box
       sx={{
@@ -11,7 +11,7 @@ const AfterSearchBanner = () => {
       }}
     >
       <Container maxWidth="lg">
-        <FlightSearchBox />
+        <FlightSearchBox initialSearchParams={initialSearchParams} />
       </Container>
     </Box>
   );

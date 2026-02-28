@@ -5,6 +5,7 @@ import RoundwayFareDetails from "./RoundwayFareDetails";
 
 const RoundwayFlightDetails = ({ data }) => {
     const [tab, setTab] = useState(0);
+    const [logoErrors, setLogoErrors] = useState({});
     const bulletRowSx = {
         display: "flex",
         alignItems: "flex-start",
@@ -19,56 +20,127 @@ const RoundwayFlightDetails = ({ data }) => {
         flexShrink: 0,
         mt: "4px",
     };
-    const fallbackSegments = [
-        {
-            departTime: "23:30",
-            departDate: "11 Apr, 2028",
-            arriveTime: "23:30",
-            arriveDate: "11 Apr, 2028",
-            fromCode: "DAC",
-            fromName: "Hazrat Sha Jalal Intl Airport, Dhaka, Bangladesh",
-            toCode: "BOM",
-            toName: "Chhatropati Shivaji Intl Airport, Mumbai, india",
-            airline: "Biman Bangladesh",
-            flight: "BG 456",
-            aircraft: "Boeing 777-365",
-            cabin: "Economy",
-            bookingClass: "W Class",
-            baggage: "45 KG",
-            duration: "45H 35Min",
-        },
-        {
-            departTime: "23:30",
-            departDate: "11 Apr, 2028",
-            arriveTime: "23:30",
-            arriveDate: "11 Apr, 2028",
-            fromCode: "DAC",
-            fromName: "Hazrat Sha Jalal Intl Airport, Dhaka, Bangladesh",
-            toCode: "BOM",
-            toName: "Chhatropati Shivaji Intl Airport, Mumbai, india",
-            airline: "Biman Bangladesh",
-            flight: "BG 456",
-            aircraft: "Boeing 777-365",
-            cabin: "Economy",
-            bookingClass: "W Class",
-            baggage: "45 KG",
-            duration: "45H 35Min",
-        },
-    ];
+    const formatTime = (value) => {
+        if (!value) return "";
+        if (String(value).includes("T")) {
+            const time = String(value).split("T")[1];
+            return time ? time.slice(0, 5) : String(value);
+        }
+        const match = String(value).match(/(\d{1,2}):(\d{2})/);
+        if (!match) return String(value);
+        return `${String(match[1]).padStart(2, "0")}:${match[2]}`;
+    };
 
-    const outboundSegments = data?.details?.outboundSegments || fallbackSegments;
-    const returnSegments = data?.details?.returnSegments || fallbackSegments;
+    const formatDate = (value) => {
+        if (!value) return "";
+        if (String(value).includes("T")) {
+            const date = new Date(value);
+            if (!Number.isNaN(date.valueOf())) {
+                return date.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                });
+            }
+        }
+        return String(value);
+    };
 
-    const outboundRoute = data?.segments?.[0]
-        ? `${data.segments[0].departCode} → ${data.segments[0].arriveCode}`
-        : "DXB → DAC";
-    const returnRoute = data?.segments?.[1]
-        ? `${data.segments[1].departCode} → ${data.segments[1].arriveCode}`
-        : "DAC → DXB";
+    const normalizeSegments = (segments = [], fallback = {}) =>
+        (segments || []).map((segment) => ({
+            departTime: formatTime(segment?.departTime || segment?.departureTime || segment?.departure?.at),
+            departDate: formatDate(
+                segment?.departDate || segment?.departureDate || segment?.departureTime || segment?.departure?.at
+            ),
+            arriveTime: formatTime(segment?.arriveTime || segment?.arrivalTime || segment?.arrival?.at),
+            arriveDate: formatDate(
+                segment?.arriveDate || segment?.arrivalDate || segment?.arrivalTime || segment?.arrival?.at
+            ),
+            fromCode:
+                segment?.fromCode ||
+                segment?.departure ||
+                segment?.departure?.iataCode ||
+                fallback?.departCode ||
+                "",
+            fromName: segment?.fromName || segment?.departureAirport || segment?.departureLocation || "",
+            toCode:
+                segment?.toCode ||
+                segment?.arrival ||
+                segment?.arrival?.iataCode ||
+                fallback?.arriveCode ||
+                "",
+            toName: segment?.toName || segment?.arrivalAirport || segment?.arrivalLocation || "",
+            airline:
+                segment?.airline ||
+                segment?.marketingcareerName ||
+                segment?.operatingCarrierName ||
+                fallback?.airline ||
+                "Airline",
+            carrierCode:
+                segment?.carrierCode ||
+                segment?.marketingcareer ||
+                segment?.operatingcareer ||
+                fallback?.carrierCode ||
+                data?.carrierCode ||
+                data?.career ||
+                "",
+            flight:
+                segment?.flight ||
+                `${segment?.marketingcareer || segment?.carrierCode || ""} ${segment?.marketingflight || segment?.number || ""}`.trim(),
+            aircraft: segment?.aircraft || segment?.aircraft?.code || "N/A",
+            cabin: segment?.cabin || segment?.class || data?.class || data?.cabinClass || "",
+            bookingClass:
+                segment?.bookingClass ||
+                (segment?.bookingcode ? `${segment.bookingcode} Class` : ""),
+            baggage:
+                segment?.baggage ||
+                segment?.bags ||
+                data?.checkedBaggage ||
+                data?.pricebreakdown?.[0]?.CheckInBags ||
+                "",
+            duration:
+                segment?.duration ||
+                segment?.flightduration ||
+                fallback?.duration ||
+                "",
+            transit: segment?.transit || segment?.transit?.transit1 || "",
+        }));
+
+    const outboundRaw = data?.details?.outboundSegments?.length
+        ? data.details.outboundSegments
+        : data?.segments?.go || [];
+    const returnRaw = data?.details?.returnSegments?.length
+        ? data.details.returnSegments
+        : data?.segments?.back || [];
+
+    const outboundSummary = data?.segments?.[0] || {};
+    const returnSummary = data?.segments?.[1] || {};
+
+    const outboundSegments = normalizeSegments(outboundRaw, outboundSummary);
+    const returnSegments = normalizeSegments(returnRaw, returnSummary);
+
+    const outboundRoute = outboundSegments.length
+        ? `${outboundSegments[0]?.fromCode || "—"} → ${outboundSegments[outboundSegments.length - 1]?.toCode || "—"}`
+        : `${outboundSummary?.departCode || "—"} → ${outboundSummary?.arriveCode || "—"}`;
+    const returnRoute = returnSegments.length
+        ? `${returnSegments[0]?.fromCode || "—"} → ${returnSegments[returnSegments.length - 1]?.toCode || "—"}`
+        : `${returnSummary?.departCode || "—"} → ${returnSummary?.arriveCode || "—"}`;
 
     const renderSegments = (segments) => (
         <Box sx={{ px: 2.5, py: 2 }}>
-            {segments.map((segment, i) => (
+            {segments.map((segment, i) => {
+                const nextSegment = segments[i + 1];
+                const logoCode = String(segment?.carrierCode || "").toUpperCase();
+                const logoKey = `${logoCode}-${i}`;
+                const logoUrl = logoCode
+                    ? `https://tbbd-flight.s3.ap-southeast-1.amazonaws.com/airlines-logo/${logoCode}.png`
+                    : "";
+                const hasLogo = Boolean(logoUrl) && !logoErrors[logoKey];
+                const layoverAirportCode = segment?.toCode || "";
+                const layoverAirportName = segment?.toName || "";
+                const layoverDuration = segment?.transit || "";
+
+                return (
                 <Box key={`${segment.flight}-${i}`}>
                     <Box sx={{ display: "flex", gap: 2 }}>
                         <Box
@@ -84,13 +156,29 @@ const RoundwayFlightDetails = ({ data }) => {
                                     width: 24,
                                     height: 24,
                                     borderRadius: "50%",
-                                    backgroundColor: "#EF4444",
+                                    backgroundColor: "#E6EEF7",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
+                                    overflow: "hidden",
                                 }}
                             >
-                                <FlightIcon sx={{ color: "#fff", fontSize: 14 }} />
+                                {hasLogo ? (
+                                    <Box
+                                        component="img"
+                                        src={logoUrl}
+                                        alt={segment?.airline || "Airline"}
+                                        sx={{ width: 18, height: 18, objectFit: "contain" }}
+                                        onError={() =>
+                                            setLogoErrors((prev) => ({
+                                                ...prev,
+                                                [logoKey]: true,
+                                            }))
+                                        }
+                                    />
+                                ) : (
+                                    <FlightIcon sx={{ color: "#6B7A90", fontSize: 14 }} />
+                                )}
                             </Box>
                         </Box>
 
@@ -156,13 +244,24 @@ const RoundwayFlightDetails = ({ data }) => {
                                     }}
                                 />
                                 <Typography fontSize={11} color="#6B7280">
-                                    Stops 1 / Layover 45H 50Min
+                                    Stops {Math.max(1, segments.length - 1)} /{" "}
+                                    {layoverAirportCode || layoverAirportName
+                                        ? `Layover at ${layoverAirportCode}${
+                                            layoverAirportName ? ` - ${layoverAirportName}` : ""
+                                        }${layoverDuration ? ` (${layoverDuration})` : ""}`
+                                        : nextSegment?.fromCode
+                                            ? `Layover at ${nextSegment.fromCode}${
+                                                nextSegment?.fromName ? ` - ${nextSegment.fromName}` : ""
+                                            }`
+                                            : layoverDuration
+                                                ? `Layover ${layoverDuration}`
+                                                : "Layover info"}
                                 </Typography>
                             </Box>
                         </Box>
                     )}
                 </Box>
-            ))}
+            )})}
         </Box>
     );
 
@@ -243,7 +342,7 @@ const RoundwayFlightDetails = ({ data }) => {
 
             {tab === 0 && renderSegments(outboundSegments)}
             {tab === 1 && renderSegments(returnSegments)}
-            {tab === 2 && <RoundwayFareDetails />}
+            {tab === 2 && <RoundwayFareDetails data={data} />}
         </Box>
     );
 };

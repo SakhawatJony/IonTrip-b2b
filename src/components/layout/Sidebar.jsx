@@ -186,6 +186,10 @@ const Sidebar = () => {
       setExpandedMenu("reports");
       return;
     }
+    if (location.pathname.startsWith("/dashboard/account")) {
+      setExpandedMenu("account");
+      return;
+    }
     setExpandedMenu(null);
   }, [location.pathname]);
 
@@ -286,8 +290,31 @@ const Sidebar = () => {
         </Collapse>
 
         {menuItem(<AccountIcon sx={{ fontSize: 23 }} />, "Account", {
-          path: "/dashboard/account",
+          dropdown: true,
+          isOpen: expandedMenu === "account",
+          onClick: () => handleToggle("account"),
         })}
+        <Collapse in={expandedMenu === "account"} timeout="auto" unmountOnExit>
+          <Box
+            sx={{
+              position: "relative",
+              pl: 0,
+              pr: 0,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: 49,
+                top: 16,
+                bottom: 16,
+                width: 2,
+                bgcolor: SUBMENU_ICON_BORDER,
+              },
+            }}
+          >
+            <SubMenuItem text="Profile" path="/dashboard/account" location={location} />
+            <SubMenuItem text="All Traveler" path="/dashboard/account/alltraveler" location={location} />
+          </Box>
+        </Collapse>
 
         {menuItem(<ManageIcon sx={{ fontSize: 23 }} />, "Manage", {
           path: "/dashboard/manage",

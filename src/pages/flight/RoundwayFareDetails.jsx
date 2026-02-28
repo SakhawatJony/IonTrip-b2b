@@ -1,19 +1,126 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-const RoundwayFareDetails = () => {
+const RoundwayFareDetails = ({ data }) => {
+  const rawPriceRows = Array.isArray(data?.pricebreakdown) ? data.pricebreakdown : [];
+  const fallbackPriceRow = {
+    PaxType: "ADULT",
+    PaxCount: Number(data?.adult || 1),
+    BaseFare: Number(data?.basePrice || 0),
+    Tax: Number(data?.taxes || 0),
+    ServiceFee: Number(data?.serviceFee || 0),
+    OtherCharges: Number(data?.otherCharges || 0),
+    Discount: Number(data?.discount || 0),
+    currency: data?.farecurrency || data?.currency || "MYR",
+  };
+  const priceRows = rawPriceRows.length ? rawPriceRows : [fallbackPriceRow];
+
+  const paxTypes = priceRows
+    .map((row) => String(row?.PaxType || "").toUpperCase())
+    .filter(Boolean);
+  const uniquePaxTypes = Array.from(new Set(paxTypes));
+
+  const groupedByPax = uniquePaxTypes.reduce((acc, type) => {
+    const rows = priceRows.filter(
+      (row) => String(row?.PaxType || "").toUpperCase() === type
+    );
+    const sum = (key) =>
+      rows.reduce((total, row) => total + Number(row?.[key] || 0), 0);
+    acc[type] = {
+      PaxCount: sum("PaxCount") || rows.length || 0,
+      BaseFare: sum("BaseFare"),
+      Tax: sum("Tax"),
+      ServiceFee: sum("ServiceFee"),
+      OtherCharges: sum("OtherCharges"),
+      Discount: sum("Discount"),
+    };
+    return acc;
+  }, {});
+
+  const paxLabelMap = {
+    ADULT: "Adult",
+    CHILD: "Child",
+    HELD_INFANT: "Infant",
+    INFANT: "Infant",
+  };
+
+  const getPax = (type) => groupedByPax[type] || null;
+
+  const currency =
+    priceRows[0]?.currency ||
+    data?.farecurrency ||
+    data?.AirFareData?.price?.currency ||
+    "MYR";
+
+  const formatAmount = (value) => {
+    if (value === null || value === undefined || value === "") return "-";
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return `${currency} ${num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  };
+
+  const getAmount = (row, key) => (row?.[key] !== undefined ? row[key] : "");
+  const calcSubtotal = (row) => {
+    if (!row) return "";
+    const base = Number(row.BaseFare || 0);
+    const tax = Number(row.Tax || 0);
+    const other = Number(row.OtherCharges || 0);
+    const service = Number(row.ServiceFee || 0);
+    const discount = Number(row.Discount || 0);
+    const total = base + tax + other + service - discount;
+    return total || "";
+  };
+
+  const makeRow = (label, key, formatter = formatAmount) => ({
+    label,
+    values: uniquePaxTypes.map((type) => {
+      const row = getPax(type);
+      const value = key === "subtotal" ? calcSubtotal(row) : getAmount(row, key);
+      return formatter(value);
+    }),
+  });
+
   const fareRows = [
-    { label: "Pax Count", adult: "02", child: "01" },
-    { label: "Base Fare", adult: "54,000", child: "54,000" },
-    { label: "TAX", adult: "02", child: "01" },
-    { label: "Service Fee", adult: "02", child: "01" },
-    { label: "Subtotal", adult: "02", child: "01" },
+    makeRow(
+      "Pax Count",
+      "PaxCount",
+      (value) => (value === null || value === undefined || value === "" ? "-" : value)
+    ),
+    makeRow("Base Fare", "BaseFare"),
+    makeRow("TAX", "Tax"),
+    makeRow("Service Fee", "ServiceFee"),
+    makeRow("Other Charges", "OtherCharges"),
+    makeRow("Discount", "Discount"),
+    makeRow("Subtotal", "subtotal"),
   ];
 
+  const totalDiscount = uniquePaxTypes.reduce(
+    (sum, type) => sum + Number(groupedByPax[type]?.Discount || 0),
+    0
+  );
+
   const summaryRows = [
-    { label: "Grand Total or Customer Total", value: "BDT 54,000" },
-    { label: "Discount", value: "BDT 4,000" },
-    { label: "Agent Payable", value: "BDT 50,000" },
+    {
+      label: "Grand Total or Customer Total",
+      value: formatAmount(
+        data?.clientFare ||
+          data?.agentFare ||
+          data?.netPrice ||
+          data?.basePrice ||
+          data?.AirFareData?.price?.grandTotal
+      ),
+    },
+    { label: "Discount", value: formatAmount(totalDiscount) },
+    {
+      label: "Agent Payable",
+      value: formatAmount(
+        data?.agentFare ||
+          data?.netPrice ||
+          data?.clientFare ||
+          data?.basePrice ||
+          data?.AirFareData?.price?.total
+      ),
+    },
   ];
 
   const notes = [
@@ -25,7 +132,7 @@ const RoundwayFareDetails = () => {
 
   const rowSx = {
     display: "grid",
-    gridTemplateColumns: "1.2fr 1fr 1fr",
+    gridTemplateColumns: `1.2fr repeat(${Math.max(uniquePaxTypes.length, 1)}, 1fr)`,
     alignItems: "stretch",
   };
 
@@ -78,15 +185,21 @@ const RoundwayFareDetails = () => {
       >
         <Box sx={rowSx}>
           <Box sx={leftHeaderCellSx}>Pax Type</Box>
-          <Box sx={headerCellSx}>Adult</Box>
-          <Box sx={headerCellSx}>Child</Box>
+          {(uniquePaxTypes.length ? uniquePaxTypes : [""]).map((type, index) => (
+            <Box key={`${type}-${index}`} sx={headerCellSx}>
+              {paxLabelMap[type] || (type ? type.replace("_", " ") : "-")}
+            </Box>
+          ))}
         </Box>
 
         {fareRows.map((row) => (
           <Box key={row.label} sx={rowSx}>
             <Box sx={leftCellSx}>{row.label}</Box>
-            <Box sx={valueCellSx}>{row.adult}</Box>
-            <Box sx={valueCellSx}>{row.child}</Box>
+            {(row.values.length ? row.values : ["-"]).map((value, index) => (
+              <Box key={`${row.label}-${index}`} sx={valueCellSx}>
+                {value}
+              </Box>
+            ))}
           </Box>
         ))}
       </Box>

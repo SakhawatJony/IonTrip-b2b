@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Layouts
 import DashboardLayout from "./components/layout/DashboardLayout";
@@ -7,6 +9,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import Home from "./pages/home/Home";
 import Login from "./pages/auth/Login";
 import Regstion from "./pages/auth/Regstion";
+import OtpVerification from "./pages/auth/OtpVerification";
 import Contact from "./pages/home/Contact";
 import Features from "./pages/home/Features";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -21,13 +24,17 @@ import AddDeposit from "./pages/agent/AddDeposit";
 import LedgerReport from "./pages/agent/LedgerReport";
 import SalesReport from "./pages/agent/SalesReport";
 import SearchReport from "./pages/agent/SearchReport";
+import AllTraveler from "./pages/agent/AllTraveler";
+import AddTraveler from "./pages/agent/AddTraveler";
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Regstion />} />
+      <Route path="/verify-otp" element={<OtpVerification />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/features" element={<Features />} />
       
@@ -60,11 +67,15 @@ export default function App() {
         <Route path="agentdeposit" element={<AgentAllDeposit />} />
         <Route path="adddeposit" element={<AddDeposit />} />
         <Route path="account" element={<AgentProfile />} />
+        <Route path="account/alltraveler" element={<AllTraveler />} />
+        <Route path="account/addtraveler" element={<AddTraveler />} />
         <Route path="manage" element={<Dashboard />} />
         <Route path="ledgerreport" element={<LedgerReport />} />
         <Route path="salesreport" element={<SalesReport />} />
         <Route path="searchreport" element={<SearchReport />} />
       </Route>
     </Routes>
+    <ToastContainer />
+    </>
   );
 }

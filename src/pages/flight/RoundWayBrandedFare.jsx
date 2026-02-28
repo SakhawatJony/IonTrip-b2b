@@ -8,80 +8,6 @@ import EventRepeatOutlinedIcon from "@mui/icons-material/EventRepeatOutlined";
 import AirlineSeatReclineNormalOutlinedIcon from "@mui/icons-material/AirlineSeatReclineNormalOutlined";
 import RestaurantOutlinedIcon from "@mui/icons-material/RestaurantOutlined";
 
-const defaultFares = [
-  {
-    id: "economy-value",
-    title: "Economy Value | Premium Economy Value",
-    subtitle: "Fare Offered by Airline",
-    price: "BDT 35,000",
-    originalPrice: "BDT 37,000",
-    perks: [
-      { label: "Cabin 5 KG", icon: WorkOutlineIcon },
-      { label: "Check In 5 KG", icon: LuggageOutlinedIcon },
-      { label: "Cancellation Fee BDT 20,000", icon: CancelOutlinedIcon },
-      { label: "Date Change Fee BDT 20,000", icon: EventRepeatOutlinedIcon },
-      { label: "Free Seats Available", icon: AirlineSeatReclineNormalOutlinedIcon },
-      { label: "Baggage 25 KG", icon: LuggageOutlinedIcon },
-      { label: "Get Complimentary Food", icon: RestaurantOutlinedIcon },
-    ],
-  },
-  {
-    id: "economy-value-2",
-    title: "Economy Value | Premium Economy Value",
-    subtitle: "Fare Offered by Airline",
-    price: "BDT 35,000",
-    originalPrice: "BDT 37,000",
-    perks: [
-      { label: "Cabin 5 KG", icon: WorkOutlineIcon },
-      { label: "Check In 5 KG", icon: LuggageOutlinedIcon },
-      { label: "Cancellation Fee BDT 20,000", icon: CancelOutlinedIcon },
-      { label: "Date Change Fee BDT 20,000", icon: EventRepeatOutlinedIcon },
-      { label: "Free Seats Available", icon: AirlineSeatReclineNormalOutlinedIcon },
-      { label: "Baggage 25 KG", icon: LuggageOutlinedIcon },
-      { label: "Get Complimentary Food", icon: RestaurantOutlinedIcon },
-    ],
-  },
-  {
-    id: "economy-value-3",
-    title: "Economy Value | Premium Economy Value",
-    subtitle: "Fare Offered by Airline",
-    price: "BDT 35,000",
-    originalPrice: "BDT 37,000",
-    perks: [
-      { label: "Cabin 5 KG", icon: WorkOutlineIcon },
-      { label: "Check In 5 KG", icon: LuggageOutlinedIcon },
-      { label: "Cancellation Fee BDT 20,000", icon: CancelOutlinedIcon },
-      { label: "Date Change Fee BDT 20,000", icon: EventRepeatOutlinedIcon },
-      { label: "Free Seats Available", icon: AirlineSeatReclineNormalOutlinedIcon },
-      { label: "Baggage 25 KG", icon: LuggageOutlinedIcon },
-      { label: "Get Complimentary Food", icon: RestaurantOutlinedIcon },
-    ],
-  },
-  {
-    id: "economy-value-4",
-    title: "Economy Value | Premium Economy Value",
-    subtitle: "Fare Offered by Airline",
-    price: "BDT 35,000",
-    originalPrice: "BDT 37,000",
-    perks: [
-      { label: "Cabin 5 KG", icon: WorkOutlineIcon },
-      { label: "Check In 5 KG", icon: LuggageOutlinedIcon },
-      { label: "Cancellation Fee BDT 20,000", icon: CancelOutlinedIcon },
-      { label: "Date Change Fee BDT 20,000", icon: EventRepeatOutlinedIcon },
-      { label: "Free Seats Available", icon: AirlineSeatReclineNormalOutlinedIcon },
-      { label: "Baggage 25 KG", icon: LuggageOutlinedIcon },
-      { label: "Get Complimentary Food", icon: RestaurantOutlinedIcon },
-    ],
-  },
-];
-
-const travelerTypeLabelMap = {
-  ADULT: "Adult",
-  CHILD: "Child",
-  HELD_INFANT: "Infant",
-  INFANT: "Infant",
-};
-
 const toCapitalizedText = (value) => {
   return String(value || "")
     .toLowerCase()
@@ -106,7 +32,7 @@ const getAmenityIcon = (description) => {
   return WorkOutlineIcon;
 };
 
-const OnewayBrandedFare = ({ fares, data }) => {
+const RoundWayBrandedFare = ({ fares, data }) => {
   const navigate = useNavigate();
   const currency =
     data?.farecurrency ||
@@ -158,6 +84,11 @@ const OnewayBrandedFare = ({ fares, data }) => {
     const baseFareValue =
       data?.basePrice ?? data?.AirFareData?.price?.base ?? null;
 
+    // Get details from outbound segment (go)
+    const outboundSegment = data?.segments?.go?.[0] || data?.details?.outboundSegments?.[0] || {};
+    const returnSegment = data?.segments?.back?.[0] || data?.details?.returnSegments?.[0] || {};
+    
+    // Use outbound segment details, fallback to return segment if needed
     const firstFareDetail = travelerPricings?.[0]?.fareDetailsBySegment?.[0] || {};
     const firstBreakdown = priceBreakdown?.[0] || {};
     const checkedQty =
@@ -166,9 +97,14 @@ const OnewayBrandedFare = ({ fares, data }) => {
       firstFareDetail?.includedCabinBags?.quantity ?? firstBreakdown?.CabinBags ?? "N/A";
     const fareClass = firstFareDetail?.cabin || data?.cabinClass || firstBreakdown?.CabinClass || "ECONOMY";
     const bookingClass = firstFareDetail?.class || data?.bookingClass || "";
-    const amenities = data?.segments?.go?.[0]?.amenities || [];
-    const amenityPerks = Array.isArray(amenities)
-      ? amenities
+    
+    // Get amenities from both segments
+    const outboundAmenities = outboundSegment?.amenities || [];
+    const returnAmenities = returnSegment?.amenities || [];
+    const allAmenities = [...outboundAmenities, ...returnAmenities];
+    
+    const amenityPerks = Array.isArray(allAmenities)
+      ? allAmenities
           .filter((item) => item?.description)
           .map((item, index) => ({
             label: `${toCapitalizedText(item.description)} (${item.isChargeable ? "Paid" : "Free"})`,
@@ -180,7 +116,7 @@ const OnewayBrandedFare = ({ fares, data }) => {
     return {
       id: "total-fare",
       title: String(airlineHeading),
-      subtitle: `${passengerLabel} | Fare Offered by Airline`,
+      subtitle: `${passengerLabel} | Round-Trip Fare Offered by Airline`,
       price: formatAmount(totalFareValue) || "Price unavailable",
       originalPrice: formatAmount(baseFareValue),
       perks: [
@@ -206,9 +142,12 @@ const OnewayBrandedFare = ({ fares, data }) => {
         : [],
     };
 
+    // Use originalData if available (from API response), otherwise use data
+    const flightDataForBooking = data?.originalData || data || null;
+
     navigate("/dashboard/flightbooking", {
       state: {
-        selectedFlight: data || null,
+        selectedFlight: flightDataForBooking,
         selectedFare: serializableFareSummary || null,
       },
     });
@@ -337,4 +276,4 @@ const OnewayBrandedFare = ({ fares, data }) => {
   );
 };
 
-export default OnewayBrandedFare;
+export default RoundWayBrandedFare;

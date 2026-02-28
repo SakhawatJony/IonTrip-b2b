@@ -25,44 +25,71 @@ const OnewayFlightDetails = ({ data }) => {
     flexShrink: 0,
     mt: "4px",
   };
-  const segments = [
-    {
-      departTime: "23:30",
-      departDate: "11 Apr, 2028",
-      arriveTime: "23:30",
-      arriveDate: "11 Apr, 2028",
-      fromCode: "DAC",
-      fromName:
-        "Hazrat Sha Jalal Intl Airport, Dhaka, Bangladesh",
-      toCode: "BOM",
-      toName: "Chhatropati Shivaji Intl Airport, Mumbai, india",
-      airline: "Biman Bangladesh",
-      flight: "BG 456",
-      aircraft: "Boeing 777-365",
-      cabin: "Economy",
-      bookingClass: "W Class",
-      baggage: "45 KG",
-      duration: "45H 35Min",
-    },
-    {
-      departTime: "23:30",
-      departDate: "11 Apr, 2028",
-      arriveTime: "23:30",
-      arriveDate: "11 Apr, 2028",
-      fromCode: "DAC",
-      fromName:
-        "Hazrat Sha Jalal Intl Airport, Dhaka, Bangladesh",
-      toCode: "BOM",
-      toName: "Chhatropati Shivaji Intl Airport, Mumbai, india",
-      airline: "Biman Bangladesh",
-      flight: "BG 456",
-      aircraft: "Boeing 777-365",
-      cabin: "Economy",
-      bookingClass: "W Class",
-      baggage: "45 KG",
-      duration: "45H 35Min",
-    },
-  ];
+
+  const formatTime = (value) => {
+    if (!value) return "";
+    if (value.includes("T")) {
+      const time = value.split("T")[1];
+      return time ? time.slice(0, 5) : value;
+    }
+    return value.length >= 5 ? value.slice(0, 5) : value;
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "";
+    if (value.includes("T")) {
+      const date = new Date(value);
+      if (!Number.isNaN(date.valueOf())) {
+        return date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+    }
+    return value;
+  };
+
+  const rawSegments =
+    data?.segments?.go?.length
+      ? data.segments.go
+      : data?.AirFareData?.itineraries?.[0]?.segments || [];
+
+  const segments = rawSegments.map((segment) => ({
+    departTime: formatTime(segment.departureTime || segment.departure?.at),
+    departDate: formatDate(
+      segment.departureDate || segment.departureTime || segment.departure?.at
+    ),
+    arriveTime: formatTime(segment.arrivalTime || segment.arrival?.at),
+    arriveDate: formatDate(
+      segment.arrivalDate || segment.arrivalTime || segment.arrival?.at
+    ),
+    fromCode:
+      segment.departure ||
+      segment.departure?.iataCode ||
+      data?.godeparture ||
+      "",
+    fromName: segment.departureAirport || segment.departureLocation || "",
+    toCode:
+      segment.arrival || segment.arrival?.iataCode || data?.goarrival || "",
+    toName: segment.arrivalAirport || segment.arrivalLocation || "",
+    airline:
+      segment.marketingcareerName ||
+      segment.operatingCarrierName ||
+      data?.careerName ||
+      "",
+    flight: `${segment.marketingcareer || segment.carrierCode || data?.career || ""} ${segment.marketingflight || segment.number || ""}`.trim(),
+    aircraft: segment.aircraft || segment.aircraft?.code || "",
+    cabin: segment.class || segment.cabin || data?.cabinClass || "",
+    bookingClass: segment.bookingcode ? `${segment.bookingcode} Class` : "",
+    baggage: segment.bags || data?.pricebreakdown?.[0]?.CheckInBags || "",
+    duration: segment.flightduration || segment.duration || data?.goflightduration || "",
+    transit: segment.transit?.transit1 || "",
+  }));
+
+  const routeLabel = segments.length
+    ? `${segments[0]?.fromCode || "—"} → ${segments[segments.length - 1]?.toCode || "—"}`
+    : `${data?.godeparture || "—"} → ${data?.goarrival || "—"}`;
 
   return (
     <Box
@@ -82,8 +109,8 @@ const OnewayFlightDetails = ({ data }) => {
           minHeight: 52,
           borderTop: "2px solid #D9D9D9",
           borderBottom: "2px solid #D9D9D9",
-        
-         
+
+
           "& .MuiTabs-indicator": {
             backgroundColor: "var(--primary-color)",
             height: 2,
@@ -106,7 +133,7 @@ const OnewayFlightDetails = ({ data }) => {
                 Departure
               </Typography>
               <Typography fontSize={13} fontWeight={600} color="#111827">
-                DXB → DAC
+                {routeLabel}
               </Typography>
             </Box>
           }
@@ -131,7 +158,12 @@ const OnewayFlightDetails = ({ data }) => {
       {tab === 0 && (
         <Box sx={{ px: 2.5, py: 2 }}>
           {/* SEGMENT */}
-          {segments.map((segment, i) => (
+          {segments.map((segment, i) => {
+            const nextSegment = segments[i + 1];
+            const layoverAirportCode = segment?.toCode || "";
+            const layoverAirportName = segment?.toName || "";
+            const layoverDuration = segment?.transit || "";
+            return (
             <Box key={`${segment.flight}-${i}`}>
               <Box sx={{ display: "flex", gap: 2 }}>
                 {/* Timeline */}
@@ -148,16 +180,26 @@ const OnewayFlightDetails = ({ data }) => {
                       width: 24,
                       height: 24,
                       borderRadius: "50%",
-                      backgroundColor: "#EF4444",
+                      backgroundColor: "#E6EEF7",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      overflow: "hidden",
                     }}
                   >
-                    <FlightIcon sx={{ color: "#fff", fontSize: 14 }} />
+                    {data?.carrierCode || data?.career ? (
+                      <Box
+                        component="img"
+                        src={`https://tbbd-flight.s3.ap-southeast-1.amazonaws.com/airlines-logo/${data?.carrierCode || data?.career}.png`}
+                        alt={data?.careerName || "Airline"}
+                        sx={{ width: 18, height: 18 }}
+                      />
+                    ) : (
+                      <FlightIcon sx={{ color: "#6B7A90", fontSize: 14 }} />
+                    )}
                   </Box>
 
-                
+
                 </Box>
 
                 {/* Content */}
@@ -225,19 +267,30 @@ const OnewayFlightDetails = ({ data }) => {
                       }}
                     />
                     <Typography fontSize={11} color="#6B7280">
-                      Stops 1 / Layover 45H 50Min
+                      Stops {segments.length - 1} /{" "}
+                      {layoverAirportCode || layoverAirportName
+                        ? `Layover at ${layoverAirportCode}${
+                            layoverAirportName ? ` - ${layoverAirportName}` : ""
+                          }${layoverDuration ? ` (${layoverDuration})` : ""}`
+                        : nextSegment?.fromCode
+                        ? `Layover at ${nextSegment.fromCode}${
+                            nextSegment?.fromName ? ` - ${nextSegment.fromName}` : ""
+                          }`
+                        : layoverDuration
+                        ? `Layover ${layoverDuration}`
+                        : "Layover info"}
                     </Typography>
                   </Box>
                 </Box>
               )}
             </Box>
-          ))}
+          )})}
         </Box>
       )}
 
       {/* FARE POLICY */}
       {tab === 1 && (
-        <OnewayFareDetails />
+        <OnewayFareDetails data={data} />
       )}
     </Box>
   );

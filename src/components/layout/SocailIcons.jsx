@@ -10,8 +10,8 @@ const SocailIcons = () => {
       <Box
         sx={{
           bgcolor: "var(--primary-color)",
-          width: "60px",
-          height: "60px",
+          width: "50px",
+          height: "50px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -22,8 +22,8 @@ const SocailIcons = () => {
       <Box
         sx={{
           bgcolor: "var(--primary-color)",
-          width: "60px",
-          height: "60px",
+          width: "50px",
+          height: "50px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -35,8 +35,8 @@ const SocailIcons = () => {
       <Box
         sx={{
           bgcolor: "var(--primary-color)",
-          width: "60px",
-          height: "60px",
+          width: "50px",
+          height: "50px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -49,8 +49,8 @@ const SocailIcons = () => {
       <Box
         sx={{
           bgcolor: "var(--primary-color)",
-          width: "60px",
-          height: "60px",
+          width: "50px",
+          height: "50px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

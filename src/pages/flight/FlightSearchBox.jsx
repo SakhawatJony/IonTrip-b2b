@@ -4,16 +4,47 @@ import {
   RadioGroup,
   FormControlLabel,
   FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import OneWay from "./OneWay";
 import RoundWay from "./RoundWay";
 import MultiCity from "./MultiCity";
+import useAuth from "../../hooks/useAuth";
 
-const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange }) => {
+const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSearchParams }) => {
   const [localTripType, setLocalTripType] = useState("one-way");
   const tripType = tripTypeProp ?? localTripType;
+  const { currency, setCurrency } = useAuth();
+  
+  const currencies = useMemo(
+    () => [
+      { code: "MYR", label: "MYR", flagCode: "my" },
+      { code: "BDT", label: "BDT", flagCode: "bd" },
+      { code: "USD", label: "USD", flagCode: "us" },
+      { code: "GBP", label: "GBP", flagCode: "gb" },
+      { code: "INR", label: "INR", flagCode: "in" },
+      { code: "PKR", label: "PKR", flagCode: "pk" },
+      { code: "EUR", label: "EUR", flagCode: "eu" },
+    ],
+    []
+  );
+  
+  const getFlagUrl = (flagCode) =>
+    `https://flagcdn.com/w20/${flagCode}.png`;
+
+  useEffect(() => {
+    if (tripTypeProp) return;
+    if (initialSearchParams?.tripType === "round-way") {
+      setLocalTripType("round-way");
+      return;
+    }
+    if (initialSearchParams?.tripType === "one-way") {
+      setLocalTripType("one-way");
+    }
+  }, [tripTypeProp, initialSearchParams]);
 
   const setTripTypeValue = (value) => {
     if (onTripTypeChange) {
@@ -35,8 +66,10 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange }) => {
       p: 3,
       position: "relative",
     }}>
-      {/* Trip Type Radio Buttons */}
-      <FormControl component="fieldset">
+      {/* Header with Trip Type and Currency */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        {/* Trip Type Radio Buttons */}
+        <FormControl component="fieldset">
         <RadioGroup
           row
           value={tripType}
@@ -135,12 +168,75 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange }) => {
           />
         </RadioGroup>
       </FormControl>
+      
+      {/* Currency Dropdown on the right */}
+      <FormControl variant="standard" sx={{ minWidth: 100 }}>
+        <Select
+          value={currency || "MYR"}
+          onChange={(event) => {
+            const nextCurrency = event.target.value;
+            setCurrency(nextCurrency);
+          }}
+          renderValue={(value) => {
+            const selected = currencies.find(
+              (item) => item.code === value
+            );
+            return (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+                <Box
+                  component="img"
+                  src={selected ? getFlagUrl(selected.flagCode) : ""}
+                  alt={selected?.label || "Flag"}
+                  sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                />
+                <Box component="span" sx={{ fontSize: 14, fontWeight: 600 }}>
+                  {selected?.label}
+                </Box>
+              </Box>
+            );
+          }}
+          sx={{
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "#123D6E",
+            "&:before": { borderBottom: "none" },
+            "&:after": { borderBottom: "none" },
+            "& .MuiSelect-icon": { color: "#123D6E" },
+          }}
+          disableUnderline
+        >
+          {currencies.map((item) => (
+            <MenuItem key={item.code} value={item.code}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                <Box
+                  component="img"
+                  src={getFlagUrl(item.flagCode)}
+                  alt={`${item.label} flag`}
+                  sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                />
+                <Box component="span">{item.label}</Box>
+              </Box>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      </Box>
 
       {/* Conditionally render components based on trip type */}
       <Box sx={{ mt: 3 }}>
-        {tripType === "round-way" && <RoundWay />}
+        {tripType === "round-way" && (
+          <RoundWay
+            tripType={tripType}
+            onRemoveReturn={() => setTripTypeValue("one-way")}
+            initialSearchParams={initialSearchParams}
+          />
+        )}
         {tripType === "one-way" && (
-          <OneWay onAddReturn={() => setTripTypeValue("round-way")} />
+          <OneWay 
+            tripType={tripType}
+            onAddReturn={() => setTripTypeValue("round-way")} 
+            initialSearchParams={initialSearchParams}
+          />
         )}
         {tripType === "multi-city" && <MultiCity />}
       </Box>

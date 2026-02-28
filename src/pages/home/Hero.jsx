@@ -1,25 +1,32 @@
 import { Box, Container, Grid, Typography, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import googleMaps from "../../assets/Home/googleMaps.svg";
 import SocailIcons from "../../components/layout/SocailIcons";
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
-    <Box sx={{position:"relative",display:"flex"}}>
-      <Box sx={{ bgcolor: "#1F2838", color: "#fff", py: 10, width: "97%" }}>
-      <Container>
-        <Grid container spacing={1}>
-          <Grid item xs={12} md={6} pl={2}>
-            <Typography
-              sx={{ fontWeight: 400, color: "var(--white)", fontSize: "40px" }}
-            >
-              Start Your Travel Business <br /> & Grow more
-            </Typography>
+    <Box sx={{ position: "relative", bgcolor: "#1F2838", color: "#fff",width:"94%" ,minHeight:"500px"}}>
+      <Container sx={{ px: { xs: 6, md: 10 } ,py:"50px"}}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} md={5}>
+            <Box>
+              <Typography
+                sx={{
+                  fontWeight: 400,
+                  color: "var(--white)",
+                  fontSize: { xs: "28px", md: "35px" },
+                }}
+              >
+                Start Your Travel Business <br /> & Grow more
+              </Typography>
 
             <Typography
               sx={{
                 opacity: 0.85,
                 mb: 3,
-                fontSize: "20px",
+                fontSize: "18px",
                 color: "var(--white)",
               }}
             >
@@ -44,38 +51,46 @@ export default function Hero() {
               Diam feugiat dui adipiscing platea nascetur purus quis.
             </Typography>
 
-            <Button
-              sx={{
-                mt: 2,
-                bgcolor: "var(--primary-color)",
-                color: "var(--white)",
-                fontSize: "14px",
-                textTransform: "capitalize",
-                fontWeight: 700,
-                width: "180px",
-                ":hover": {
+              <Button
+                onClick={() => navigate("/register")}
+                sx={{
+                  mt: 2,
                   bgcolor: "var(--primary-color)",
                   color: "var(--white)",
-                },
-              }}
-            >
-              Register as Agent
-            </Button>
+                  fontSize: "14px",
+                  textTransform: "capitalize",
+                  fontWeight: 700,
+                  width: "180px",
+                  ":hover": {
+                    bgcolor: "var(--primary-color)",
+                    color: "var(--white)",
+                  },
+                }}
+              >
+                Register as Agent
+              </Button>
+            </Box>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={7}>
             <img
               src={googleMaps}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: "auto", width: "100%", display: "block" }}
               alt="map"
             />
           </Grid>
         </Grid>
       </Container>
-    </Box>
-    <Box sx={{display:"flex",position:"absolute",top:"30%"}}>
-      <SocailIcons />
-    </Box>
+      <Box
+        sx={{
+          display: "flex",
+          position: "absolute",
+          left: { xs: 0, md: 0 },
+          top: "25%",
+        }}
+      >
+        <SocailIcons />
+      </Box>
     </Box>
   );
 }

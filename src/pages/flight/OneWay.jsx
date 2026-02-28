@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { saveRecentSearch } from "../../components/layout/RecentSearches";
 import {
   Box,
   TextField,
@@ -32,26 +33,84 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import FlightData from "../../common/FlightData";
+import useAuth from "../../hooks/useAuth";
 
-const OneWay = ({ onAddReturn }) => {
+const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [from, setFrom] = useState("Dhaka (DAC)");
-  const [to, setTo] = useState("Dubai (DXB)");
-  const [travelDate, setTravelDate] = useState(dayjs());
+  const { currency } = useAuth();
+  const normalizedPathname = location.pathname.replace(/\/+$/, "");
+  const isDashboardHome = normalizedPathname === "/dashboard";
+  const searchButtonColor = isDashboardHome ? "#123D6E" : "#525371";
+  const searchButtonHoverColor = isDashboardHome ? "#0f2f56" : "#424055";
+  const searchButtonShadow = isDashboardHome
+    ? "0px 6px 16px rgba(18,61,110,0.25)"
+    : "0px 6px 16px rgba(82,83,113,0.25)";
+  
+  // Helper function to parse date from initialSearchParams
+  const parseInitialDate = () => {
+    if (initialSearchParams?.departureDateISO) {
+      const parsed = dayjs(initialSearchParams.departureDateISO);
+      if (parsed.isValid()) return parsed;
+    }
+    if (initialSearchParams?.travelDate) {
+      const parsed = dayjs(initialSearchParams.travelDate, "ddd, DD MMM YY");
+      if (parsed.isValid()) return parsed;
+    }
+    return dayjs();
+  };
+
+  // Initialize state with initialSearchParams if available
+  const [from, setFrom] = useState(initialSearchParams?.from || "Dhaka (DAC)");
+  const [to, setTo] = useState(initialSearchParams?.to || "Dubai (DXB)");
+  const [travelDate, setTravelDate] = useState(parseInitialDate());
   const [travelPickerOpen, setTravelPickerOpen] = useState(false);
   const [returnDate, setReturnDate] = useState("SUN, 06 Oct 23");
   const [showReturnDate, setShowReturnDate] = useState(false);
-  const [passengerCounts, setPassengerCounts] = useState({
-    adults: 1,
-    children: 0,
-    infants: 0,
-  });
-  const [childAges, setChildAges] = useState([]);
+  const [passengerCounts, setPassengerCounts] = useState(
+    initialSearchParams?.passengerCounts || {
+      adults: 1,
+      children: 0,
+      infants: 0,
+    }
+  );
+  const [childAges, setChildAges] = useState(initialSearchParams?.childAges || []);
   const [passengerAnchorEl, setPassengerAnchorEl] = useState(null);
-  const [travelClass, setTravelClass] = useState("Economy");
-  const [directFlight, setDirectFlight] = useState(false);
+  const [travelClass, setTravelClass] = useState(initialSearchParams?.travelClass || "Economy");
+  const [directFlight, setDirectFlight] = useState(initialSearchParams?.directFlight || false);
   const [openField, setOpenField] = useState(null);
+
+  // Update state when initialSearchParams changes
+  useEffect(() => {
+    if (initialSearchParams) {
+      if (initialSearchParams.from) setFrom(initialSearchParams.from);
+      if (initialSearchParams.to) setTo(initialSearchParams.to);
+      // Parse date - prefer ISO format, fallback to formatted string
+      if (initialSearchParams.departureDateISO) {
+        const parsedDate = dayjs(initialSearchParams.departureDateISO);
+        if (parsedDate.isValid()) {
+          setTravelDate(parsedDate);
+        }
+      } else if (initialSearchParams.travelDate) {
+        const parsedDate = dayjs(initialSearchParams.travelDate, "ddd, DD MMM YY");
+        if (parsedDate.isValid()) {
+          setTravelDate(parsedDate);
+        }
+      }
+      if (initialSearchParams.passengerCounts) {
+        setPassengerCounts(initialSearchParams.passengerCounts);
+      }
+      if (initialSearchParams.childAges) {
+        setChildAges(initialSearchParams.childAges);
+      }
+      if (initialSearchParams.travelClass) {
+        setTravelClass(initialSearchParams.travelClass);
+      }
+      if (initialSearchParams.directFlight !== undefined) {
+        setDirectFlight(initialSearchParams.directFlight);
+      }
+    }
+  }, [initialSearchParams]);
 
   const extractAirportCode = (value) => {
     const match = value?.match(/\(([^)]+)\)/);
@@ -62,24 +121,31 @@ const OneWay = ({ onAddReturn }) => {
     event.preventDefault();
     const formattedTravelDate = travelDate ? travelDate.format("ddd, DD MMM YY") : "";
     const departureDateISO = travelDate ? travelDate.format("YYYY-MM-DD") : "";
+    const fromCode = extractAirportCode(from);
+    const toCode = extractAirportCode(to);
+    
+    const searchData = {
+      tripType: tripType || "one-way",
+      from,
+      to,
+      travelDate: formattedTravelDate,
+      departureDateISO,
+      fromCode,
+      toCode,
+      passengerCounts,
+      childAges,
+      travelClass,
+      directFlight,
+      currency,
+    };
+
+    // Save to recent searches
+    saveRecentSearch(searchData);
+
     navigate("/dashboard/onewaysearchresult", {
-      state: {
-        tripType: "one-way",
-        from,
-        to,
-        travelDate: formattedTravelDate,
-        departureDateISO,
-        fromCode: extractAirportCode(from),
-        toCode: extractAirportCode(to),
-        passengerCounts,
-        childAges,
-        travelClass,
-        directFlight,
-      },
+      state: searchData,
     });
   };
-
-  const isDashboardRoute = location.pathname === "/dashboard";
 
   const formatAddress = (address) => (address ? address.replace(",", ", ") : "");
 
@@ -503,7 +569,7 @@ const OneWay = ({ onAddReturn }) => {
                       ...boxedFieldSx,
                       "& .MuiInputBase-input": {
                         ...boxedFieldSx["& .MuiInputBase-input"],
-                        fontSize: 11,
+                        fontSize: 13,
                         textOverflow: "clip",
                       },
                     },
@@ -965,7 +1031,7 @@ const OneWay = ({ onAddReturn }) => {
           startIcon={<SendIcon sx={{ fontSize: 18 }} />}
           type="submit"
           sx={{
-            backgroundColor: isDashboardRoute ? "#123D6E" : "#525371",
+            backgroundColor: searchButtonColor,
             color: "#fff",
             px: 4.5,
             height: "42px",
@@ -973,9 +1039,9 @@ const OneWay = ({ onAddReturn }) => {
             fontSize: "14px",
             fontWeight: 600,
             textTransform: "none",
-            boxShadow: "0px 6px 16px rgba(18,61,110,0.25)",
+            boxShadow: searchButtonShadow,
             "&:hover": {
-              backgroundColor: isDashboardRoute ? "#0f2f56" : "#43445e",
+              backgroundColor: searchButtonHoverColor,
             },
           }}
         >
