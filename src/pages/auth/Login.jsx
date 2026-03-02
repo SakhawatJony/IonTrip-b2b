@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Button, IconButton } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PublicLayout from "../../components/layout/PublicLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,15 +18,24 @@ const Login = () => {
     "https://iontrip-backend-production.up.railway.app";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toastState, setToastState] = useState({ open: false, message: "", severity: "error" });
 
   const showToast = (message, severity = "error") => {
-    setToastState({ open: true, message, severity });
-  };
+    const options = {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    };
 
-  const handleToastClose = () => {
-    setToastState((prev) => ({ ...prev, open: false }));
+    if (severity === "success") {
+      toast.success(message, options);
+    } else {
+      toast.error(message, options);
+    }
   };
 
   const handleLogin = async () => {
@@ -196,7 +208,7 @@ const Login = () => {
                 }}
               />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -212,6 +224,24 @@ const Login = () => {
                   boxShadow: "none",
                 }}
               />
+              <IconButton
+                onClick={() => setShowPassword((prev) => !prev)}
+                edge="end"
+                sx={{
+                  color: "#9E9E9E",
+                  ml: 1,
+                  padding: "4px",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                {showPassword ? (
+                  <VisibilityOffIcon sx={{ fontSize: "20px" }} />
+                ) : (
+                  <VisibilityIcon sx={{ fontSize: "20px" }} />
+                )}
+              </IconButton>
             </Box>
           </Box>
 
@@ -315,21 +345,6 @@ const Login = () => {
           `}</style>
         </Box>
       </Box>
-      <Snackbar
-        open={toastState.open}
-        autoHideDuration={4000}
-        onClose={handleToastClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleToastClose}
-          severity={toastState.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {toastState.message}
-        </Alert>
-      </Snackbar>
     </PublicLayout>
   );
 };

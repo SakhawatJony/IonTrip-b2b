@@ -338,21 +338,27 @@ const AllTraveler = () => {
             overflowX: "auto",
             overflowY: "auto",
             maxHeight: "60vh",
+            position: "relative",
             "&::-webkit-scrollbar": {
-              width: "8px",
-              height: "8px",
+              width: "10px",
+              height: "10px",
             },
             "&::-webkit-scrollbar-track": {
               backgroundColor: "#F1F5F9",
-              borderRadius: "4px",
+              borderRadius: "5px",
+              border: "1px solid #E5E7EB",
             },
             "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#CBD5E1",
-              borderRadius: "4px",
+              backgroundColor: "#94A3B8",
+              borderRadius: "5px",
+              border: "1px solid #CBD5E1",
               "&:hover": {
-                backgroundColor: "#94A3B8",
+                backgroundColor: "#64748B",
               },
             },
+            // Firefox scrollbar
+            scrollbarWidth: "thin",
+            scrollbarColor: "#94A3B8 #F1F5F9",
           }}
         >
           <Box sx={{ width: "100%" }}>
@@ -370,7 +376,8 @@ const AllTraveler = () => {
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    px: 2,
+                    justifyContent: column.key === "action" || column.key === "srlNo" ? "center" : "flex-start",
+                    px: column.key === "action" ? 1 : 2,
                     py: 1,
                     borderBottom: "1px solid #E5E7EB",
                     backgroundColor: "#F8FAFC",

@@ -1,9 +1,12 @@
-import React from "react";
-import { Box, Button, Typography } from "@mui/material";
+import React, { useState, useEffect, useCallback } from "react";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TuneIcon from "@mui/icons-material/Tune";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import DownloadIcon from "@mui/icons-material/Download";
+import axios from "axios";
+import useAuth from "../../hooks/useAuth";
 
 const headerTitleSx = {
   fontSize: 22,
@@ -11,158 +14,331 @@ const headerTitleSx = {
   color: "#0F172A",
 };
 
-const statusCards = [
-  { label: "Deposit", amount: "BDT 10,000" },
-  { label: "Ticketed", amount: "BDT 10,000" },
-  { label: "Reissue", amount: "BDT 10,000" },
-  { label: "Refund", amount: "BDT 10,000" },
-  { label: "Void", amount: "BDT 10,000" },
-];
+
 
 const tableColumns = [
-  { key: "reference", label: "Reffrence", width: "120px" },
-  { key: "status", label: "Status", width: "90px" },
-  { key: "agentName", label: "Agent Name", width: "120px" },
-  { key: "company", label: "Company", width: "120px" },
-  { key: "email", label: "Email", width: "160px" },
-  { key: "password", label: "Password", width: "110px" },
-  { key: "joinedAt", label: "Join At", width: "150px" },
-  { key: "bonusWallet", label: "Bonus Wallet", width: "120px" },
-  { key: "creditWallet", label: "Credit Wallet", width: "120px" },
-  { key: "balance", label: "Balance", width: "110px" },
+  { key: "transactionId", label: "Transaction ID", width: "150px" },
+  { key: "reference", label: "Reference", width: "150px" },
+  { key: "runningBalance", label: "Running Balance", width: "150px" },
+  { key: "previousBalance", label: "Previous Balance", width: "150px" },
+  { key: "debit", label: "Debit", width: "120px" },
+  { key: "credit", label: "Credit", width: "120px" },
+  { key: "transactionTime", label: "Transaction Time", width: "180px" },
+  { key: "transactionType", label: "Transaction Type", width: "180px" },
 ];
 
-const tableRows = [
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-  {
-    reference: "FFTRB14525",
-    status: "HOLD",
-    agentName: "Sabre",
-    company: "Zinga lala",
-    email: "afridi@flyfar.tech",
-    password: "**********",
-    joinedAt: "09 Sep 23 02:35 PM",
-    bonusWallet: "412.00 ৳",
-    creditWallet: "412.00 ৳",
-    balance: "412.00 ৳",
-  },
-];
 
 const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
 const LedgerReport = () => {
-  const renderCell = (columnKey, value) => {
-    if (columnKey === "reference") {
+  const { agentToken, agentData } = useAuth();
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+
+  const [ledgerData, setLedgerData] = useState([]);
+  const [statusCards, setStatusCards] = useState([
+    { label: "Deposit", amount: "BDT 0" },
+    { label: "Ticketed", amount: "BDT 0" },
+    { label: "Reissue", amount: "BDT 0" },
+    { label: "Refund", amount: "BDT 0" },
+    { label: "Void", amount: "BDT 0" },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const agentEmail = agentData?.email || "";
+
+  const fetchLedgerReport = useCallback(async () => {
+    const token = agentToken || localStorage.getItem("agentToken") || "";
+
+    if (!token || !agentEmail) {
+      setError("Agent token or email missing. Please login again.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const params = new URLSearchParams({
+        email: agentEmail,
+      });
+
+      const response = await axios.get(`${baseUrl}/transection/agent/list?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Handle response structure
+      const responseData = response?.data?.data || response?.data || [];
+      const ledgerList = Array.isArray(responseData) ? responseData : [];
+
+      setLedgerData(ledgerList);
+
+      // Calculate status card amounts from ledger data
+      if (ledgerList.length > 0) {
+        const depositTotal = ledgerList
+          .filter((item) =>
+            item.type?.toLowerCase().includes("deposit") ||
+            item.type === "Deposit" ||
+            item.transactionType?.toLowerCase().includes("deposit")
+          )
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        const ticketedTotal = ledgerList
+          .filter((item) =>
+            item.type?.toLowerCase().includes("ticket") ||
+            item.type === "Ticketed" ||
+            item.transactionType?.toLowerCase().includes("ticket")
+          )
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        const reissueTotal = ledgerList
+          .filter((item) =>
+            item.type?.toLowerCase().includes("reissue") ||
+            item.type === "Reissue" ||
+            item.transactionType?.toLowerCase().includes("reissue")
+          )
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        const refundTotal = ledgerList
+          .filter((item) =>
+            item.type?.toLowerCase().includes("refund") ||
+            item.type === "Refund" ||
+            item.transactionType?.toLowerCase().includes("refund")
+          )
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        const voidTotal = ledgerList
+          .filter((item) =>
+            item.type?.toLowerCase().includes("void") ||
+            item.type === "Void" ||
+            item.transactionType?.toLowerCase().includes("void")
+          )
+          .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        // Get currency from first item or default to BDT
+        const currency = ledgerList[0]?.currency || "BDT";
+
+        setStatusCards([
+          { label: "Deposit", amount: `${currency} ${depositTotal.toLocaleString()}` },
+          { label: "Ticketed", amount: `${currency} ${ticketedTotal.toLocaleString()}` },
+          { label: "Reissue", amount: `${currency} ${reissueTotal.toLocaleString()}` },
+          { label: "Refund", amount: `${currency} ${refundTotal.toLocaleString()}` },
+          { label: "Void", amount: `${currency} ${voidTotal.toLocaleString()}` },
+        ]);
+      }
+    } catch (err) {
+      const apiMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to load ledger report.";
+      setError(apiMessage);
+      setLedgerData([]);
+      console.error("Fetch ledger report failed:", err?.response?.data || err);
+    } finally {
+      setLoading(false);
+    }
+  }, [agentToken, agentEmail, baseUrl]);
+
+  useEffect(() => {
+    if (agentToken && agentEmail) {
+      fetchLedgerReport();
+    }
+  }, [fetchLedgerReport, agentToken, agentEmail]);
+
+  // Map API data to table row format
+  const mapLedgerToTableRow = (ledger, index, allLedgers) => {
+    const formatDate = (dateString) => {
+      if (!dateString) return "NA";
+      try {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = date.toLocaleString("en-GB", { month: "short" });
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${day} ${month} ${year} ${hours}:${minutes}`;
+      } catch (error) {
+        return dateString;
+      }
+    };
+
+    const currency = ledger?.currency || "BDT";
+    const amount = parseFloat(ledger?.amount) || 0;
+    const updatedAmount = parseFloat(ledger?.updatedAmount) || 0;
+    const previousAmount = parseFloat(ledger?.previousAmount) || 0;
+
+    // Determine if it's a debit or credit based on transaction type
+    const transactionType = ledger?.type || "";
+    const isDeposit = transactionType.toLowerCase().includes("deposit");
+    const isCredit = isDeposit;
+    const isDebit = !isDeposit;
+
+    const debit = isDebit ? amount.toFixed(2) : "0";
+    const credit = isCredit ? amount.toFixed(2) : "0";
+
+    // Format transaction type for display
+    const formatTransactionType = (type) => {
+      if (!type) return "NA";
+      const typeMap = {
+        deposit_approval: "Deposit Request",
+        issue: "Issue",
+        reissue: "Reissue Completed",
+        refund: "Refund",
+        void: "Void",
+        partial_payment: "Partial Due Full Pay",
+      };
+
+      // Check for partial matches
+      const lowerType = type.toLowerCase();
+      if (lowerType.includes("deposit")) return "Deposit Request";
+      if (lowerType.includes("issue") && !lowerType.includes("reissue")) return "Issue";
+      if (lowerType.includes("reissue")) return "Reissue Completed";
+      if (lowerType.includes("refund")) return "Refund";
+      if (lowerType.includes("void")) return "Void";
+      if (lowerType.includes("partial")) return "Partial Due Full Pay";
+
+      return typeMap[type] || type;
+    };
+
+    return {
+      transactionId: ledger?.tranId || `IOT${String(ledger?.id || "").padStart(6, "0")}` || "NA",
+      reference: ledger?.referenceId || ledger?.tranId || ledger?.id?.toString() || "NA",
+      previousBalance: previousAmount > 0 ? `${currency} ${previousAmount.toFixed(2)}` : "0",
+      runningBalance: `${currency} ${updatedAmount.toFixed(2)}`,
+      debit: debit !== "0" ? `${currency} ${debit}` : "0",
+      credit: credit !== "0" ? `${currency} ${credit}` : "0",
+      transactionTime: formatDate(ledger?.createdAt),
+      transactionType: formatTransactionType(transactionType),
+      originalData: ledger, // Store original for status badge
+    };
+  };
+
+  const handleDownloadCSV = () => {
+    if (!ledgerData || ledgerData.length === 0) {
+      return;
+    }
+
+    // Map all ledger data to table rows
+    const rows = ledgerData.map((ledger, index) => mapLedgerToTableRow(ledger, index, ledgerData));
+
+    // CSV Headers
+    const headers = [
+      "Transaction ID",
+      "Reference",
+      "Running Balance",
+      "Previous Balance",
+      "Debit",
+      "Credit",
+      "Transaction Time",
+      "Transaction Type",
+    ];
+
+    // Convert rows to CSV format
+    const csvRows = [
+      headers.join(","),
+      ...rows.map((row) => {
+        return [
+          `"${row.transactionId || ""}"`,
+          `"${row.reference || ""}"`,
+          `"${row.runningBalance || ""}"`,
+          `"${row.previousBalance || ""}"`,
+          `"${row.debit || ""}"`,
+          `"${row.credit || ""}"`,
+          `"${row.transactionTime || ""}"`,
+          `"${row.transactionType || ""}"`,
+        ].join(",");
+      }),
+    ];
+
+    // Create CSV content
+    const csvContent = csvRows.join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `ledger_report_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderCell = (columnKey, value, rowData = null) => {
+    if (columnKey === "transactionId") {
       return (
         <Typography
           sx={{
             fontSize: 11,
             fontWeight: 600,
             color: "#111827",
-            backgroundColor: "#EEF2F6",
-            borderRadius: 0.8,
-            px: 1,
-            py: 0.35,
-            width: "fit-content",
-            whiteSpace: "nowrap",
           }}
         >
           {value}
+        </Typography>
+      );
+    }
+
+    if (columnKey === "reference") {
+      return (
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "#1976d2",
+            cursor: "pointer",
+            textDecoration: "underline",
+            "&:hover": {
+              color: "#1565c0",
+            },
+          }}
+        >
+          {value}
+        </Typography>
+      );
+    }
+
+    if (columnKey === "transactionType") {
+      const transactionType = value || "NA";
+      const isDeposit = transactionType.toLowerCase().includes("deposit");
+      const isReissue = transactionType.toLowerCase().includes("reissue");
+      const isPartial = transactionType.toLowerCase().includes("partial");
+
+      let bgColor = "#D1FAE5"; // Green for deposits/issues
+      let textColor = "#065F46";
+
+      if (isReissue) {
+        bgColor = "#D1FAE5";
+        textColor = "#065F46";
+      } else if (isPartial) {
+        bgColor = "#DBEAFE";
+        textColor = "#1E40AF";
+      }
+
+      return (
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: textColor,
+            backgroundColor: bgColor,
+            borderRadius: 0.8,
+            px: 1.2,
+            py: 0.4,
+            width: "fit-content",
+            whiteSpace: "nowrap",
+            textTransform: "capitalize",
+          }}
+        >
+          {transactionType}
         </Typography>
       );
     }
@@ -209,7 +385,7 @@ const LedgerReport = () => {
             flexWrap: "wrap",
           }}
         >
-          <Typography sx={headerTitleSx}>Ledger Report</Typography>
+          <Typography sx={headerTitleSx}>Transitions </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             {statusCards.map((card) => (
@@ -320,6 +496,9 @@ const LedgerReport = () => {
           </Box>
           <Button
             variant="contained"
+            startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
+            onClick={handleDownloadCSV}
+            disabled={!ledgerData || ledgerData.length === 0}
             sx={{
               textTransform: "none",
               fontSize: 11.5,
@@ -330,6 +509,10 @@ const LedgerReport = () => {
               color: "#1F4D8B",
               boxShadow: "none",
               "&:hover": { backgroundColor: "#DCE9FF", boxShadow: "none" },
+              "&:disabled": {
+                backgroundColor: "#F3F4F6",
+                color: "#9CA3AF",
+              },
             }}
           >
             Download CSV
@@ -359,7 +542,7 @@ const LedgerReport = () => {
             overflow: "auto",
           }}
         >
-          <Box sx={{ minWidth: 1150 }}>
+          <Box sx={{ minWidth: 1050 }}>
             <Box
               sx={{
                 display: "grid",
@@ -380,37 +563,54 @@ const LedgerReport = () => {
                     backgroundColor: "#F8FAFC",
                   }}
                 >
-                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#111827" }}>
+                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
                     {column.label}
                   </Typography>
                 </Box>
               ))}
             </Box>
-            {tableRows.map((row, index) => (
-              <Box
-                key={`${row.reference}-${index}`}
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: tableGridTemplate,
-                  alignItems: "stretch",
-                }}
-              >
-                {tableColumns.map((column) => (
+            {loading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+                <CircularProgress size={24} sx={{ color: "#0F2F56" }} />
+              </Box>
+            ) : error ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+                <Typography sx={{ fontSize: 12, color: "#d32f2f" }}>{error}</Typography>
+              </Box>
+            ) : ledgerData.length === 0 ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+                <Typography sx={{ fontSize: 12, color: "#6B7280" }}>No ledger data found</Typography>
+              </Box>
+            ) : (
+              ledgerData.map((ledger, index) => {
+                const row = mapLedgerToTableRow(ledger, index, ledgerData);
+                return (
                   <Box
-                    key={`${row.reference}-${column.key}`}
+                    key={`${ledger.id || ledger.tranId || index}-${index}`}
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      px: 2,
-                      py: 1.4,
-                      borderBottom: "1px solid #E5E7EB",
+                      display: "grid",
+                      gridTemplateColumns: tableGridTemplate,
+                      alignItems: "stretch",
                     }}
                   >
-                    {renderCell(column.key, row[column.key])}
+                    {tableColumns.map((column) => (
+                      <Box
+                        key={`${ledger.id || ledger.tranId || index}-${column.key}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          px: 2,
+                          py: 1.4,
+                          borderBottom: "1px solid #E5E7EB",
+                        }}
+                      >
+                        {renderCell(column.key, row[column.key], row)}
+                      </Box>
+                    ))}
                   </Box>
-                ))}
-              </Box>
-            ))}
+                );
+              })
+            )}
           </Box>
         </Box>
 

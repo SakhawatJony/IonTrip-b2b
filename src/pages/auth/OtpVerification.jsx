@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Typography, Button, TextField, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Button, TextField } from "@mui/material";
 import FlightIcon from "@mui/icons-material/Flight";
 import PublicLayout from "../../components/layout/PublicLayout";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const OtpVerification = () => {
   const navigate = useNavigate();
@@ -16,7 +17,6 @@ const OtpVerification = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [email, setEmail] = useState("");
-  const [toastState, setToastState] = useState({ open: false, message: "", severity: "error" });
 
   useEffect(() => {
     // Get email from location state or localStorage
@@ -27,11 +27,25 @@ const OtpVerification = () => {
   }, [location]);
 
   const showToast = (message, severity = "error") => {
-    setToastState({ open: true, message, severity });
-  };
-
-  const handleToastClose = () => {
-    setToastState((prev) => ({ ...prev, open: false }));
+    if (severity === "success") {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } else {
+      toast.error(message, {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -320,23 +334,6 @@ const OtpVerification = () => {
           </Box>
         </Box>
       </Box>
-
-      <Snackbar
-        open={toastState.open}
-        autoHideDuration={4000}
-        onClose={handleToastClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleToastClose}
-          severity={toastState.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {toastState.message}
-        </Alert>
-      </Snackbar>
-
     </PublicLayout>
   );
 };

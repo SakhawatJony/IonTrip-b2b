@@ -569,7 +569,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                       ...boxedFieldSx,
                       "& .MuiInputBase-input": {
                         ...boxedFieldSx["& .MuiInputBase-input"],
-                        fontSize: 13,
+                        fontSize: 11.3,
                         textOverflow: "clip",
                       },
                     },

@@ -308,7 +308,7 @@ const FlightBooking = () => {
         <Typography fontSize={12} color="#d32f2f" mb={1}>
           {offerPriceError}
         </Typography>
-      ) : null}A
+      ) : null}
 
       <Grid container spacing={3}>
         <Grid item xs={12} lg={9}>
@@ -591,48 +591,45 @@ const FlightBooking = () => {
             ))}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 2.5, pb: 2.25, pt: 0 }}>
+        <DialogActions sx={{ px: 2.5, pb: 2.25, pt: 0, justifyContent: "flex-end" }}>
           <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
             {bookingError ? (
               <Typography fontSize={11} color="#d32f2f" sx={{ alignSelf: "flex-start" }}>
                 {bookingError}
               </Typography>
             ) : null}
-            <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-              <Typography fontSize={10} color="#6B7280" sx={{ pt: 0.75 }}>
-                You are booking will be confirmed and billed in 30 minutes to complete payment.
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1 }}>
-              <Button
-                variant="outlined"
-                onClick={handleCloseReviewDialog}
-                startIcon={<EditIcon sx={{ fontSize: 16 }} />}
-                sx={{
-                  borderColor: "#D1D5DB",
-                  color: "#374151",
-                  textTransform: "none",
-                  fontSize: 11,
-                  px: 2,
-                }}
-              >
-                Edit Details
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleCompleteBooking}
-                disabled={bookingLoading}
-                startIcon={bookingLoading ? <CircularProgress size={14} sx={{ color: "#FFFFFF" }} /> : null}
-                sx={{
-                  backgroundColor: "#0F2F56",
-                  textTransform: "none",
-                  fontSize: 11,
-                  px: 2,
-                  "&:hover": { backgroundColor: "#0B2442" },
-                  "&:disabled": { backgroundColor: "#9CA3AF" },
-                }}
-              >
-                {bookingLoading ? "Processing..." : "Complete Booking"}
-              </Button>
+            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleCloseReviewDialog}
+                  startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+                  sx={{
+                    borderColor: "#D1D5DB",
+                    color: "#374151",
+                    textTransform: "none",
+                    fontSize: 11,
+                    px: 2,
+                  }}
+                >
+                  Edit Details
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleCompleteBooking}
+                  disabled={bookingLoading}
+                  startIcon={bookingLoading ? <CircularProgress size={14} sx={{ color: "#FFFFFF" }} /> : null}
+                  sx={{
+                    backgroundColor: "#0F2F56",
+                    textTransform: "none",
+                    fontSize: 11,
+                    px: 2,
+                    "&:hover": { backgroundColor: "#0B2442" },
+                    "&:disabled": { backgroundColor: "#9CA3AF" },
+                  }}
+                >
+                  {bookingLoading ? "Processing..." : "Complete Booking"}
+                </Button>
               </Box>
             </Box>
           </Box>

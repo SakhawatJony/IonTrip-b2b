@@ -184,6 +184,68 @@ const FlightPassenger = ({ index, type, values = {}, onFieldChange }) => {
     NATIONALITY_OPTIONS.find((option) => option.value === value);
   const getFlagUrl = (code) => `https://flagcdn.com/w20/${code}.png`;
 
+  // Fetch all travelers
+  const fetchAllTravelers = useCallback(async () => {
+    if (!agentToken || !agentEmail) {
+      console.warn("Agent token or email missing for passenger search");
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const token = agentToken || localStorage.getItem("agentToken") || "";
+      const params = new URLSearchParams({
+        email: agentEmail,
+      });
+
+      const response = await fetch(`${baseUrl}/passenger/agent/list?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        // Fallback to search with empty query if list endpoint doesn't exist
+        const searchParams = new URLSearchParams({
+          email: agentEmail,
+          q: "",
+        });
+        const searchResponse = await fetch(`${baseUrl}/passenger/agent/search?${searchParams.toString()}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        
+        if (!searchResponse.ok) {
+          console.warn(`Passenger fetch failed: ${searchResponse.status}`);
+          setSearchLoading(false);
+          return;
+        }
+        
+        const searchData = await searchResponse.json();
+        const passengers = Array.isArray(searchData) ? searchData : searchData?.data || searchData?.passengers || [];
+        setSearchResults(passengers);
+        setShowDropdown(passengers.length > 0);
+        setSearchLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      const passengers = Array.isArray(data) ? data : data?.data || data?.passengers || [];
+      
+      setSearchResults(passengers);
+      setShowDropdown(passengers.length > 0);
+    } catch (error) {
+      console.error("Error fetching all travelers:", error);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [agentToken, agentEmail, baseUrl]);
+
   // Search passengers by query
   const searchPassenger = useCallback(async (query) => {
     if (!query || query.trim().length < 2) {
@@ -397,6 +459,9 @@ const FlightPassenger = ({ index, type, values = {}, onFieldChange }) => {
             onFocus={() => {
               if (searchResults.length > 0) {
                 setShowDropdown(true);
+              } else {
+                // Fetch all travelers when input is focused
+                fetchAllTravelers();
               }
             }}
             InputProps={{

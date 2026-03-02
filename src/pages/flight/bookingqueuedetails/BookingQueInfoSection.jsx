@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Grid } from "@mui/material";
 
 const BookingQueInfoSection = ({ data }) => {
   // Helper function to format date
@@ -75,18 +75,17 @@ const BookingQueInfoSection = ({ data }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "#FFFFFF",
-        borderRadius: 1.5,
-        border: "1px solid #E5E7EB",
+        backgroundColor: "#F9FAFB",
+        borderRadius: 2,
         p: 2,
         display: "flex",
         flexDirection: "column",
-        gap: 1.5,
+        gap: 2,
       }}
     >
       <Typography
         sx={{
-          fontSize: 16,
+          fontSize: 18,
           fontWeight: 700,
           color: "#0F2F56",
         }}
@@ -94,34 +93,19 @@ const BookingQueInfoSection = ({ data }) => {
         Booking Information
       </Typography>
       
-      <Box
-        sx={{
-          backgroundColor: "#EAF2FF",
-          borderRadius: 1,
-          border: "1px solid #E5E7EB",
-          display: "flex",
-          overflow: "hidden",
-          flexDirection: { xs: "column", md: "row" },
-        }}
-      >
-        {infoFields.map((field, index) => (
-          <React.Fragment key={field.label}>
+      <Grid container spacing={1.5}>
+        {infoFields.map((field) => (
+          <Grid item xs={12} sm={6} md={4} lg={2} key={field.label}>
             <Box
               sx={{
-                flex: 1,
+                backgroundColor: "#EAF2FF",
+                borderRadius: 1.5,
                 px: 2,
-                py: 1.5,
+                py: 1,
                 display: "flex",
                 flexDirection: "column",
                 gap: 0.5,
-                borderRight: {
-                  xs: "none",
-                  md: index < infoFields.length - 1 ? "1px solid #CBD5E1" : "none",
-                },
-                borderBottom: {
-                  xs: index < infoFields.length - 1 ? "1px solid #CBD5E1" : "none",
-                  md: "none",
-                },
+                height: "100%",
               }}
             >
               <Typography
@@ -130,23 +114,25 @@ const BookingQueInfoSection = ({ data }) => {
                   fontWeight: 600,
                   color: "#0F2F56",
                   textTransform: "uppercase",
+                  letterSpacing: 0.3,
+                  mb: 0.3,
                 }}
               >
                 {field.label}
               </Typography>
               <Typography
                 sx={{
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 700,
-                  color: "#0F172A",
+                  color: "#0F2F56",
                 }}
               >
                 {field.value}
               </Typography>
             </Box>
-          </React.Fragment>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     </Box>
   );
 };

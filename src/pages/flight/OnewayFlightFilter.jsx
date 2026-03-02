@@ -290,10 +290,10 @@ const OnewayFlightFilter = ({
       <SectionTitle>Price Range</SectionTitle>
       {hasPriceData ? (
         <>
-          <Typography sx={{ fontSize: 12, color: "#6B7280", mb: 1 }}>
+          {/* <Typography sx={{ fontSize: 12, color: "#6B7280", mb: 1 }}>
             Starts from {currency} {priceBounds.min.toLocaleString("en-US")} - {currency}{" "}
             {priceBounds.max.toLocaleString("en-US")}
-          </Typography>
+          </Typography> */}
           <Box sx={{ px: 0.5 }}>
             <Slider
               value={[selectedMin, selectedMax]}
@@ -515,49 +515,81 @@ const OnewayFlightFilter = ({
         </>
       ) : (
         <>
-      <SectionTitle>Departure Time</SectionTitle>
-      <FormGroup>
-        {departTimesToRender.map((label) => (
-          <FormControlLabel
-            key={label}
-            sx={labelSx}
-            control={
-              <Checkbox
-                size="small"
-                sx={checkboxSx}
-                icon={uncheckedIcon}
-                checkedIcon={checkedIcon}
-                checked={isChecked("departTimes", label)}
-                onChange={handleCheckboxChange("departTimes", label)}
-              />
-            }
-            label={label}
-          />
-        ))}
-      </FormGroup>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 1,
+              mb: 1.25,
+            }}
+          >
+            <Button
+              onClick={() => setActiveTimeTab("departure")}
+              sx={timeButtonSx(activeTimeTab === "departure")}
+            >
+              Departure
+            </Button>
+            <Button
+              onClick={() => setActiveTimeTab("arrival")}
+              sx={timeButtonSx(activeTimeTab === "arrival")}
+            >
+              Arrival
+            </Button>
+          </Box>
 
-      <Divider sx={{ my: 2 }} />
-
-      <SectionTitle>Arrival Time</SectionTitle>
-      <FormGroup>
-        {arriveTimesToRender.map((label) => (
-          <FormControlLabel
-            key={label}
-            sx={labelSx}
-            control={
-              <Checkbox
-                size="small"
-                sx={checkboxSx}
-                icon={uncheckedIcon}
-                checkedIcon={checkedIcon}
-                checked={isChecked("arriveTimes", label)}
-                onChange={handleCheckboxChange("arriveTimes", label)}
-              />
-            }
-            label={label}
-          />
-        ))}
-      </FormGroup>
+          {activeTimeTab === "departure" ? (
+            <Box sx={{ mb: 1.5 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1F2A44", mb: 1 }}>
+                Departure Time
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 0.75,
+                }}
+              >
+                {departTimesToRender.map((value) => {
+                  const active = isChecked("departTimes", value);
+                  return (
+                    <Button
+                      key={`departTimes-${value}`}
+                      onClick={() => onFilterChange?.("departTimes", value, !active)}
+                      sx={timeButtonSx(active)}
+                    >
+                      {value}
+                    </Button>
+                  );
+                })}
+              </Box>
+            </Box>
+          ) : (
+            <Box sx={{ mb: 1.5 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1F2A44", mb: 1 }}>
+                Arrival Time
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 0.75,
+                }}
+              >
+                {arriveTimesToRender.map((value) => {
+                  const active = isChecked("arriveTimes", value);
+                  return (
+                    <Button
+                      key={`arriveTimes-${value}`}
+                      onClick={() => onFilterChange?.("arriveTimes", value, !active)}
+                      sx={timeButtonSx(active)}
+                    >
+                      {value}
+                    </Button>
+                  );
+                })}
+              </Box>
+            </Box>
+          )}
         </>
       )}
     </Box>

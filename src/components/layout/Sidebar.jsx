@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Collapse,
@@ -11,6 +11,8 @@ import {
   Avatar,
   IconButton,
 } from "@mui/material";
+import { toast } from "react-toastify";
+import useAuth from "../../hooks/useAuth";
 
 import DashboardIcon from "@mui/icons-material/Home";
 import BookingsIcon from "@mui/icons-material/Storage";
@@ -36,8 +38,13 @@ const SUBMENU_ACTIVE_COLOR = "#1F4D8B";
 const SUBMENU_ICON_BORDER = "#D1D5DB";
 const SUBMENU_ICON_ACTIVE = "#1F4D8B";
 
-const menuItem = (icon, text, options = {}) => {
-  const { dropdown = false, path, end = false, sx, onClick, isOpen } = options;
+const menuItem = (icon, text, options = {}, location = null) => {
+  const { dropdown = false, path, end = false, sx, onClick, isOpen, activePaths = [] } = options;
+
+  // Check if current route matches this menu item or any of its active paths
+  const isActive = path
+    ? location?.pathname === path || (end ? false : location?.pathname.startsWith(path))
+    : activePaths.some((activePath) => location?.pathname.startsWith(activePath));
 
   const buttonProps = path
     ? { component: NavLink, to: path, end }
@@ -54,6 +61,7 @@ const menuItem = (icon, text, options = {}) => {
         minHeight: 42,
         alignItems: "center",
         gap: 1.25,
+        bgcolor: isActive ? "rgba(31, 42, 68, 0.08)" : "transparent",
         "&.active": {
           bgcolor: "rgba(31, 42, 68, 0.08)",
         },
@@ -63,15 +71,23 @@ const menuItem = (icon, text, options = {}) => {
         ...sx,
       }}
     >
-      <ListItemIcon sx={{ minWidth: 34, color: MENU_ICON_COLOR }}>
+      <ListItemIcon 
+        sx={{ 
+          minWidth: 34, 
+          color: isActive ? MENU_ACTIVE_COLOR : MENU_ICON_COLOR,
+          "& .MuiSvgIcon-root": {
+            color: isActive ? MENU_ACTIVE_COLOR : MENU_ICON_COLOR,
+          },
+        }}
+      >
         {icon}
       </ListItemIcon>
 
       <ListItemText
         primaryTypographyProps={{
           fontSize: 14,
-          fontWeight: 500,
-          color: MENU_TEXT_COLOR,
+          fontWeight: isActive ? 600 : 500,
+          color: isActive ? MENU_ACTIVE_COLOR : MENU_TEXT_COLOR,
         }}
         primary={text}
       />
@@ -159,6 +175,8 @@ const SubMenuItem = ({ text, path, location }) => {
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { clearAuthSession } = useAuth();
   const [expandedMenu, setExpandedMenu] = useState(null);
 
   useEffect(() => {
@@ -197,6 +215,24 @@ const Sidebar = () => {
     setExpandedMenu((prev) => (prev === menuKey ? null : menuKey));
   };
 
+  const handleLogout = () => {
+    // Clear auth session
+    clearAuthSession();
+    
+    // Show success toast
+    toast.success("Logged out successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+    
+    // Navigate to home page
+    navigate("/");
+  };
+
   return (
     <Box
       sx={{
@@ -227,13 +263,14 @@ const Sidebar = () => {
         {menuItem(<DashboardIcon sx={{ fontSize: 23 }} />, "Dashboard", {
           path: "/dashboard",
           end: true,
-        })}
+        }, location)}
 
         {menuItem(<BookingsIcon sx={{ fontSize: 23 }} />, "Bookings", {
           dropdown: true,
           isOpen: expandedMenu === "bookings",
           onClick: () => handleToggle("bookings"),
-        })}
+          activePaths: ["/dashboard/bookings"],
+        }, location)}
         <Collapse in={expandedMenu === "bookings"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -260,13 +297,14 @@ const Sidebar = () => {
 
         {menuItem(<SettingsIcon sx={{ fontSize: 23 }} />, "Settings", {
           path: "/dashboard/settings",
-        })}
+        }, location)}
 
         {menuItem(<WalletIcon sx={{ fontSize: 23 }} />, "Wallet", {
           dropdown: true,
           isOpen: expandedMenu === "wallet",
           onClick: () => handleToggle("wallet"),
-        })}
+          activePaths: ["/dashboard/wallet", "/dashboard/agentdeposit"],
+        }, location)}
         <Collapse in={expandedMenu === "wallet"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -293,7 +331,8 @@ const Sidebar = () => {
           dropdown: true,
           isOpen: expandedMenu === "account",
           onClick: () => handleToggle("account"),
-        })}
+          activePaths: ["/dashboard/account"],
+        }, location)}
         <Collapse in={expandedMenu === "account"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -318,13 +357,14 @@ const Sidebar = () => {
 
         {menuItem(<ManageIcon sx={{ fontSize: 23 }} />, "Manage", {
           path: "/dashboard/manage",
-        })}
+        }, location)}
 
         {menuItem(<ReportIcon sx={{ fontSize: 23 }} />, "Ot Reports", {
           dropdown: true,
           isOpen: expandedMenu === "reports",
           onClick: () => handleToggle("reports"),
-        })}
+          activePaths: ["/dashboard/ledgerreport", "/dashboard/salesreport", "/dashboard/searchreport"],
+        }, location)}
         <Collapse in={expandedMenu === "reports"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -348,7 +388,9 @@ const Sidebar = () => {
           </Box>
         </Collapse>
 
-        {menuItem(<LogoutIcon sx={{ fontSize: 23 }} />, "Logout")}
+        {menuItem(<LogoutIcon sx={{ fontSize: 23 }} />, "Logout", {
+          onClick: handleLogout,
+        }, location)}
       </List>
 
       <Box

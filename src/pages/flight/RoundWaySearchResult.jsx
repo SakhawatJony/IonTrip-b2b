@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Grid, Typography, Pagination } from "@mui/material";
 import dayjs from "dayjs";
@@ -45,6 +45,10 @@ const RoundWaySearchResult = () => {
   const [sortBy, setSortBy] = useState("lowest");
   const [currentPage, setCurrentPage] = useState(1);
   const flightsPerPage = 10;
+  
+  // Use ref to track the last search params to prevent duplicate API calls
+  const lastSearchParamsRef = useRef(null);
+  const isSearchingRef = useRef(false);
   const [filterState, setFilterState] = useState({
     stops: [],
     airlines: [],
@@ -180,10 +184,59 @@ const RoundWaySearchResult = () => {
     ]
   );
 
+  // Reset state and refs when location changes (new search)
+  useEffect(() => {
+    setFlights([]);
+    setLoading(false);
+    setError("");
+    setHasSearched(false);
+    setSortBy("lowest");
+    setCurrentPage(1);
+    setFilterState({
+      stops: [],
+      airlines: [],
+      refundability: [],
+      departTimes: [],
+      arriveTimes: [],
+      goDepartTimes: [],
+      backDepartTimes: [],
+      goArriveTimes: [],
+      backArriveTimes: [],
+      minPrice: null,
+      maxPrice: null,
+    });
+    // Reset refs when location changes
+    lastSearchParamsRef.current = null;
+    isSearchingRef.current = false;
+  }, [location.key, location.state]);
+
   useEffect(() => {
     if (!requestBody.journeyfrom || !requestBody.journeyto || !requestBody.departuredate || !requestBody.returndate) {
       return;
     }
+
+    // Create a unique key for this search to prevent duplicate calls
+    const searchKey = JSON.stringify({
+      journeyfrom: requestBody.journeyfrom,
+      journeyto: requestBody.journeyto,
+      departuredate: requestBody.departuredate,
+      returndate: requestBody.returndate,
+      adult: requestBody.adult,
+      child: requestBody.child,
+      infant: requestBody.infant,
+      cabinclass: requestBody.cabinclass,
+      currency: requestBody.currency,
+    });
+
+    // Skip if this exact search was already performed or is currently in progress
+    if (lastSearchParamsRef.current === searchKey || isSearchingRef.current) {
+      return;
+    }
+
+    // Mark as searching and store the search key
+    isSearchingRef.current = true;
+    lastSearchParamsRef.current = searchKey;
+
     const controller = new AbortController();
 
     const toDetailSegments = (segments = []) =>
@@ -349,12 +402,16 @@ const RoundWaySearchResult = () => {
         }
       } finally {
         setLoading(false);
+        isSearchingRef.current = false;
       }
     };
 
     fetchFlights();
-    return () => controller.abort();
-  }, [requestBody, effectiveFromCode, effectiveToCode, agentToken]);
+    return () => {
+      controller.abort();
+      isSearchingRef.current = false;
+    };
+  }, [requestBody, agentToken]);
 
   const handleFilterChange = (filterType, value, checked) => {
     setFilterState((prev) => {
@@ -550,6 +607,10 @@ const RoundWaySearchResult = () => {
         ? dayjs(nextReturnDateISO).format("DD MMM, YYYY")
         : searchParams.returnDate,
     };
+
+    // Reset refs when navigating to a new search
+    lastSearchParamsRef.current = null;
+    isSearchingRef.current = false;
 
     navigate(location.pathname, {
       state: newSearchParams,

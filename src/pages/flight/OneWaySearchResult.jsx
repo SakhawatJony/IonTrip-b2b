@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Grid, Typography, Select, MenuItem, Pagination, Button, Dialog } from "@mui/material";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
@@ -53,7 +53,7 @@ const OneWaySearchResult = () => {
     currency: searchCurrency,
   } = searchParams;
   const [flights, setFlights] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with true to show skeleton on initial load
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [filterState, setFilterState] = useState({
@@ -70,6 +70,10 @@ const OneWaySearchResult = () => {
   const [remainingSeconds, setRemainingSeconds] = useState(20 * 60);
   const [searchRefreshKey, setSearchRefreshKey] = useState(0);
   
+  // Use ref to track the last search params to prevent duplicate API calls
+  const lastSearchParamsRef = useRef(null);
+  const isSearchingRef = useRef(false);
+  
   // Debug: Log when sortBy changes
   useEffect(() => {
     console.log("🔍 sortBy state changed to:", sortBy);
@@ -80,6 +84,7 @@ const OneWaySearchResult = () => {
   // Reset state when location changes (new search)
   useEffect(() => {
     setFlights([]);
+    setLoading(true); // Set loading to true when new search starts
     setFilterState({
       stops: [],
       airlines: [],
@@ -94,6 +99,9 @@ const OneWaySearchResult = () => {
     setSortBy("lowest");
     setCurrentPage(1);
     setRemainingSeconds(20 * 60);
+    // Reset refs when location changes
+    lastSearchParamsRef.current = null;
+    isSearchingRef.current = false;
   }, [location.key, location.state]);
 
   useEffect(() => {
@@ -173,16 +181,56 @@ const OneWaySearchResult = () => {
 
   const isSessionExpired = remainingSeconds <= 0;
 
+  // Set loading to true when we have valid search params on mount
+  useEffect(() => {
+    if (requestBody.journeyfrom && requestBody.journeyto && requestBody.departuredate && !hasSearched) {
+      setLoading(true);
+    } else if (!requestBody.journeyfrom || !requestBody.journeyto || !requestBody.departuredate) {
+      // Only set loading to false if we don't have valid params AND haven't searched yet
+      if (!hasSearched) {
+        setLoading(false);
+      }
+    }
+  }, [requestBody.journeyfrom, requestBody.journeyto, requestBody.departuredate, hasSearched]);
+
   useEffect(() => {
     if (isSessionExpired) {
+      setLoading(false);
+      setHasSearched(true);
       return;
     }
     if (!requestBody.journeyfrom || !requestBody.journeyto || !requestBody.departuredate) {
+      // Only set loading to false if we've already searched or if we don't have valid params
+      if (hasSearched) {
+        setLoading(false);
+      }
       return;
     }
 
+    // Create a unique key for this search to prevent duplicate calls
+    const searchKey = JSON.stringify({
+      journeyfrom: requestBody.journeyfrom,
+      journeyto: requestBody.journeyto,
+      departuredate: requestBody.departuredate,
+      adult: requestBody.adult,
+      child: requestBody.child,
+      infant: requestBody.infant,
+      cabinclass: requestBody.cabinclass,
+      currency: requestBody.currency,
+    });
+
+    // Skip if this exact search was already performed or is currently in progress
+    if (lastSearchParamsRef.current === searchKey || isSearchingRef.current) {
+      return;
+    }
+
+    // Mark as searching and store the search key
+    isSearchingRef.current = true;
+    lastSearchParamsRef.current = searchKey;
+
     const controller = new AbortController();
     const fetchFlights = async () => {
+      // Ensure loading is true before starting fetch
       setLoading(true);
       setHasSearched(true);
       setError("");
@@ -306,13 +354,27 @@ const OneWaySearchResult = () => {
         }
       } finally {
         setLoading(false);
+        isSearchingRef.current = false;
       }
     };
 
     fetchFlights();
 
-    return () => controller.abort();
-  }, [requestBody, fromCode, toCode, searchRefreshKey, isSessionExpired, agentToken]);
+    return () => {
+      controller.abort();
+      isSearchingRef.current = false;
+    };
+  }, [requestBody, isSessionExpired, agentToken]);
+
+  // Auto-search when currency changes - but only if we have valid search params
+  useEffect(() => {
+    if (hasSearched && !isSessionExpired && effectiveCurrency && requestBody.journeyfrom && requestBody.journeyto && requestBody.departuredate) {
+      // Reset the last search params ref to allow a new search with updated currency
+      lastSearchParamsRef.current = null;
+      // Trigger search refresh when currency changes
+      setSearchRefreshKey((prev) => prev + 1);
+    }
+  }, [effectiveCurrency, hasSearched, isSessionExpired, requestBody.journeyfrom, requestBody.journeyto, requestBody.departuredate]);
 
   const parseTimeBucket = (value) => {
     if (!value) return "";

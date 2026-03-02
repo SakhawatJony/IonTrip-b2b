@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, memo } from "react";
-import { Box, Typography, Button, Checkbox, Grid, IconButton, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Button, Checkbox, Grid, IconButton, Select, MenuItem, FormControl } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -10,6 +10,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PublicLayout from "../../components/layout/PublicLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const CustomInputField = memo(
   ({
@@ -185,14 +186,51 @@ const CustomSelectField = memo(
 const Regstion = () => {
   const navigate = useNavigate();
   const mobileCodeOptions = [
-    { value: "+60", label: "Malaysia", flag: "https://flagcdn.com/w20/my.png" },
-    { value: "+880", label: "Bangladesh", flag: "https://flagcdn.com/w20/bd.png" },
-    { value: "+971", label: "UAE", flag: "https://flagcdn.com/w20/ae.png" },
-    { value: "+966", label: "Saudi", flag: "https://flagcdn.com/w20/sa.png" },
-    { value: "+974", label: "Qatar", flag: "https://flagcdn.com/w20/qa.png" },
-    { value: "+1", label: "USA", flag: "https://flagcdn.com/w20/us.png" },
-    { value: "+44", label: "UK", flag: "https://flagcdn.com/w20/gb.png" },
+    { value: "+60", label: "Malaysia", flagCode: "my" },
+    { value: "+880", label: "Bangladesh", flagCode: "bd" },
+    { value: "+971", label: "UAE", flagCode: "ae" },
+    { value: "+966", label: "Saudi Arabia", flagCode: "sa" },
+    { value: "+974", label: "Qatar", flagCode: "qa" },
+    { value: "+1", label: "USA", flagCode: "us" },
+    { value: "+44", label: "UK", flagCode: "gb" },
+    { value: "+91", label: "India", flagCode: "in" },
+    { value: "+92", label: "Pakistan", flagCode: "pk" },
+    { value: "+62", label: "Indonesia", flagCode: "id" },
+    { value: "+65", label: "Singapore", flagCode: "sg" },
+    { value: "+66", label: "Thailand", flagCode: "th" },
   ];
+
+  const getFlagUrl = (flagCode) => `https://flagcdn.com/w20/${flagCode}.png`;
+
+  // Format mobile number based on country code
+  const formatMobileNumber = (value, countryCode) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, "");
+    
+    // Apply formatting based on country code
+    if (countryCode === "+1") {
+      // USA/Canada: (XXX) XXX-XXXX
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    } else if (countryCode === "+44") {
+      // UK: XXXX XXXXXX
+      if (digits.length <= 4) return digits;
+      return `${digits.slice(0, 4)} ${digits.slice(4, 10)}`;
+    } else if (countryCode === "+60") {
+      // Malaysia: XXX-XXX XXXX
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+    } else if (countryCode === "+880") {
+      // Bangladesh: XXXX-XXXXXX
+      if (digits.length <= 4) return digits;
+      return `${digits.slice(0, 4)}-${digits.slice(4, 10)}`;
+    } else {
+      // Default: just digits
+      return digits;
+    }
+  };
   const [formData, setFormData] = useState({
     name: "",
     companyName: "",
@@ -217,28 +255,53 @@ const Regstion = () => {
     civilAviationCopy: "",
   });
   const [fieldErrors, setFieldErrors] = useState({});
-  const [toastState, setToastState] = useState({ open: false, message: "", severity: "error" });
 
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
+    
+    // Handle mobile code change
+    if (name === "mobileCode") {
+      setFormData((prevData) => {
+        // Reformat mobile number with new country code
+        const formatted = prevData.mobile ? formatMobileNumber(prevData.mobile, value) : "";
+        return { ...prevData, [name]: value, mobile: formatted };
+      });
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+      return;
+    }
+    
+    // Handle mobile number change with formatting
+    if (name === "mobile") {
+      const formatted = formatMobileNumber(value, formData.mobileCode);
+      setFormData((prevData) => ({ ...prevData, [name]: formatted }));
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+      return;
+    }
+    
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name]: "" }));
-  }, []);
+  }, [formData.mobileCode]);
 
   const handleSubmit = async () => {
     const notifyError = (message) => {
-      setToastState({
-        open: true,
-        message: message || "An error occurred. Please try again.",
-        severity: "error",
+      toast.error(message || "An error occurred. Please try again.", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
     };
     const notifySuccess = (message) => {
-      setToastState({
-        open: true,
-        message: message || "Success",
-        severity: "success",
+      toast.success(message || "Success", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
     };
 
@@ -423,9 +486,6 @@ const Regstion = () => {
   }, [documentPreviews]);
 
   const isImageFile = (file) => Boolean(file?.type?.startsWith("image/"));
-  const handleToastClose = () => {
-    setToastState((prev) => ({ ...prev, open: false }));
-  };
 
   const getCompactFileName = (file, fallback) => {
     const name = file?.name;
@@ -541,28 +601,150 @@ const Regstion = () => {
                 type="tel"
                 placeholder="Enter mobile number"
                 startAdornment={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Box
-                      component="select"
-                      name="mobileCode"
-                      value={formData.mobileCode}
-                      onChange={handleChange}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mr: 1 }}>
+                    <FormControl
+                      variant="standard"
                       sx={{
-                        minWidth: 102,
-                        height: 30,
-                        fontSize: "13px",
+                        minWidth: 120,
                         border: "none",
                         outline: "none",
                         backgroundColor: "transparent",
-                        cursor: "pointer",
+                        "& .MuiInput-root": {
+                          border: "none",
+                          outline: "none",
+                          backgroundColor: "transparent",
+                          "&:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&:hover:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&:after": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&.Mui-focused:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&.Mui-focused:after": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                        },
                       }}
                     >
-                      {mobileCodeOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.value} - {option.label}
-                        </option>
-                      ))}
-                    </Box>
+                      <Select
+                        name="mobileCode"
+                        value={formData.mobileCode}
+                        onChange={handleChange}
+                        renderValue={(selected) => {
+                          const option = mobileCodeOptions.find((opt) => opt.value === selected);
+                          return (
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                              {option && (
+                                <>
+                                  <Box
+                                    component="img"
+                                    src={getFlagUrl(option.flagCode)}
+                                    alt={`${option.label} flag`}
+                                    sx={{ width: 18, height: 12, borderRadius: "2px" }}
+                                  />
+                                  <Box component="span" sx={{ fontSize: 13, fontWeight: 500 }}>
+                                    {selected}
+                                  </Box>
+                                </>
+                              )}
+                            </Box>
+                          );
+                        }}
+                        sx={{
+                          fontSize: 13,
+                          height: 30,
+                          border: "none !important",
+                          outline: "none !important",
+                          backgroundColor: "transparent !important",
+                          boxShadow: "none !important",
+                          "& .MuiSelect-select": {
+                            py: 0.5,
+                            display: "flex",
+                            alignItems: "center",
+                            border: "none !important",
+                            outline: "none !important",
+                            backgroundColor: "transparent !important",
+                            boxShadow: "none !important",
+                          },
+                          "& .MuiSelect-icon": {
+                            fontSize: 18,
+                            color: "#5F6368",
+                          },
+                          "&:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&:hover:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&:after": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&.Mui-focused": {
+                            borderBottom: "none !important",
+                            outline: "none !important",
+                            backgroundColor: "transparent !important",
+                            boxShadow: "none !important",
+                          },
+                          "&.Mui-focused:before": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&.Mui-focused:after": {
+                            borderBottom: "none !important",
+                            display: "none",
+                          },
+                          "&:hover": {
+                            borderBottom: "none !important",
+                            backgroundColor: "transparent !important",
+                          },
+                        }}
+                        MenuProps={{
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                          PaperProps: {
+                            sx: {
+                              maxHeight: 300,
+                              mt: 0.5,
+                            },
+                          },
+                        }}
+                      >
+                        {mobileCodeOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                              <Box
+                                component="img"
+                                src={getFlagUrl(option.flagCode)}
+                                alt={`${option.label} flag`}
+                                sx={{ width: 20, height: 14, borderRadius: "2px" }}
+                              />
+                              <Box component="span" sx={{ fontSize: 13 }}>
+                                {option.value} - {option.label}
+                              </Box>
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Box>
                 }
               />
@@ -895,21 +1077,6 @@ const Regstion = () => {
           </Box>
         </Box>
       </Box>
-      <Snackbar
-        open={toastState.open}
-        autoHideDuration={4000}
-        onClose={handleToastClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleToastClose}
-          severity={toastState.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {toastState.message}
-        </Alert>
-      </Snackbar>
     </PublicLayout>
   );
 };
