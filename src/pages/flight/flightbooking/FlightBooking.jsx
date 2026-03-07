@@ -169,7 +169,7 @@ const FlightBooking = () => {
         setOfferPriceError("");
         const response = await axios.post(
           `${baseUrl}/flight/offerPrice`,
-           selectedFlight ,
+          selectedFlight,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -206,24 +206,24 @@ const FlightBooking = () => {
     // Map passengerForms to travelers array with proper formatting
     const travellers = passengerForms.map((passenger) => {
       // Format gender to uppercase (MALE/FEMALE)
-      const formattedGender = passenger.gender 
-        ? passenger.gender.toUpperCase() 
+      const formattedGender = passenger.gender
+        ? passenger.gender.toUpperCase()
         : "";
-      
+
       // Remove + from country calling code
-      const formattedCountryCode = contactPhoneCode 
-        ? contactPhoneCode.replace("+", "") 
+      const formattedCountryCode = contactPhoneCode
+        ? contactPhoneCode.replace("+", "")
         : "60";
-      
+
       // Get country code from nationality name
-      const nationalityCode = passenger.nationality 
+      const nationalityCode = passenger.nationality
         ? (NATIONALITY_TO_CODE[passenger.nationality] || passenger.nationality.toUpperCase().substring(0, 2))
         : "MY";
-      
+
       // Ensure dates are in YYYY-MM-DD format (they should already be from date picker)
       const formattedDateOfBirth = passenger.dateOfBirth || "";
       const formattedPassportExpiry = passenger.passportExpiry || "";
-      
+
       return {
         firstName: passenger.firstName || "",
         lastName: passenger.lastName || "",
@@ -242,7 +242,7 @@ const FlightBooking = () => {
 
     const requestBody = {
       travellers,
-      data:{...offerPriceData},
+      data: { ...offerPriceData },
     };
 
     setBookingLoading(true);
@@ -265,7 +265,7 @@ const FlightBooking = () => {
         pauseOnHover: true,
         draggable: true,
       });
-      
+
       // Navigate to dashboard after a short delay
       setTimeout(() => {
         navigate("/dashboard/");
@@ -277,7 +277,7 @@ const FlightBooking = () => {
         error?.message ||
         "Booking failed. Please try again.";
       setBookingError(apiMessage);
-      
+
       // Show error toast
       toast.error(apiMessage, {
         position: "top-right",
@@ -287,7 +287,7 @@ const FlightBooking = () => {
         pauseOnHover: true,
         draggable: true,
       });
-      
+
       console.error("Booking failed:", error?.response?.data || error);
     } finally {
       setBookingLoading(false);
@@ -295,7 +295,7 @@ const FlightBooking = () => {
   };
 
   return (
-    <Box sx={{  minHeight: "100vh", px:9.5,py:4 }}>
+    <Box sx={{ minHeight: "100vh", px: 4, py: 4 }}>
       <Typography fontSize={17} fontWeight={700} color="#222222" mb={2}>
         Enter Passenger Details
       </Typography>
@@ -337,8 +337,8 @@ const FlightBooking = () => {
                 Passenger Contact Information
               </Typography>
               <Grid container spacing={2}>
-               
-               
+
+
                 <Grid item xs={12} md={6}>
                   <Typography sx={inputLabelSx}>Email</Typography>
                   <TextField
@@ -508,7 +508,7 @@ const FlightBooking = () => {
               justifyContent: "center",
               flexDirection: "column",
               mb: 2,
-              
+
             }}
           >
             <Typography fontSize={11} fontWeight={700} color="#8C2D2D">

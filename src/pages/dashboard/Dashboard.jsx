@@ -6,7 +6,7 @@ const Dashboard = () => {
  
    
   return (
-    <Box sx={{px:"80px",mt:"100px"}}>
+    <Box sx={{px:"30px",mt:"100px"}}>
     <HomeSearchBox/>
     </Box>
   );

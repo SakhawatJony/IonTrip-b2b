@@ -258,9 +258,9 @@ const AddDeposit = () => {
       sx={{
         minHeight: "100vh",
         backgroundColor: "#FFFFFF",
-        px: { xs: 2, md: 9.5 },
+        px: { xs: 2, md: 3 },
         my: "30px",
-        mx: "80px",
+        mx: "30px",
         py: 4,
         display: "flex",
         flexDirection: "column",

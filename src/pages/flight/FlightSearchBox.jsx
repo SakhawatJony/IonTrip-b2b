@@ -63,7 +63,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
       backgroundColor: "#FFFFFF",
       borderRadius: "12px",
    
-      p: 3,
+      p: 1.5,
       position: "relative",
     }}>
       {/* Header with Trip Type and Currency */}
@@ -169,7 +169,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
         </RadioGroup>
       </FormControl>
       
-      {/* Currency Dropdown on the right */}
+      {/* Currency Dropdown on the right
       <FormControl variant="standard" sx={{ minWidth: 100 }}>
         <Select
           value={currency || "MYR"}
@@ -219,7 +219,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
             </MenuItem>
           ))}
         </Select>
-      </FormControl>
+      </FormControl> */}
       </Box>
 
       {/* Conditionally render components based on trip type */}

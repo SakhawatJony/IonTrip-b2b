@@ -1,55 +1,151 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import FlightIcon from "@mui/icons-material/Flight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import axios from "axios";
+import useAuth from "../../hooks/useAuth";
 
 const STORAGE_KEY = "recentFlightSearches";
 const MAX_RECENT_SEARCHES = 6;
+
+// Helper function to extract airport code
+const extractAirportCode = (value) => {
+  if (!value) return "";
+  const match = value?.match(/\(([^)]+)\)/);
+  return match ? match[1] : value?.trim() || "";
+};
 
 const RecentSearches = () => {
   const [recentSearches, setRecentSearches] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  const [loading, setLoading] = useState(false);
   const scrollContainerRef = useRef(null);
   const navigate = useNavigate();
+  const { agentToken, agentData } = useAuth();
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
 
   useEffect(() => {
-    // Load recent searches from localStorage
-    const loadRecentSearches = () => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const searches = JSON.parse(stored);
-          setRecentSearches(searches);
+    // Fetch recent searches from API
+    const fetchRecentSearches = async () => {
+      const agentEmail = agentData?.email || "";
+      
+      if (!agentEmail) {
+        // Fallback to localStorage if no email
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const searches = JSON.parse(stored);
+            setRecentSearches(searches);
+          }
+        } catch (error) {
+          console.error("Error loading recent searches from localStorage:", error);
         }
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const token = agentToken || localStorage.getItem("agentToken") || "";
+        const params = new URLSearchParams({
+          email: agentEmail,
+        });
+
+        const headers = {
+          "Content-Type": "application/json",
+        };
+
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${baseUrl}/flight/recent-search?${params.toString()}`, {
+          headers,
+        });
+
+        // Handle API response - API returns array of objects with id, email, and data
+        const searchesData = Array.isArray(response?.data)
+          ? response.data
+          : [];
+
+        // Transform API data to match component format
+        const formattedSearches = searchesData.map((item) => {
+          const search = item.data || {};
+          
+          // Format date for display (e.g., "2026-03-05" -> "Wed, 05 Mar 26")
+          const formatTravelDate = (dateStr) => {
+            if (!dateStr) return "";
+            try {
+              const date = dayjs(dateStr);
+              return date.isValid() ? date.format("ddd, DD MMM YY") : dateStr;
+            } catch (error) {
+              return dateStr;
+            }
+          };
+
+          // Capitalize first letter of cabin class
+          const formatCabinClass = (cabinClass) => {
+            if (!cabinClass) return "Economy";
+            return cabinClass.charAt(0).toUpperCase() + cabinClass.slice(1);
+          };
+
+          return {
+            from: search.journeyfrom || "",
+            to: search.journeyto || "",
+            fromCode: search.journeyfrom || "",
+            toCode: search.journeyto || "",
+            travelDate: formatTravelDate(search.departuredate),
+            departureDateISO: search.departuredate || "",
+            returnDateISO: search.returndate || "",
+            passengerCounts: {
+              adults: search.adult || 1,
+              children: search.child || 0,
+              infants: search.infant || 0,
+            },
+            childAges: [],
+            travelClass: formatCabinClass(search.cabinclass),
+            tripType: search.tripType || "one-way",
+            directFlight: false,
+            currency: search.currency || "USD",
+            timestamp: item.id ? `search-${item.id}` : new Date().toISOString(),
+          };
+        });
+
+        setRecentSearches(formattedSearches.slice(0, MAX_RECENT_SEARCHES));
       } catch (error) {
-        console.error("Error loading recent searches:", error);
+        console.error("Error fetching recent searches from API:", error);
+        // Fallback to localStorage on error
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const searches = JSON.parse(stored);
+            setRecentSearches(searches);
+          }
+        } catch (localError) {
+          console.error("Error loading recent searches from localStorage:", localError);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadRecentSearches();
+    fetchRecentSearches();
 
-    // Listen for storage changes (when new search is saved)
-    const handleStorageChange = (e) => {
-      if (e.key === STORAGE_KEY) {
-        loadRecentSearches();
-      }
+    // Listen for custom event for same-tab updates
+    const handleRecentSearchUpdated = () => {
+      fetchRecentSearches();
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Also listen for custom event for same-tab updates
-    window.addEventListener("recentSearchUpdated", loadRecentSearches);
+    window.addEventListener("recentSearchUpdated", handleRecentSearchUpdated);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("recentSearchUpdated", loadRecentSearches);
+      window.removeEventListener("recentSearchUpdated", handleRecentSearchUpdated);
     };
-  }, []);
+  }, [agentData?.email, agentToken, baseUrl]);
 
   // Calculate items per view based on screen size
   useEffect(() => {
@@ -127,20 +223,26 @@ const RecentSearches = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [itemsPerView]);
 
-  const extractAirportCode = (value) => {
-    const match = value?.match(/\(([^)]+)\)/);
-    return match ? match[1] : value?.trim() || "";
-  };
-
   const handleSearchClick = (search) => {
+    // Normalize tripType: API uses "oneway"/"roundway", component expects "one-way"/"round-way"
+    const tripType = search.tripType === "roundway" || search.tripType === "round-way" 
+      ? "round-way" 
+      : "one-way";
+    
+    // Determine navigation path based on trip type
+    const navigatePath = tripType === "round-way" 
+      ? "/dashboard/roundwaysearchresult" 
+      : "/dashboard/onewaysearchresult";
+    
     // Navigate to search results with the saved search data
-    navigate("/dashboard/onewaysearchresult", {
+    navigate(navigatePath, {
       state: {
-        tripType: "one-way",
+        tripType: tripType,
         from: search.from,
         to: search.to,
         travelDate: search.travelDate,
         departureDateISO: search.departureDateISO,
+        returnDateISO: search.returnDateISO || "",
         fromCode: search.fromCode,
         toCode: search.toCode,
         passengerCounts: search.passengerCounts || { adults: 1, children: 0, infants: 0 },
@@ -151,6 +253,14 @@ const RecentSearches = () => {
       },
     });
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
 
   if (recentSearches.length === 0) {
     return null; // Don't show section if no recent searches

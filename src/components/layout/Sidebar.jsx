@@ -242,9 +242,25 @@ const Sidebar = () => {
         flexDirection: "column",
         bgcolor: "#fff",
         px: 2,
+        overflowY: "auto",
+        overflowX: "hidden",
+        "&::-webkit-scrollbar": {
+          width: "2px",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "#f1f1f1",
+          borderRadius: "2px",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: BRAND_PRIMARY,
+          borderRadius: "2px",
+          "&:hover": {
+            background: "#0F172A",
+          },
+        },
       }}
     >
-      <Box sx={{ px: 1, py: 3, textAlign: "center" }}>
+      <Box sx={{ px: 1, py: 3, textAlign: "center", flexShrink: 0 }}>
 
         <Typography fontWeight={800} fontSize={22} color={BRAND_PRIMARY}>
           ionTrip
@@ -259,11 +275,23 @@ const Sidebar = () => {
         </Typography>
       </Box>
 
-      <List sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 0.75 }}>
-        {menuItem(<DashboardIcon sx={{ fontSize: 23 }} />, "Dashboard", {
-          path: "/dashboard",
-          end: true,
-        }, location)}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: "visible",
+        }}
+      >
+        <List
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.75,
+          }}
+        >
+          {menuItem(<DashboardIcon sx={{ fontSize: 23 }} />, "Dashboard", {
+            path: "/dashboard",
+            end: true,
+          }, location)}
 
         {menuItem(<BookingsIcon sx={{ fontSize: 23 }} />, "Bookings", {
           dropdown: true,
@@ -289,9 +317,9 @@ const Sidebar = () => {
             }}
           >
             <SubMenuItem text="All Booking" path="/dashboard/bookings" location={location} />
-            <SubMenuItem text="Confirmed Booking" path="/dashboard/bookings/confirmed" location={location} />
+            {/* <SubMenuItem text="Confirmed Booking" path="/dashboard/bookings/confirmed" location={location} />
             <SubMenuItem text="Refund Booking" path="/dashboard/bookings/refund" location={location} />
-            <SubMenuItem text="Reissue Booking" path="/dashboard/bookings/reissue" location={location} />
+            <SubMenuItem text="Reissue Booking" path="/dashboard/bookings/reissue" location={location} /> */}
           </Box>
         </Collapse>
 
@@ -322,7 +350,7 @@ const Sidebar = () => {
               },
             }}
           >
-            <SubMenuItem text="Wallet Overview" path="/dashboard/wallet" location={location} />
+            {/* <SubMenuItem text="Wallet Overview" path="/dashboard/wallet" location={location} /> */}
             <SubMenuItem text="Agent Deposit" path="/dashboard/agentdeposit" location={location} />
           </Box>
         </Collapse>
@@ -383,7 +411,7 @@ const Sidebar = () => {
             }}
           >
             <SubMenuItem text="Ledger Report" path="/dashboard/ledgerreport" location={location} />
-            <SubMenuItem text="Sales Report" path="/dashboard/salesreport" location={location} />
+            {/* <SubMenuItem text="Sales Report" path="/dashboard/salesreport" location={location} /> */}
             <SubMenuItem text="Search Report" path="/dashboard/searchreport" location={location} />
           </Box>
         </Collapse>
@@ -391,7 +419,8 @@ const Sidebar = () => {
         {menuItem(<LogoutIcon sx={{ fontSize: 23 }} />, "Logout", {
           onClick: handleLogout,
         }, location)}
-      </List>
+        </List>
+      </Box>
 
       <Box
         sx={{
@@ -400,6 +429,7 @@ const Sidebar = () => {
           display: "flex",
           alignItems: "center",
           gap: 1.5,
+          flexShrink: 0,
         }}
       >
         <Avatar sx={{ width: 36, height: 36 }} />

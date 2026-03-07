@@ -36,6 +36,7 @@ import {
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import BalanceNoticeBar from "./BalanceNoticeBar";
+import Navbar from "./Navbar";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -58,22 +59,40 @@ const DashboardLayout = () => {
 
   return (
     <Box >
-      <Grid container >
+      <Grid container sx={{ height: "100vh", overflow: "hidden" }}>
         {/* Sidebar Grid Item */}
-        <Grid item md={2}>
+        <Grid item md={2} sx={{ height: "100vh", overflow: "hidden" }}>
           <Sidebar />
         </Grid>
 
         {/* Main Content Grid Item */}
-        <Grid item xs={12} md={10}>
-          <Grid container>
-            <Grid item md={12}>
+        <Grid item xs={12} md={10} sx={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          <Navbar />
+          <Grid container sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <Grid item xs={12} sx={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
               <Box
                 sx={{
-                 pt:"20px",
-                  minHeight: "100vh",
+                  pt: "20px",
+                  flex: 1,
+                  minHeight: 0,
                   boxSizing: "border-box",
-                  bgcolor:"#ECECEC"
+                  bgcolor: "#ECECEC",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  "&::-webkit-scrollbar": {
+                    width: "4px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#f1f1f1",
+                    borderRadius: "2px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#888",
+                    borderRadius: "2px",
+                    "&:hover": {
+                      background: "#555",
+                    },
+                  },
                 }}
               >
                 <BalanceNoticeBar />

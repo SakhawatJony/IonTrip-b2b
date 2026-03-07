@@ -1,19 +1,57 @@
 import React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 
-const rows = [
-  { label: "Traveler 1 : Adult", value: "55,400.00" },
-  { label: "Traveler 1 : Child", value: "55,400.00" },
-  { label: "Traveler 1 : Infant", value: "55,400.00" },
-];
+const BookingQueFareDetails = ({ data }) => {
+  const pricebreakdown = data?.pricebreakdown || [];
+  const currency = data?.farecurrency || "MYR";
 
-const summaryRows = [
-  { label: "Total Base Fare", value: "55,400.00" },
-  { label: "Total Tax & Fee", value: "55,400.00" },
-  { label: "Discount", value: "55,400.00" },
-];
+  // Format number with commas
+  const formatNumber = (num) => {
+    if (!num && num !== 0) return "0.00";
+    const numStr = typeof num === "string" ? num : String(num);
+    const parts = numStr.split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.length > 1 ? `${parts[0]}.${parts[1]}` : `${parts[0]}.00`;
+  };
 
-const BookingQueFareDetails = () => {
+  // Build traveler rows from pricebreakdown
+  const buildTravelerRows = () => {
+    return pricebreakdown.map((item, index) => {
+      const paxType = item.PaxType || "ADULT";
+      const paxCount = item.PaxCount || "1";
+      const baseFare = parseFloat(item.BaseFare || 0) * parseFloat(paxCount);
+      const tax = parseFloat(item.Tax || 0) * parseFloat(paxCount);
+      const total = baseFare + tax;
+      
+      return {
+        label: `Traveler ${index + 1} : ${paxType} (x${paxCount})`,
+        value: `${formatNumber(total)} ${currency}`,
+      };
+    });
+  };
+
+  const rows = buildTravelerRows();
+
+  // Calculate summary
+  const totalBaseFare = pricebreakdown.reduce((sum, item) => {
+    return sum + (parseFloat(item.BaseFare || 0) * parseFloat(item.PaxCount || 1));
+  }, 0);
+
+  const totalTax = pricebreakdown.reduce((sum, item) => {
+    return sum + (parseFloat(item.Tax || 0) * parseFloat(item.PaxCount || 1));
+  }, 0);
+
+  const totalDiscount = pricebreakdown.reduce((sum, item) => {
+    return sum + (parseFloat(item.Discount || 0) * parseFloat(item.PaxCount || 1));
+  }, 0);
+
+  const summaryRows = [
+    { label: "Total Base Fare", value: `${formatNumber(totalBaseFare)} ${currency}` },
+    { label: "Total Tax & Fee", value: `${formatNumber(totalTax)} ${currency}` },
+    { label: "Discount", value: `-${formatNumber(totalDiscount)} ${currency}` },
+  ];
+
+  const grandTotal = parseFloat(data?.netPrice || data?.clientFare || 0);
   return (
     <Box
       sx={{
@@ -28,28 +66,34 @@ const BookingQueFareDetails = () => {
           Fare Breakdown
         </Typography>
         <Typography fontSize={11} color="#64748B">
-          Price as shown in BDT
+          Price as shown in {currency}
         </Typography>
       </Box>
 
-      {rows.map((row) => (
-        <Box
-          key={row.label}
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            py: 0.35,
-          }}
-        >
-          <Typography fontSize={11} color="#475569">
-            {row.label}
-          </Typography>
-          <Typography fontSize={11} color="#0F172A" fontWeight={600}>
-            {row.value}
-          </Typography>
-        </Box>
-      ))}
+      {rows.length === 0 ? (
+        <Typography sx={{ fontSize: 11, color: "#6B7280", textAlign: "center", py: 1 }}>
+          No fare breakdown available
+        </Typography>
+      ) : (
+        rows.map((row) => (
+          <Box
+            key={row.label}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 0.35,
+            }}
+          >
+            <Typography fontSize={11} color="#475569">
+              {row.label}
+            </Typography>
+            <Typography fontSize={11} color="#0F172A" fontWeight={600}>
+              {row.value}
+            </Typography>
+          </Box>
+        ))
+      )}
 
       <Divider sx={{ my: 1 }} />
 
@@ -79,7 +123,7 @@ const BookingQueFareDetails = () => {
           Grand Total
         </Typography>
         <Typography fontSize={12} fontWeight={700} color="#0F2F56">
-          55,400.00
+          {formatNumber(grandTotal)} {currency}
         </Typography>
       </Box>
     </Box>

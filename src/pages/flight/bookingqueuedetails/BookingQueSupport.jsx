@@ -30,7 +30,7 @@ const BookingQueSupport = () => {
         <Typography fontSize={11} color="#475569">
           Write to us at{" "}
           <Box component="span" sx={{ color: "#0F2F56", fontWeight: 600 }}>
-            support@flyfar.tech
+            support@iontrip.tech
           </Box>
         </Typography>
       </Box>

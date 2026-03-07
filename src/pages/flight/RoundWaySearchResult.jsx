@@ -720,18 +720,39 @@ const RoundWaySearchResult = () => {
             {loading ? (
               <OnewayFilterSkeleton />
             ) : (
-            <OnewayFlightFilter
-              stops={filterData.stops}
-              airlines={filterData.airlines}
-              refundableOptions={filterData.refundableOptions}
-              departTimes={filterData.departTimes}
-              arriveTimes={filterData.arriveTimes}
-              filterState={filterState}
-              priceBounds={priceBounds}
+            <Box
+              sx={{
+                height: "calc(100vh - 120px)",
+                overflowY: "auto",
+                overflowX: "hidden",
+                pr: 1,
+                "&::-webkit-scrollbar": {
+                  width: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "#f1f1f1",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#888",
+                  borderRadius: "2px",
+                  "&:hover": {
+                    background: "#555",
+                  },
+                },
+              }}
+            >
+              <OnewayFlightFilter
+                stops={filterData.stops}
+                airlines={filterData.airlines}
+                refundableOptions={filterData.refundableOptions}
+                departTimes={filterData.departTimes}
+                arriveTimes={filterData.arriveTimes}
+                filterState={filterState}
+                priceBounds={priceBounds}
                 currency={effectiveCurrency}
-              onPriceRangeChange={handlePriceRangeChange}
-              onFilterChange={handleFilterChange}
-              onReset={handleResetFilters}
+                onPriceRangeChange={handlePriceRangeChange}
+                onFilterChange={handleFilterChange}
+                onReset={handleResetFilters}
                 enableRouteTimeTabs
                 routeLabels={{
                   outboundFrom: extractRouteLabel(searchParams.from),
@@ -739,60 +760,82 @@ const RoundWaySearchResult = () => {
                   outboundTo: extractRouteLabel(searchParams.to),
                   inboundTo: extractRouteLabel(searchParams.from),
                 }}
-            />
+              />
+            </Box>
             )}
           </Grid>
 
           <Grid item xs={12} md={9.6}>
             <Box
               sx={{
-                display: "flex",
-                alignItems: { xs: "flex-start", md: "center" },
-                justifyContent: "space-between",
-                mb: 2,
-                flexDirection: { xs: "column", md: "row" },
-                gap: 1.5,
+                height: "calc(100vh - 120px)",
+                overflowY: "auto",
+                overflowX: "hidden",
+                pr: 1,
+                "&::-webkit-scrollbar": {
+                  width: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "#f1f1f1",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#888",
+                  borderRadius: "2px",
+                  "&:hover": {
+                    background: "#555",
+                  },
+                },
               }}
             >
-              <Box>
-                <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
-                  {searchParams.from} ⇄ {searchParams.to}
-                </Typography>
-                <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                  {loading
-                    ? "Searching round-way flights..."
-                    : `${filteredFlights.length} Round-trip flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
-                </Typography>
-                <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                  {searchParams.travelDate || "-"} → {searchParams.returnDate || "-"} |{" "}
-                  {searchParams.travelClass}
-                </Typography>
-                {error ? <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography> : null}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: { xs: "flex-start", md: "center" },
+                  justifyContent: "space-between",
+                  mb: 2,
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: 1.5,
+                }}
+              >
+                <Box>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
+                    {searchParams.from} ⇄ {searchParams.to}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
+                    {loading
+                      ? "Searching round-way flights..."
+                      : `${filteredFlights.length} Round-trip flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
+                    {searchParams.travelDate || "-"} → {searchParams.returnDate || "-"} |{" "}
+                    {searchParams.travelClass}
+                  </Typography>
+                  {error ? <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography> : null}
+                </Box>
               </Box>
-            </Box>
 
-            {!loading && flights.length > 0 && (
-              <AirlineFilterCard
+              {!loading && flights.length > 0 && (
+                <AirlineFilterCard
+                  flights={flights}
+                  selectedAirlines={filterState.airlines || []}
+                  onAirlineSelect={handleAirlineSelect}
+                  onAirlineDeselect={handleAirlineDeselect}
+                  currency={effectiveCurrency}
+                />
+              )}
+
+              {loading ? (
+                <FlightSortFilterSkeleton />
+              ) : (
+              <FlightSortFilter
                 flights={flights}
-                selectedAirlines={filterState.airlines || []}
-                onAirlineSelect={handleAirlineSelect}
-                onAirlineDeselect={handleAirlineDeselect}
-                currency={effectiveCurrency}
+                sortBy={sortBy}
+                onSortChange={handleSortChange}
+                  currency={effectiveCurrency}
               />
-            )}
+              )}
 
-            {loading ? (
-              <FlightSortFilterSkeleton />
-            ) : (
-            <FlightSortFilter
-              flights={flights}
-              sortBy={sortBy}
-              onSortChange={handleSortChange}
-                currency={effectiveCurrency}
-            />
-            )}
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {loading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <OnewayFlightSkeleton key={`roundway-flight-skeleton-${index}`} />
@@ -841,6 +884,7 @@ const RoundWaySearchResult = () => {
                   )}
                 </>
               )}
+              </Box>
             </Box>
           </Grid>
         </Grid>

@@ -51,7 +51,7 @@ const HomeSearchBox = () => {
           // boxShadow: "0 12px 35px rgba(15, 35, 52, 0.12)",
           // pt: 6,
         
-          px: "20px",
+         
         }}
       >
         {tabValue === 0 && (

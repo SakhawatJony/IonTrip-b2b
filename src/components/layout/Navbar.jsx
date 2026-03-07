@@ -4,31 +4,38 @@ import {
   Box,
   Button,
   Typography,
-  FormControl,
+  IconButton,
+  Avatar,
+  Menu,
   MenuItem,
-  Select,
 } from "@mui/material";
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+
+const navItems = [
+  { label: "Home", path: "/" },
+  { label: "About Us", path: "/features" },
+  { label: "Support", path: "/contact" },
+];
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { currency, setCurrency } = useAuth();
-  const currencies = useMemo(
-    () => [
-      { code: "MYR", label: "MYR", flagCode: "my" },
-      { code: "BDT", label: "BDT", flagCode: "bd" },
-      { code: "USD", label: "USD", flagCode: "us" },
-      { code: "GBP", label: "GBP", flagCode: "gb" },
-      { code: "INR", label: "INR", flagCode: "in" },
-      { code: "PKR", label: "PKR", flagCode: "pk" },
-      { code: "EUR", label: "EUR", flagCode: "eu" },
-    ],
-    []
-  );
-  const getFlagUrl = (flagCode) =>
-    `https://flagcdn.com/w20/${flagCode}.png`;
+  const location = useLocation();
+  const { agentToken, agentData, clearAuthSession } = useAuth();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const isLoggedIn = Boolean(agentToken);
+
+  const handleAgentMenuOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleAgentMenuClose = () => setAnchorEl(null);
+  const handleLogout = () => {
+    clearAuthSession();
+    handleAgentMenuClose();
+    navigate("/login");
+  };
+
+  const agentName = agentData?.name || agentData?.agentName || agentData?.email || "";
+  const agentInitial = agentName ? String(agentName).trim().charAt(0).toUpperCase() : "A";
 
 
   // Get CSS variable values
@@ -48,90 +55,93 @@ export default function Navbar() {
   return (
     <Container >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Typography fontWeight="bold" fontSize={22} color="#123d6e" sx={{pl:"20px"}}>
+        <Typography
+          component={Link}
+          to="/"
+          fontWeight="bold"
+          fontSize={22}
+          color="#123d6e"
+          sx={{ pl: "20px", textDecoration: "none" }}
+        >
           IonTrip
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 3 }}>
-          {["Home", "About Us", "Support"].map((item) => (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+          {navItems.map(({ label, path }) => (
             <Typography
-              key={item}
+              key={path}
+              component={Link}
+              to={path}
               sx={{
-                color: primaryTextColor,
+                color: location.pathname === path ? primaryColor : primaryTextColor,
                 cursor: "pointer",
                 fontWeight: 700,
                 fontSize: "16px",
                 whiteSpace: "nowrap",
+                textDecoration: "none",
+                "&:hover": { color: primaryColor },
               }}
             >
-              {item}
+              {label}
             </Typography>
           ))}
-          {/* <FormControl variant="standard" sx={{ minWidth: 72 }}>
-            <Select
-              value={currency}
-              onChange={(event) => {
-                const nextCurrency = event.target.value;
-                setCurrency(nextCurrency);
-              }}
-              renderValue={(value) => {
-                const selected = currencies.find(
-                  (item) => item.code === value
-                );
-                return (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                    <Box
-                      component="img"
-                      src={selected ? getFlagUrl(selected.flagCode) : ""}
-                      alt={selected?.label || "Flag"}
-                      sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                    />
-                    <Box component="span">{selected?.label}</Box>
-                  </Box>
-                );
-              }}
-              sx={{
-                fontSize: "14px",
-                fontWeight: 700,
-                color: primaryTextColor,
-                "&:before": { borderBottom: "none" },
-                "&:after": { borderBottom: "none" },
-                "& .MuiSelect-icon": { color: primaryTextColor },
-              }}
-              disableUnderline
-            >
-              {currencies.map((item) => (
-                <MenuItem key={item.code} value={item.code}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                    <Box
-                      component="img"
-                      src={getFlagUrl(item.flagCode)}
-                      alt={`${item.label} flag`}
-                      sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                    />
-                    <Box component="span">{item.label}</Box>
-                  </Box>
+          {isLoggedIn ? (
+            <>
+              <IconButton
+                onClick={handleAgentMenuOpen}
+                sx={{
+                  color: primaryColor,
+                  p: 0.5,
+                  "&:hover": { backgroundColor: "rgba(18, 61, 110, 0.08)" },
+                }}
+                aria-label="Agent account"
+              >
+                <Avatar
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    bgcolor: primaryColor,
+                    fontSize: "1rem",
+                  }}
+                >
+                  {agentInitial}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleAgentMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem
+                  component={Link}
+                  to="/dashboard/account"
+                  onClick={handleAgentMenuClose}
+                >
+                  Account
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
-          <Button
-            onClick={() => navigate("/login")}
-            sx={{
-              backgroundColor: primaryColor,
-              color: whiteColor,
-              borderRadius: "17px",
-              width: "100px",
-              textTransform: "capitalize",
-
-              "&:hover": {
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              onClick={() => navigate("/login")}
+              sx={{
                 backgroundColor: primaryColor,
-                opacity: 0.9,
-              },
-            }}
-          >
-            Sign In
-          </Button>
+                color: whiteColor,
+                borderRadius: "17px",
+                width: "100px",
+                textTransform: "capitalize",
+                "&:hover": {
+                  backgroundColor: primaryColor,
+                  opacity: 0.9,
+                },
+              }}
+            >
+              Sign In
+            </Button>
+          )}
         </Box>
       </Toolbar>
     </Container>

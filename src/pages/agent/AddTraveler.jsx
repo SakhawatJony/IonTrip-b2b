@@ -375,7 +375,7 @@ const AddTraveler = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 2, md: 7 },
+        px: { xs: 2, md: 4 },
         py: 4,
       }}
     >

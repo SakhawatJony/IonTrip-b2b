@@ -325,7 +325,7 @@ const MultiCity = () => {
           width: "100%",
           gap: 2,
           mt: 3,
-          mb: 4,
+          mb: 1,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" }}>
@@ -440,7 +440,7 @@ const MultiCity = () => {
       <Box
         sx={{
           position: "absolute",
-          bottom: "-24px",
+          bottom: "-18px",
           left: "50%",
           transform: "translateX(-50%)",
         }}

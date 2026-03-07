@@ -9,7 +9,7 @@ const BalanceNoticeBar = () => {
   const { agentToken, agentData, currency } = useAuth();
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
   const agentEmail = agentData?.email || "";
-  
+
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -76,14 +76,14 @@ const BalanceNoticeBar = () => {
   return (
     <Box
       sx={{
-        mx: "80px",
+        mx: "30px",
         backgroundColor: "var(--white)",
         borderRadius: "2px",
         px: 2,
         py: 1,
         display: "flex",
         alignItems: "center",
-      
+
         gap: 2,
       }}
     >
@@ -118,7 +118,7 @@ const BalanceNoticeBar = () => {
       <Button
         disableRipple
         className="check-balance-btn"
-        startIcon={<span style={{fontSize: "13.8px",color:"var(--primary-color)"}} className="check-balance-icon">{currencySymbol}</span>}
+        startIcon={<span style={{ fontSize: "13.8px", color: "var(--primary-color)" }} className="check-balance-icon">{currencySymbol}</span>}
         disabled={loading}
       >
         {loading ? (

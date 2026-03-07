@@ -956,7 +956,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
           width: "100%",
           gap: 2,
           mt: 3,
-          mb: 4,
+          mb: 1,
         }}
       >
         {/* Left Side: Direct Flight and Student Fare */}
@@ -1075,7 +1075,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
       <Box
         sx={{
           position: "absolute",
-          bottom: "-24px",
+          bottom: "-18px",
           left: "50%",
           transform: "translateX(-50%)",
         }}

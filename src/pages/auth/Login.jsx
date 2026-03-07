@@ -4,6 +4,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PublicLayout from "../../components/layout/PublicLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -36,6 +37,11 @@ const Login = () => {
     } else {
       toast.error(message, options);
     }
+  };
+
+  const copyToClipboard = (text) => {
+    const value = String(text || "").trim();
+    if (value) navigator.clipboard.writeText(value);
   };
 
   const handleLogin = async () => {
@@ -174,6 +180,19 @@ const Login = () => {
                   boxShadow: "none",
                 }}
               />
+              <IconButton
+                onClick={() => copyToClipboard(email)}
+                edge="end"
+                sx={{
+                  color: "#9E9E9E",
+                  ml: 1,
+                  padding: "4px",
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                }}
+                title="Copy email"
+              >
+                <ContentCopyIcon sx={{ fontSize: "20px" }} />
+              </IconButton>
             </Box>
           </Box>
 
@@ -225,16 +244,30 @@ const Login = () => {
                 }}
               />
               <IconButton
-                onClick={() => setShowPassword((prev) => !prev)}
+                onClick={() => copyToClipboard(password)}
                 edge="end"
                 sx={{
                   color: "#9E9E9E",
                   ml: 1,
                   padding: "4px",
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                }}
+                title="Copy password"
+              >
+                <ContentCopyIcon sx={{ fontSize: "20px" }} />
+              </IconButton>
+              <IconButton
+                onClick={() => setShowPassword((prev) => !prev)}
+                edge="end"
+                sx={{
+                  color: "#9E9E9E",
+                  ml: 0.5,
+                  padding: "4px",
                   "&:hover": {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
+                title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <VisibilityOffIcon sx={{ fontSize: "20px" }} />

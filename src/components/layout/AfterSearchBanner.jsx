@@ -6,7 +6,7 @@ const AfterSearchBanner = ({ initialSearchParams }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "var(--primary-color)",
+        // backgroundColor: "var(--primary-color)",
         py: 4,
       }}
     >

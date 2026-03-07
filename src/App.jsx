@@ -37,7 +37,7 @@ export default function App() {
       <Route path="/verify-otp" element={<OtpVerification />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/features" element={<Features />} />
-      
+   
       {/* Dashboard Routes with Outlet */}
       <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />

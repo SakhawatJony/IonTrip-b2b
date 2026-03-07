@@ -551,7 +551,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 2, md: 7 },
+     px:"30px",
         py: 4,
       }}
     >

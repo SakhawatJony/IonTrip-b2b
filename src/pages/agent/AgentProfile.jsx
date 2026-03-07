@@ -71,7 +71,7 @@ const sectionCardSx = {
   backgroundColor: "#FFFFFF",
   border: "1px solid #E5E7EB",
   borderRadius: 1.5,
-  px: { xs: 2, md: 3 },
+  px: { xs: 2, md: 2 },
   py: { xs: 2, md: 2.5 },
 };
 
@@ -773,7 +773,7 @@ const AgentProfile = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          px: { xs: 2, md: 9.5 },
+          px: { xs: 2, md: 4 },
           py: 4,
           display: "flex",
           alignItems: "center",
@@ -806,7 +806,7 @@ const AgentProfile = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 2, md: 9.5 },
+        px: { xs: 2, md: 4},
         py: 4,
         display: "flex",
         flexDirection: "column",

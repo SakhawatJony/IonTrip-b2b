@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Typography, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
+import { Box, Button, Typography, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Pagination } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import TuneIcon from "@mui/icons-material/Tune";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,12 +19,12 @@ const tableColumns = [
   { key: "depositId", label: "Deposit ID", width: "120px" },
   { key: "depositType", label: "Type", width: "100px" },
   { key: "paymentMethod", label: "Payment Method", width: "140px" },
-  { key: "originalAmount", label: "Original Amount", width: "140px" },
+  { key: "originalAmount", label: "Amount", width: "140px" },
   { key: "currency", label: "Currency", width: "100px" },
-  { key: "conversionRate", label: "Rate", width: "100px" },
 
 
-  { key: "convertedAmount", label: "Converted Amount", width: "150px" },
+
+  
   { key: "paymentReason", label: "Payment Reason", width: "200px" },
   { key: "status", label: "Status", width: "120px" },
   { key: "adminNote", label: "Admin Note", width: "200px" },
@@ -36,13 +36,7 @@ const tableColumns = [
 
 const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
-const STATUS_OPTIONS = [
-  { value: "", label: "All Deposit" },
-  { value: "Pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "Hold", label: "Hold" },
-];
+
 
 const AgentAllDeposit = () => {
   const navigate = useNavigate();
@@ -105,9 +99,24 @@ const AgentAllDeposit = () => {
         : response?.data?.data || [];
       const paginationData = response?.data || {};
 
-      setDeposits(Array.isArray(depositsData) ? depositsData : []);
-      setTotalPages(paginationData.totalPages || 1);
-      setTotal(paginationData.total || depositsData.length || 0);
+      const depositsArray = Array.isArray(depositsData) ? depositsData : [];
+      setDeposits(depositsArray);
+      
+      // Calculate pagination: use API pagination if available, otherwise calculate from data length
+      const apiTotalPages = paginationData.totalPages;
+      const apiTotal = paginationData.total;
+      
+      if (apiTotalPages && apiTotal) {
+        // Backend pagination is working
+        setTotalPages(apiTotalPages);
+        setTotal(apiTotal);
+      } else {
+        // Backend returns all data, calculate pagination client-side
+        const calculatedTotal = depositsArray.length;
+        const calculatedTotalPages = Math.ceil(calculatedTotal / limit) || 1;
+        setTotalPages(calculatedTotalPages);
+        setTotal(calculatedTotal);
+      }
 
       // Extract currency from first deposit if available
       if (depositsData.length > 0 && depositsData[0]?.currency) {
@@ -192,7 +201,7 @@ const AgentAllDeposit = () => {
 
   // Map API deposit data to table row format
   const mapDepositToTableRow = (deposit, index) => {
-    const srlNo = index + 1;
+    const srlNo = (page - 1) * limit + index + 1;
     const depositId = deposit?.depositId || "NA";
     const depositType = deposit?.depositType || "NA";
     const paymentMethod = deposit?.paymentMethod || "NA";
@@ -416,7 +425,7 @@ const AgentAllDeposit = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 2, md: 7 },
+        px: { xs: 2, md: 4 },
         py: 4,
       }}
     >
@@ -560,7 +569,7 @@ const AgentAllDeposit = () => {
             overflowY: "auto",
           }}
         >
-          <Box sx={{ minWidth: 1980 }}>
+          <Box >
             <Box
               sx={{
                 display: "grid",
@@ -600,7 +609,7 @@ const AgentAllDeposit = () => {
                 <Typography sx={{ fontSize: 12, color: "#6B7280" }}>No deposits found</Typography>
               </Box>
             ) : (
-              deposits.map((deposit, index) => {
+              deposits.slice((page - 1) * limit, page * limit).map((deposit, index) => {
                 const row = mapDepositToTableRow(deposit, index);
                 return (
                   <Box
@@ -635,84 +644,48 @@ const AgentAllDeposit = () => {
           </Box>
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 0.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-            {/* Previous button */}
-            <Box
-              onClick={() => page > 1 && setPage(page - 1)}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pt: 2, flexWrap: "wrap", gap: 2 }}>
+          {/* Pagination Info */}
+          <Typography sx={{ fontSize: 12, color: "#6B7280", fontWeight: 500 }}>
+            {loading ? (
+              "Loading..."
+            ) : total > 0 ? (
+              `Showing ${(page - 1) * limit + 1} to ${Math.min(page * limit, total)} of ${total} entries`
+            ) : (
+              "No entries found"
+            )}
+          </Typography>
+
+          {/* Pagination Controls */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(event, value) => setPage(value)}
+              color="primary"
+              size="small"
               sx={{
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 600,
-                color: page > 1 ? "#1F2A44" : "#9CA3AF",
-                backgroundColor: page > 1 ? "#D1D5DB" : "#E5E7EB",
-                cursor: page > 1 ? "pointer" : "not-allowed",
+                "& .MuiPaginationItem-root": {
+                  fontSize: 12,
+                  minWidth: 32,
+                  height: 32,
+                  color: "#1F2A44",
+                  "&.Mui-selected": {
+                    backgroundColor: "#0F2F56",
+                    color: "#FFFFFF",
+                    "&:hover": {
+                      backgroundColor: "#0B2442",
+                    },
+                  },
+                  "&:hover": {
+                    backgroundColor: "#EAF2FF",
+                  },
+                },
+                "& .MuiPaginationItem-ellipsis": {
+                  color: "#6B7280",
+                },
               }}
-            >
-              ‹
-            </Box>
-
-            {/* Page numbers */}
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (page <= 3) {
-                pageNum = i + 1;
-              } else if (page >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = page - 2 + i;
-              }
-
-              const isActive = page === pageNum;
-              return (
-                <Box
-                  key={pageNum}
-                  onClick={() => setPage(pageNum)}
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: isActive ? "#FFFFFF" : "#1F2A44",
-                    backgroundColor: isActive ? "#0F2F56" : "#EAF2FF",
-                    cursor: "pointer",
-                  }}
-                >
-                  {pageNum}
-                </Box>
-              );
-            })}
-
-            {/* Next button */}
-            <Box
-              onClick={() => page < totalPages && setPage(page + 1)}
-              sx={{
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 600,
-                color: page < totalPages ? "#1F2A44" : "#9CA3AF",
-                backgroundColor: page < totalPages ? "#D1D5DB" : "#E5E7EB",
-                cursor: page < totalPages ? "pointer" : "not-allowed",
-              }}
-            >
-              ›
-            </Box>
+            />
           </Box>
         </Box>
       </Box>

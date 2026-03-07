@@ -940,7 +940,30 @@ const OneWaySearchResult = () => {
             {loading ? (
               <OnewayFilterSkeleton />
             ) : (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                  height: "calc(100vh - 180px)",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  pr: 1,
+                  "&::-webkit-scrollbar": {
+                    width: "4px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#f1f1f1",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#888",
+                    borderRadius: "2px",
+                    "&:hover": {
+                      background: "#555",
+                    },
+                  },
+                }}
+              >
                 {!isSessionExpired ? (
                   <Box
                     sx={{
@@ -992,87 +1015,108 @@ const OneWaySearchResult = () => {
           <Grid item xs={12} md={9.6}>
             <Box
               sx={{
-                display: "flex",
-                alignItems: { xs: "flex-start", md: "center" },
-                justifyContent: "space-between",
-                mb: 2,
-                flexDirection: { xs: "column", md: "row" },
-                gap: 1.5,
+                height: "calc(100vh - 120px)",
+                overflowY: "auto",
+                overflowX: "hidden",
+                pr: 1,
+                "&::-webkit-scrollbar": {
+                  width: "4px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "#f1f1f1",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#888",
+                  borderRadius: "2px",
+                  "&:hover": {
+                    background: "#555",
+                  },
+                },
               }}
             >
-              <Box>
-                <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
-                  {from} → {to}
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                    {loading
-                      ? "Searching flights..."
-                      : `${filteredAndSortedFlights.length} Flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: { xs: "flex-start", md: "center" },
+                  justifyContent: "space-between",
+                  mb: 2,
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: 1.5,
+                }}
+              >
+                <Box>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
+                    {from} → {to}
                   </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                    {travelDate || "Travel date not set"} | {travelClass}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                    {passengerSummary} | Direct flight: {directFlight ? "Yes" : "No"}
-                  </Typography>
-                  {childAgeSummary ? (
+                  <Box sx={{ display: "flex", gap: 1 }}>
                     <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                      {childAgeSummary}
+                      {loading
+                        ? "Searching flights..."
+                        : `${filteredAndSortedFlights.length} Flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
                     </Typography>
-                  ) : null}
-                  {error ? (
-                    <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography>
-                  ) : null}
+                    <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
+                      {travelDate || "Travel date not set"} | {travelClass}
+                    </Typography>
+                    <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
+                      {passengerSummary} | Direct flight: {directFlight ? "Yes" : "No"}
+                    </Typography>
+                    {childAgeSummary ? (
+                      <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
+                        {childAgeSummary}
+                      </Typography>
+                    ) : null}
+                    {error ? (
+                      <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography>
+                    ) : null}
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography sx={{ fontSize: 13, color: "#6B6B6B" }}>Sort By</Typography>
+                  <Select
+                    size="small"
+                    // value={sortBy}
+                    // onChange={(e) => handleSortChange(e.target.value)}
+                    sx={{
+                      backgroundColor: "#FFFFFF",
+                      fontSize: 13,
+                      height: 34,
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(0,0,0,0.12)",
+                      },
+                    }}
+                  >
+                    <MenuItem value="lowest">AgentFare</MenuItem>
+                    <MenuItem value="highest">ClientFare</MenuItem>
+                 
+                  </Select>
                 </Box>
               </Box>
 
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography sx={{ fontSize: 13, color: "#6B6B6B" }}>Sort By</Typography>
-                <Select
-                  size="small"
-                  // value={sortBy}
-                  // onChange={(e) => handleSortChange(e.target.value)}
-                  sx={{
-                    backgroundColor: "#FFFFFF",
-                    fontSize: 13,
-                    height: 34,
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "rgba(0,0,0,0.12)",
-                    },
-                  }}
-                >
-                  <MenuItem value="lowest">AgentFare</MenuItem>
-                  <MenuItem value="highest">ClientFare</MenuItem>
-               
-                </Select>
-              </Box>
-            </Box>
+             
 
-           
+              {/* Airline Filter Card */}
+              {!loading && flights.length > 0 && (
+                <AirlineFilterCard
+                  flights={flights}
+                  selectedAirlines={filterState.airlines || []}
+                  onAirlineSelect={handleAirlineSelect}
+                  onAirlineDeselect={handleAirlineDeselect}
+                  currency={effectiveCurrency}
+                />
+              )}
+               {loading ? (
+                <FlightSortFilterSkeleton />
+              ) : (
+                <FlightSortFilter
+                  flights={flights}
+                  sortBy={sortBy}
+                  onSortChange={handleSortChange}
+                  currency={effectiveCurrency}
+                />
+              )}
 
-            {/* Airline Filter Card */}
-            {!loading && flights.length > 0 && (
-              <AirlineFilterCard
-                flights={flights}
-                selectedAirlines={filterState.airlines || []}
-                onAirlineSelect={handleAirlineSelect}
-                onAirlineDeselect={handleAirlineDeselect}
-                currency={effectiveCurrency}
-              />
-            )}
-             {loading ? (
-              <FlightSortFilterSkeleton />
-            ) : (
-              <FlightSortFilter
-                flights={flights}
-                sortBy={sortBy}
-                onSortChange={handleSortChange}
-                currency={effectiveCurrency}
-              />
-            )}
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {loading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <OnewayFlightSkeleton key={`flight-skeleton-${index}`} />
@@ -1093,8 +1137,8 @@ const OneWaySearchResult = () => {
                     );
                   })}
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
+                  {/* Pagination - show when there are results (even for single page) */}
+                  {filteredAndSortedFlights.length > 0 && totalPages >= 1 && (
                     <Box
                       sx={{
                         display: "flex",
@@ -1105,7 +1149,7 @@ const OneWaySearchResult = () => {
                       }}
                     >
                       <Pagination
-                        count={totalPages}
+                        count={Math.max(1, totalPages)}
                         page={currentPage}
                         onChange={handlePageChange}
                         color="primary"
@@ -1138,6 +1182,7 @@ const OneWaySearchResult = () => {
                   )}
                 </>
               )}
+              </Box>
             </Box>
           </Grid>
         </Grid>
