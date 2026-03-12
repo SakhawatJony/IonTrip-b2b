@@ -52,6 +52,27 @@ const BookingQueFareDetails = ({ data }) => {
   ];
 
   const grandTotal = parseFloat(data?.netPrice || data?.clientFare || 0);
+  const airlineCharge = parseFloat(data?.airlineCharge ?? data?.airlineChargeAmount ?? 0);
+  const refundFare = parseFloat(data?.refundFare ?? data?.refundAmount ?? data?.netPrice ?? data?.clientFare ?? 0);
+
+  const renderRow = (label, value, bold = false) => (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        py: 0.35,
+      }}
+    >
+      <Typography fontSize={bold ? 12 : 11} fontWeight={bold ? 700 : 400} color="#475569">
+        {label}
+      </Typography>
+      <Typography fontSize={bold ? 12 : 11} fontWeight={bold ? 700 : 600} color={bold ? "#0F2F56" : "#0F172A"}>
+        {value}
+      </Typography>
+    </Box>
+  );
+
   return (
     <Box
       sx={{
@@ -118,14 +139,12 @@ const BookingQueFareDetails = ({ data }) => {
 
       <Divider sx={{ my: 1 }} />
 
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography fontSize={12} fontWeight={700} color="#0F172A">
-          Grand Total
-        </Typography>
-        <Typography fontSize={12} fontWeight={700} color="#0F2F56">
-          {formatNumber(grandTotal)} {currency}
-        </Typography>
-      </Box>
+      {renderRow("Grand Total", `${formatNumber(grandTotal)} ${currency}`, true)}
+
+      <Divider sx={{ my: 1 }} />
+
+      {renderRow("Airlines Charge", `${formatNumber(airlineCharge)} ${currency}`)}
+      {renderRow("Refund Fare", `${formatNumber(refundFare)} ${currency}`)}
     </Box>
   );
 };

@@ -1,8 +1,17 @@
 import React from "react";
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, Checkbox } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-const BookingQuePassengerList = ({ data }) => {
+const checkboxSx = { color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } };
+
+const BookingQuePassengerList = ({
+  data,
+  hideTitle = false,
+  hideBaggage = false,
+  selectable = false,
+  selectedPassengerIndices = [],
+  onPassengerSelectionChange,
+}) => {
   const travellers = data?.travellers || [];
   const segments = data?.segments || {};
   const pricebreakdown = data?.pricebreakdown || [];
@@ -59,17 +68,28 @@ const BookingQuePassengerList = ({ data }) => {
     return pricebreakdown[index]?.PaxType || "ADULT";
   };
 
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2,bgcolor:"white",p:1.5 }}>
-      <Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-          <Typography fontSize={14} fontWeight={700} color="#111827">
-            Passenger Details
-          </Typography>
-          <InfoOutlinedIcon sx={{ fontSize: 14, color: "#94A3B8" }} />
-        </Box>
+  // Get ticket number(s) for a traveller: travellers[].Ticket[] = [{ TicketNo: "8567451" }]
+  const getTicketNo = (traveller) => {
+    const tickets = traveller?.Ticket;
+    if (Array.isArray(tickets) && tickets.length > 0) {
+      const nos = tickets.map((t) => t?.TicketNo).filter(Boolean);
+      return nos.length > 0 ? nos.join(", ") : data?.gdsPNR || data?.airlinePNR || "—";
+    }
+    return data?.gdsPNR || data?.airlinePNR || "—";
+  };
 
-      </Box>
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, bgcolor: "white", p: 1.5 }}>
+      {!hideTitle && (
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+            <Typography fontSize={14} fontWeight={700} color="#111827">
+              Passenger Details
+            </Typography>
+            <InfoOutlinedIcon sx={{ fontSize: 14, color: "#94A3B8" }} />
+          </Box>
+        </Box>
+      )}
       {travellers.length === 0 ? (
         <Typography sx={{ fontSize: 14, color: "#6B7280", textAlign: "center", py: 2 }}>
           No passenger data available
@@ -84,13 +104,22 @@ const BookingQuePassengerList = ({ data }) => {
             { label: "Date of Birth", value: formatDate(traveller.dateOfBirth) },
             { label: "Passport No", value: traveller.passportNumber || "N/A" },
             { label: "Expire Date", value: formatDate(traveller.passportExpireDate) },
-            { label: "Ticket No", value: data?.gdsPNR || data?.airlinePNR || "N/A" },
+            { label: "Ticket No", value: getTicketNo(traveller) },
           ];
 
           return (
             <Grid container spacing={1} key={index} alignItems="stretch">
+              {selectable && (
+                <Grid item xs={1} sx={{ display: "flex", alignItems: "center", pr: 0 }}>
+                  <Checkbox
+                    checked={selectedPassengerIndices.includes(index)}
+                    onChange={(e) => onPassengerSelectionChange?.(index, e.target.checked)}
+                    sx={checkboxSx}
+                  />
+                </Grid>
+              )}
               {/* Passenger Card */}
-              <Grid item xs={12} md={8}>
+              <Grid item xs={selectable ? 11 : 12} md={hideBaggage ? (selectable ? 11 : 12) : (selectable ? 7 : 8)}>
                 <Box
                   sx={{
                     background: "#DAEBFF",
@@ -131,59 +160,61 @@ const BookingQuePassengerList = ({ data }) => {
                 </Box>
               </Grid>
 
-              {/* Baggage Card */}
-              <Grid item xs={12} md={4}>
-                <Box
-                  sx={{
-                    background: "#D2E7FF",
-                    borderRadius: "2px",
-                    px: "10px",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Grid container spacing={2}>
-                    {/* Header Row */}
-                    <Grid item xs={4}>
-                      <Typography fontSize={10.5} color="#5B6B82" mb={0.3} noWrap>
-                        Route
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4} textAlign="center">
-                      <Typography fontSize={10.5} color="#5B6B82" mb={0.3} noWrap>
-                        Cabin Bag
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4} textAlign="right">
-                      <Typography fontSize={10} color="#5B6B82" mb={0.3} noWrap>
-                        Checkin Bag
-                      </Typography>
-                    </Grid>
+              {/* Baggage Card - hidden when hideBaggage */}
+              {!hideBaggage && (
+                <Grid item xs={12} md={4}>
+                  <Box
+                    sx={{
+                      background: "#D2E7FF",
+                      borderRadius: "2px",
+                      px: "10px",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Grid container spacing={2}>
+                      {/* Header Row */}
+                      <Grid item xs={4}>
+                        <Typography fontSize={10.5} color="#5B6B82" mb={0.3} noWrap>
+                          Route
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4} textAlign="center">
+                        <Typography fontSize={10.5} color="#5B6B82" mb={0.3} noWrap>
+                          Cabin Bag
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4} textAlign="right">
+                        <Typography fontSize={10} color="#5B6B82" mb={0.3} noWrap>
+                          Checkin Bag
+                        </Typography>
+                      </Grid>
 
-                    {/* Data Rows */}
-                    {baggage.map((b, i) => (
-                      <React.Fragment key={i}>
-                        <Grid item xs={4}>
-                          <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
-                            {b.route}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={4} textAlign="center">
-                          <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
-                            {b.cabin}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={4} textAlign="right">
-                          <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
-                            {b.checkin}
-                          </Typography>
-                        </Grid>
-                      </React.Fragment>
-                    ))}
-                  </Grid>
-                </Box>
-              </Grid>
+                      {/* Data Rows */}
+                      {baggage.map((b, i) => (
+                        <React.Fragment key={i}>
+                          <Grid item xs={4}>
+                            <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
+                              {b.route}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4} textAlign="center">
+                            <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
+                              {b.cabin}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4} textAlign="right">
+                            <Typography fontSize={12} fontWeight={500} color="var(--primary-color)" noWrap>
+                              {b.checkin}
+                            </Typography>
+                          </Grid>
+                        </React.Fragment>
+                      ))}
+                    </Grid>
+                  </Box>
+                </Grid>
+              )}
             </Grid>
           );
         })

@@ -58,6 +58,7 @@ const SearchReport = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
 
   const fetchRecentSearches = useCallback(async () => {
     const agentEmail = agentData?.email || "";
@@ -587,13 +588,26 @@ const SearchReport = () => {
                 <Typography sx={{ fontSize: 12, color: "#6B7280" }}>No search data found</Typography>
               </Box>
             ) : (
-              tableRows.map((row, index) => (
+              tableRows.map((row, index) => {
+                const isRowHovered = hoveredRowIndex === index;
+                const isEvenRow = index % 2 === 0;
+                return (
               <Box
                 key={`${row.reference}-${index}`}
+                onMouseEnter={() => setHoveredRowIndex(index)}
+                onMouseLeave={() => setHoveredRowIndex(null)}
                 sx={{
                   display: "grid",
                   gridTemplateColumns: tableGridTemplate,
                   alignItems: "stretch",
+                  backgroundColor: isRowHovered ? "#FFFFFF" : isEvenRow ? "#FFFFFF" : "#F8FAFC",
+                  borderRadius: 1,
+                  mb: 0.5,
+                  transition: "box-shadow 0.2s ease, background-color 0.15s ease",
+                  ...(isRowHovered && {
+                    backgroundColor: "#FFFFFF",
+                    boxShadow: "0 8px 16px -2px rgba(0, 0, 0, 0.1)",
+                  }),
                 }}
               >
                 {tableColumns.map((column) => (
@@ -605,13 +619,15 @@ const SearchReport = () => {
                       px: 2,
                       py: 1.4,
                       borderBottom: "1px solid #E5E7EB",
+                      backgroundColor: "transparent",
                     }}
                   >
                     {renderCell(column.key, row[column.key])}
                   </Box>
                 ))}
               </Box>
-            ))
+                );
+              })
             )}
           </Box>
         </Box>

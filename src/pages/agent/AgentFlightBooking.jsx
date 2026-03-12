@@ -13,7 +13,7 @@ const headerTitleSx = {
   color: "#0F172A",
 };
 
-// Status mapping from API to display labels
+// Status mapping from API to display labels (Booked shown as Hold in stats)
 const statusLabelMap = {
   "ticketed": "Ticketed",
   "reissue": "Reissue",
@@ -21,22 +21,22 @@ const statusLabelMap = {
   "void": "Void",
   "hold": "Hold",
   "issueinprocess": "Issue in Process",
-  "booked": "Booked",
+  "booked": "Hold",
 };
 
 const tableColumns = [
-  { key: "bookingId", label: "Booking Id", width: "120px" },
-  { key: "customer", label: "Customer", width: "150px" },
-  { key: "route", label: "Route", width: "110px" },
-  { key: "type", label: "Type", width: "100px" },
-  { key: "pnr", label: "PNR", width: "90px" },
-  { key: "bookingTime", label: "Booking Time", width: "150px" },
-  { key: "dueAmount", label: "Due Amount", width: "120px" },
-  { key: "grossFare", label: "Gross Fare", width: "110px" },
-  { key: "ticketFare", label: "Ticket Fare", width: "110px" },
-  { key: "pax", label: "PAX", width: "70px" },
-  { key: "airline", label: "Airline", width: "140px" },
-  { key: "flightDate", label: "Flight Date", width: "120px" },
+  { key: "bookingId", label: "Booking Id", width: "100px" },
+  { key: "customer", label: "Customer", width: "120px" },
+  { key: "route", label: "Route", width: "80px" },
+  { key: "type", label: "Type", width: "80px" },
+  { key: "pnr", label: "PNR", width: "60px" },
+  { key: "bookingTime", label: "Booking Time", width: "100px" },
+  { key: "dueAmount", label: "Due Amount", width: "80px" },
+  { key: "grossFare", label: "Gross Fare", width: "80px" },
+  { key: "ticketFare", label: "Ticket Fare", width: "80px" },
+  { key: "pax", label: "PAX", width: "40px" },
+  { key: "airline", label: "Airline", width: "90px" },
+  { key: "flightDate", label: "Flight Date", width: "80px" },
   { key: "status", label: "Status", width: "110px" },
 ];
 
@@ -63,7 +63,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
   
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -77,6 +77,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
   const [pnrFilter, setPnrFilter] = useState("");
   const [airlinesFilter, setAirlinesFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleStatusClick = (event) => {
@@ -307,7 +308,13 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
     const pnr = booking?.gdsPNR || booking?.airlinePNR || "-";
     
     const bookingTime = booking?.bookingDateTime
-      ? new Date(booking.bookingDateTime).toLocaleString()
+      ? (() => {
+          const d = new Date(booking.bookingDateTime);
+          const day = d.getDate();
+          const month = d.toLocaleString("en-US", { month: "short" });
+          const year = d.getFullYear();
+          return `${day} ${month} ${year}`;
+        })()
       : "-";
     
     const grossFare = booking?.netPrice || 0;
@@ -335,7 +342,16 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
       pax: paxCount,
       airline: booking?.careerName || booking?.career || "-",
       carrierCode: booking?.careerCode || booking?.career || booking?.careerName?.substring(0, 2).toUpperCase() || "",
-      flightDate: booking?.godepartureDate || "-",
+      flightDate: (() => {
+        const raw = booking?.godepartureDate;
+        if (!raw) return "-";
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return raw;
+        const day = d.getDate();
+        const month = d.toLocaleString("en-US", { month: "short" });
+        const year = d.getFullYear();
+        return `${day} ${month} ${year}`;
+      })(),
       status: booking?.status || "-",
     };
   };
@@ -404,7 +420,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
         <Typography
           onClick={() => handleBookingIdClick(bookingId || value)}
           sx={{
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: 600,
             color: "#111827",
             backgroundColor: "#EEF2F6",
@@ -439,12 +455,12 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
       return (
         <Typography
           sx={{
-            fontSize: 11,
+            fontSize: 10.5,
             fontWeight: 600,
             color: statusColors.color,
             backgroundColor: statusColors.bg,
             borderRadius: 0.8,
-            px: 1.2,
+            px: 1,
             py: 0.4,
             width: "fit-content",
             whiteSpace: "nowrap",
@@ -465,16 +481,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
         : getAirlineLogoUrl(airlineName);
       const fallbackText = airlineCode || (airlineName ? airlineName.substring(0, 2).toUpperCase() : "-");
       const hasLogoError = logoErrors[airlineCode] || false;
-
-      // Capitalize airline name
-      const capitalizeAirline = (name) => {
-        if (!name || name === "-") return name;
-        return name
-          .split(" ")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(" ");
-      };
-      const capitalizedAirline = capitalizeAirline(airlineName);
+      const displayText = airlineCode ? airlineCode.toUpperCase() : (airlineName || "-");
 
       return (
         <Box
@@ -488,14 +495,14 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
             <Box
               component="img"
               src={logoUrl}
-              alt={capitalizedAirline || "Airline"}
+              alt={displayText}
               onError={() => {
                 if (airlineCode) {
                   setLogoErrors((prev) => ({ ...prev, [airlineCode]: true }));
                 }
               }}
               sx={{
-                width: 32,
+                width: 25,
                 height: 20,
                 objectFit: "contain",
                 flexShrink: 0,
@@ -504,7 +511,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
           ) : (
             <Box
               sx={{
-                width: 32,
+                width: 25,
                 height: 20,
                 display: "flex",
                 alignItems: "center",
@@ -522,13 +529,12 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
           )}
           <Typography
             sx={{
-              fontSize: 11,
+              fontSize: 10,
               color: "#111827",
               whiteSpace: "nowrap",
-              textTransform: "capitalize",
             }}
           >
-            {capitalizedAirline}
+            {displayText}
           </Typography>
         </Box>
       );
@@ -537,7 +543,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
     return (
       <Typography
         sx={{
-          fontSize: 11,
+          fontSize: 10.5,
           color: "#111827",
           whiteSpace: "nowrap",
         }}
@@ -815,7 +821,7 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
             // maxHeight: "55vh",
           }}
         >
-          <Box sx={{ minWidth: 1200 }}>
+          <Box >
             <Box
               sx={{
                 display: "grid",
@@ -830,14 +836,14 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    px: 2,
-                    py: 1,
-                    borderBottom: "1px solid #E5E7EB",
+                    justifyContent: "center",
                     
+                   py:1,
+                    borderBottom: "1px solid #E5E7EB",
                     backgroundColor: "#F8FAFC",
                   }}
                 >
-                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
+                  <Typography sx={{ fontSize: 10.5, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
                     {column.label}
                   </Typography>
                 </Box>
@@ -858,13 +864,25 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
             ) : (
               bookings.map((booking, index) => {
                 const row = mapBookingToTableRow(booking);
+                const isRowHovered = hoveredRowIndex === index;
                 return (
                   <Box
                     key={`${booking.bookingId || booking.id || index}-${index}`}
+                    onMouseEnter={() => setHoveredRowIndex(index)}
+                    onMouseLeave={() => setHoveredRowIndex(null)}
                     sx={{
                       display: "grid",
                       gridTemplateColumns: tableGridTemplate,
                       alignItems: "stretch",
+                      backgroundColor: "#FFFFFF",
+                      borderRadius: 1,
+                      mb: 0.5,
+                      transition: "box-shadow 0.2s ease",
+                      ...(isRowHovered && {
+                        backgroundColor: "#FFFFFF",
+                        boxShadow: "0 8px 20px -2px rgba(0, 0, 0, 0.1)",
+                        width: "100%",
+                      }),
                     }}
                   >
                     {tableColumns.map((column) => {
@@ -877,9 +895,11 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            px: 2,
-                            py: 1.4,
+                            justifyContent: "center",
+                            px: 1,
+                            py: 0.5,
                             borderBottom: "1px solid #E5E7EB",
+                            backgroundColor: "transparent",
                           }}
                         >
                           {renderCell(column.key, value, originalBookingId, carrierCode)}

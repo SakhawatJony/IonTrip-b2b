@@ -22,6 +22,7 @@ import AccountIcon from "@mui/icons-material/Person";
 import ManageIcon from "@mui/icons-material/Autorenew";
 import ReportIcon from "@mui/icons-material/BarChart";
 import LogoutIcon from "@mui/icons-material/Logout";
+import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import companyLogo from "../../assets/companylogo.jpg";
 
@@ -95,7 +96,10 @@ const menuItem = (icon, text, options = {}, location = null) => {
       {dropdown && (
         <IconButton
           size="small"
-          onClick={onClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.(e);
+          }}
           sx={{
             ml: "auto",
             width: 22,
@@ -260,7 +264,7 @@ const Sidebar = () => {
         },
       }}
     >
-      <Box sx={{ px: 1, py: 3, textAlign: "center", flexShrink: 0 }}>
+      <Box sx={{ px: 1, py: 1.5, textAlign: "center", flexShrink: 0 }}>
 
         <Typography fontWeight={800} fontSize={22} color={BRAND_PRIMARY}>
           ionTrip
@@ -359,7 +363,7 @@ const Sidebar = () => {
           dropdown: true,
           isOpen: expandedMenu === "account",
           onClick: () => handleToggle("account"),
-          activePaths: ["/dashboard/account"],
+          activePaths: ["/dashboard/account", "/dashboard/account/activitylog", "/dashboard/account/alltraveler", "/dashboard/account/addtraveler"],
         }, location)}
         <Collapse in={expandedMenu === "account"} timeout="auto" unmountOnExit>
           <Box
@@ -379,6 +383,7 @@ const Sidebar = () => {
             }}
           >
             <SubMenuItem text="Profile" path="/dashboard/account" location={location} />
+            <SubMenuItem text="Activity Log" path="/dashboard/account/activitylog" location={location} />
             <SubMenuItem text="All Traveler" path="/dashboard/account/alltraveler" location={location} />
           </Box>
         </Collapse>
@@ -415,6 +420,10 @@ const Sidebar = () => {
             <SubMenuItem text="Search Report" path="/dashboard/searchreport" location={location} />
           </Box>
         </Collapse>
+
+        {menuItem(<HeadsetMicIcon sx={{ fontSize: 23 }} />, "Support", {
+          path: "/dashboard/support",
+        }, location)}
 
         {menuItem(<LogoutIcon sx={{ fontSize: 23 }} />, "Logout", {
           onClick: handleLogout,

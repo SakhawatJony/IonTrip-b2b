@@ -36,7 +36,7 @@ import {
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import BalanceNoticeBar from "./BalanceNoticeBar";
-import Navbar from "./Navbar";
+import DashboardNavbar from "./DashboardNavbar";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -67,9 +67,9 @@ const DashboardLayout = () => {
 
         {/* Main Content Grid Item */}
         <Grid item xs={12} md={10} sx={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          <Navbar />
           <Grid container sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
             <Grid item xs={12} sx={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+              <DashboardNavbar />
               <Box
                 sx={{
                   pt: "20px",

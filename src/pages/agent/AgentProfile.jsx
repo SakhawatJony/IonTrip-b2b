@@ -21,7 +21,6 @@ import {
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
@@ -417,6 +416,7 @@ const AgentProfile = () => {
     logo: null,
   });
   const [updating, setUpdating] = useState(false);
+  const [editDocuments, setEditDocuments] = useState(false);
   const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState({
     field: null,
@@ -562,6 +562,18 @@ const AgentProfile = () => {
     }));
   };
 
+  const getDocumentUrl = (field) => {
+    if (field === "logo") return profileData?.logoUrl || profileData?.logo;
+    return profileData?.[field];
+  };
+
+  const getDocumentDisplayUrl = (field) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+    const docUrl = getDocumentUrl(field);
+    if (!docUrl) return null;
+    return docUrl.startsWith("http") ? docUrl : `${baseUrl}/${docUrl}`;
+  };
+
   const handleViewDocument = (field) => {
     const token = agentToken || localStorage.getItem("agentToken") || "";
     const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
@@ -579,7 +591,7 @@ const AgentProfile = () => {
     }
     
     // Check if there's an existing document URL in profileData
-    const documentUrl = profileData?.[field];
+    const documentUrl = getDocumentUrl(field);
     if (documentUrl) {
       // If it's a full URL, use it directly, otherwise construct it
       const fullUrl = documentUrl.startsWith("http") 
@@ -613,6 +625,59 @@ const AgentProfile = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleEditDocuments = () => setEditDocuments(true);
+
+  const handleCancelDocuments = () => {
+    setEditDocuments(false);
+    setFileData({ tinCopy: null, nidCopy: null, civilAviationCopy: null, logo: null });
+  };
+
+  const handleSaveDocuments = async () => {
+    const token = agentToken || localStorage.getItem("agentToken") || "";
+    if (!token || !agentEmail || !profileData?.id) {
+      toast.error("Agent token, email, or ID missing. Please login again.");
+      return;
+    }
+    const hasFiles = Object.values(fileData).some((f) => f !== null);
+    if (!hasFiles) {
+      toast.error("Select at least one document to update.");
+      return;
+    }
+    setUpdating(true);
+    try {
+      const formData = new FormData();
+      if (fileData.tinCopy) formData.append("tinCopy", fileData.tinCopy);
+      if (fileData.nidCopy) formData.append("nidCopy", fileData.nidCopy);
+      if (fileData.civilAviationCopy) formData.append("civilAviationCopy", fileData.civilAviationCopy);
+      if (fileData.logo) formData.append("logo", fileData.logo);
+      await axios.patch(
+        `${baseUrl}/agent/${profileData.id}?email=${encodeURIComponent(agentEmail)}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast.success("Documents updated successfully!");
+      setEditDocuments(false);
+      setFileData({ tinCopy: null, nidCopy: null, civilAviationCopy: null, logo: null });
+      const params = new URLSearchParams({ email: agentEmail });
+      const res = await axios.get(`${baseUrl}/agent/list?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      const data = res?.data?.data || res?.data || [];
+      const first = Array.isArray(data) ? data[0] : data;
+      setProfileData(first?.agentInfo || first || {});
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Failed to update documents.";
+      toast.error(msg);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleSaveAgentInfo = async () => {
@@ -826,230 +891,129 @@ const AgentProfile = () => {
         updating={updating}
       />
 
-      {/* Documents Section */}
-      {editAgentInfo && (
-        <Box sx={sectionCardSx}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 2,
-            }}
-          >
-            <Box>
-              <Typography sx={sectionTitleSx}>Documents</Typography>
-              <Typography sx={sectionSubtitleSx}>Upload required documents</Typography>
-            </Box>
+      {/* Documents Section - always visible; Edit opens only document update */}
+      <Box sx={sectionCardSx}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
+          <Box>
+            <Typography sx={sectionTitleSx}>Documents</Typography>
+            <Typography sx={sectionSubtitleSx}>Your uploaded documents</Typography>
           </Box>
-
-          <Box sx={{ mt: 2.5 }}>
-            {/* TIN Copy */}
-            <Box sx={rowSxEdit}>
-              <Box>
-                <Typography sx={labelSx}>tinCopy</Typography>
-                <Typography sx={{ fontSize: 11, color: "#94A3B8", mt: 0.5 }}>string($binary)</Typography>
-              </Box>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    sx={{
-                      textTransform: "none",
-                      fontSize: "13.5px",
-                      borderColor: "#E5E7EB",
-                      color: "#111827",
-                      "&:hover": {
-                        borderColor: "var(--primary-color, #123D6E)",
-                        backgroundColor: "rgba(18, 61, 110, 0.04)",
-                      },
-                    }}
-                  >
-                    Choose File
-                    <input
-                      type="file"
-                      hidden
-                      onChange={(e) => handleFileChange("tinCopy", e.target.files[0])}
-                      accept=".pdf,.jpg,.jpeg,.png"
-                    />
-                  </Button>
-                  <Typography sx={{ fontSize: "13.5px", color: "#9CA3AF" }}>
-                    {fileData.tinCopy ? fileData.tinCopy.name : profileData?.tinCopy ? "File uploaded" : "No file chosen"}
-                  </Typography>
-                  {(fileData.tinCopy || profileData?.tinCopy) && (
-                    <IconButton
-                      onClick={() => handleViewDocument("tinCopy")}
-                      size="small"
-                      sx={{
-                        color: "var(--primary-color, #123D6E)",
-                        "&:hover": {
-                          backgroundColor: "rgba(18, 61, 110, 0.08)",
-                        },
-                      }}
-                    >
-                      <RemoveRedEyeIcon sx={{ fontSize: 20 }} />
-                    </IconButton>
-                  )}
-                </Box>
-              </Box>
+          {!editDocuments ? (
+            <Box
+              onClick={handleEditDocuments}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                cursor: "pointer",
+                color: "var(--primary-color, #123D6E)",
+                textDecoration: "underline",
+                fontWeight: 500,
+              }}
+            >
+              <EditOutlinedIcon sx={{ fontSize: 16, color: "var(--primary-color, #123D6E)" }} />
+              <Typography sx={{ fontSize: "14px", color: "var(--primary-color, #123D6E)", textDecoration: "underline", fontWeight: 500 }}>
+                Edit
+              </Typography>
             </Box>
-
-            {/* NID Copy */}
-            <Box sx={rowSxEdit}>
-              <Box>
-                <Typography sx={labelSx}>nidCopy</Typography>
-                <Typography sx={{ fontSize: 11, color: "#94A3B8", mt: 0.5 }}>string($binary)</Typography>
-              </Box>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    sx={{
-                      textTransform: "none",
-                      fontSize: "13.5px",
-                      borderColor: "#E5E7EB",
-                      color: "#111827",
-                      "&:hover": {
-                        borderColor: "var(--primary-color, #123D6E)",
-                        backgroundColor: "rgba(18, 61, 110, 0.04)",
-                      },
-                    }}
-                  >
-                    Choose File
-                    <input
-                      type="file"
-                      hidden
-                      onChange={(e) => handleFileChange("nidCopy", e.target.files[0])}
-                      accept=".pdf,.jpg,.jpeg,.png"
-                    />
-                  </Button>
-                  <Typography sx={{ fontSize: "13.5px", color: "#9CA3AF" }}>
-                    {fileData.nidCopy ? fileData.nidCopy.name : profileData?.nidCopy ? "File uploaded" : "No file chosen"}
-                  </Typography>
-                  {(fileData.nidCopy || profileData?.nidCopy) && (
-                    <IconButton
-                      onClick={() => handleViewDocument("nidCopy")}
-                      size="small"
-                      sx={{
-                        color: "var(--primary-color, #123D6E)",
-                        "&:hover": {
-                          backgroundColor: "rgba(18, 61, 110, 0.08)",
-                        },
-                      }}
-                    >
-                      <RemoveRedEyeIcon sx={{ fontSize: 20 }} />
-                    </IconButton>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Civil Aviation Copy */}
-            <Box sx={rowSxEdit}>
-              <Box>
-                <Typography sx={labelSx}>civilAviationCopy</Typography>
-                <Typography sx={{ fontSize: 11, color: "#94A3B8", mt: 0.5 }}>string($binary)</Typography>
-              </Box>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    sx={{
-                      textTransform: "none",
-                      fontSize: "13.5px",
-                      borderColor: "#E5E7EB",
-                      color: "#111827",
-                      "&:hover": {
-                        borderColor: "var(--primary-color, #123D6E)",
-                        backgroundColor: "rgba(18, 61, 110, 0.04)",
-                      },
-                    }}
-                  >
-                    Choose File
-                    <input
-                      type="file"
-                      hidden
-                      onChange={(e) => handleFileChange("civilAviationCopy", e.target.files[0])}
-                      accept=".pdf,.jpg,.jpeg,.png"
-                    />
-                  </Button>
-                  <Typography sx={{ fontSize: "13.5px", color: "#9CA3AF" }}>
-                    {fileData.civilAviationCopy ? fileData.civilAviationCopy.name : profileData?.civilAviationCopy ? "File uploaded" : "No file chosen"}
-                  </Typography>
-                  {(fileData.civilAviationCopy || profileData?.civilAviationCopy) && (
-                    <IconButton
-                      onClick={() => handleViewDocument("civilAviationCopy")}
-                      size="small"
-                      sx={{
-                        color: "var(--primary-color, #123D6E)",
-                        "&:hover": {
-                          backgroundColor: "rgba(18, 61, 110, 0.08)",
-                        },
-                      }}
-                    >
-                      <RemoveRedEyeIcon sx={{ fontSize: 20 }} />
-                    </IconButton>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Logo */}
-            <Box sx={rowSxEdit}>
-              <Box>
-                <Typography sx={labelSx}>logo</Typography>
-                <Typography sx={{ fontSize: 11, color: "#94A3B8", mt: 0.5 }}>string($binary)</Typography>
-              </Box>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    sx={{
-                      textTransform: "none",
-                      fontSize: "13.5px",
-                      borderColor: "#E5E7EB",
-                      color: "#111827",
-                      "&:hover": {
-                        borderColor: "var(--primary-color, #123D6E)",
-                        backgroundColor: "rgba(18, 61, 110, 0.04)",
-                      },
-                    }}
-                  >
-                    Choose File
-                    <input
-                      type="file"
-                      hidden
-                      onChange={(e) => handleFileChange("logo", e.target.files[0])}
-                      accept=".jpg,.jpeg,.png,.gif,.svg"
-                    />
-                  </Button>
-                  <Typography sx={{ fontSize: "13.5px", color: "#9CA3AF" }}>
-                    {fileData.logo ? fileData.logo.name : profileData?.logo ? "File uploaded" : "No file chosen"}
-                  </Typography>
-                  {(fileData.logo || profileData?.logo) && (
-                    <IconButton
-                      onClick={() => handleViewDocument("logo")}
-                      size="small"
-                      sx={{
-                        color: "var(--primary-color, #123D6E)",
-                        "&:hover": {
-                          backgroundColor: "rgba(18, 61, 110, 0.08)",
-                        },
-                      }}
-                    >
-                      <RemoveRedEyeIcon sx={{ fontSize: 20 }} />
-                    </IconButton>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-          </Box>
+          ) : null}
         </Box>
-      )}
+        <Box sx={{ mt: 2.5 }}>
+          {[
+            { key: "tinCopy", label: "TIN Copy", accept: ".pdf,.jpg,.jpeg,.png" },
+            { key: "nidCopy", label: "NID Copy", accept: ".pdf,.jpg,.jpeg,.png" },
+            { key: "civilAviationCopy", label: "Civil Aviation Copy", accept: ".pdf,.jpg,.jpeg,.png" },
+            { key: "logo", label: "Company Logo", accept: ".jpg,.jpeg,.png,.gif,.svg" },
+          ].map(({ key, label, accept }) => {
+            const displayUrl = getDocumentDisplayUrl(key);
+            const imgSrc = fileData[key] ? undefined : displayUrl;
+            return (
+              <Box key={key} sx={rowSx}>
+                <Typography sx={labelSx}>{label}</Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+                  {imgSrc ? (
+                    <Box
+                      component="img"
+                      src={imgSrc}
+                      alt={label}
+                      onClick={() => handleViewDocument(key)}
+                      role="button"
+                      sx={{
+                        maxWidth: 120,
+                        maxHeight: 80,
+                        objectFit: "contain",
+                        border: "1px solid #E5E7EB",
+                        borderRadius: 1,
+                        cursor: "pointer",
+                        "&:hover": { opacity: 0.9 },
+                      }}
+                    />
+                  ) : fileData[key] ? (
+                    <Typography sx={{ ...valueSx, color: "var(--primary-color, #123D6E)" }}>{fileData[key].name}</Typography>
+                  ) : (
+                    <Typography sx={valueSx}>Not uploaded</Typography>
+                  )}
+                  {editDocuments && (
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      sx={{
+                        textTransform: "none",
+                        fontSize: "13.5px",
+                        borderColor: "#E5E7EB",
+                        color: "#111827",
+                        "&:hover": {
+                          borderColor: "var(--primary-color, #123D6E)",
+                          backgroundColor: "rgba(18, 61, 110, 0.04)",
+                        },
+                      }}
+                    >
+                      Choose File
+                      <input
+                        type="file"
+                        hidden
+                        onChange={(e) => handleFileChange(key, e.target.files[0])}
+                        accept={accept}
+                      />
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+
+        {editDocuments && (
+          <Box sx={{ display: "flex", gap: 2, mt: 2.5 }}>
+            <Button
+              variant="outlined"
+              onClick={handleCancelDocuments}
+              disabled={updating}
+              sx={{
+                textTransform: "none",
+                borderColor: "#E5E7EB",
+                color: "#111827",
+                "&:hover": { borderColor: "var(--primary-color, #123D6E)", bgcolor: "rgba(18, 61, 110, 0.04)" },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveDocuments}
+              disabled={updating}
+              sx={{
+                textTransform: "none",
+                bgcolor: "var(--primary-color, #123D6E)",
+                "&:hover": { bgcolor: "var(--primary-color, #123D6E)", opacity: 0.9 },
+              }}
+            >
+              {updating ? "Updating…" : "Documents updated"}
+            </Button>
+          </Box>
+        )}
+
+      </Box>
 
       <Section
         title="Login Credentials"

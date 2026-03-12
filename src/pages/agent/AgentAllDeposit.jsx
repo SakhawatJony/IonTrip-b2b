@@ -56,6 +56,7 @@ const AgentAllDeposit = () => {
   const [currency, setCurrency] = useState("BDT");
   const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState({ url: "", name: "" });
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
 
   const agentEmail = agentData?.email || "";
 
@@ -611,13 +612,25 @@ const AgentAllDeposit = () => {
             ) : (
               deposits.slice((page - 1) * limit, page * limit).map((deposit, index) => {
                 const row = mapDepositToTableRow(deposit, index);
+                const isRowHovered = hoveredRowIndex === index;
+                const isEvenRow = index % 2 === 0;
                 return (
                   <Box
                     key={`${deposit.id || deposit.depositId || index}-${index}`}
+                    onMouseEnter={() => setHoveredRowIndex(index)}
+                    onMouseLeave={() => setHoveredRowIndex(null)}
                     sx={{
                       display: "grid",
                       gridTemplateColumns: tableGridTemplate,
                       alignItems: "stretch",
+                      backgroundColor: isRowHovered ? "#FFFFFF" : isEvenRow ? "#FFFFFF" : "#F8FAFC",
+                      borderRadius: 1,
+                      mb: 0.5,
+                      transition: "box-shadow 0.2s ease, background-color 0.15s ease",
+                      ...(isRowHovered && {
+                        backgroundColor: "#FFFFFF",
+                        boxShadow: "0 8px 16px -2px rgba(0, 0, 0, 0.1)",
+                      }),
                     }}
                   >
                     {tableColumns.map((column) => {
@@ -631,6 +644,7 @@ const AgentAllDeposit = () => {
                             px: 2,
                             py: 1.4,
                             borderBottom: "1px solid #E5E7EB",
+                            backgroundColor: "transparent",
                           }}
                         >
                           {renderCell(column.key, value, deposit)}

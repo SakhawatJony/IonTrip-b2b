@@ -41,6 +41,7 @@ const AllTraveler = () => {
   const [error, setError] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
 
   const agentEmail = agentData?.email || "";
 
@@ -406,13 +407,25 @@ const AllTraveler = () => {
                 const uniqueKey = `${traveler.passengerId || traveler.id || 'traveler'}-${traveler.firstName}-${traveler.lastName}-${traveler.passportNo}-${index}`;
                 // Calculate serial number based on page and index
                 const serialNumber = (page - 1) * limit + index + 1;
+                const isRowHovered = hoveredRowIndex === index;
+                const isEvenRow = index % 2 === 0;
                 return (
                   <Box
                     key={uniqueKey}
+                    onMouseEnter={() => setHoveredRowIndex(index)}
+                    onMouseLeave={() => setHoveredRowIndex(null)}
                     sx={{
                       display: "grid",
                       gridTemplateColumns: tableGridTemplate,
                       alignItems: "stretch",
+                      backgroundColor: isRowHovered ? "#FFFFFF" : isEvenRow ? "#FFFFFF" : "#F8FAFC",
+                      borderRadius: 1,
+                      mb: 0.5,
+                      transition: "box-shadow 0.2s ease, background-color 0.15s ease",
+                      ...(isRowHovered && {
+                        backgroundColor: "#FFFFFF",
+                        boxShadow: "0 8px 16px -2px rgba(0, 0, 0, 0.1)",
+                      }),
                     }}
                   >
                     {tableColumns.map((column) => {
@@ -436,6 +449,7 @@ const AllTraveler = () => {
                             justifyContent: column.key === "action" || column.key === "srlNo" ? "center" : "flex-start",
                             overflow: "hidden",
                             minWidth: 0,
+                            backgroundColor: "transparent",
                           }}
                         >
                           {renderCell(column.key, value, traveler)}

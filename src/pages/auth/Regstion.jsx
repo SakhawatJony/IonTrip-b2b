@@ -201,6 +201,13 @@ const Regstion = () => {
   ];
 
   const getFlagUrl = (flagCode) => `https://flagcdn.com/w20/${flagCode}.png`;
+  const getFlagEmoji = (flagCode) => {
+    if (!flagCode || flagCode.length !== 2) return "";
+    const code = flagCode.toLowerCase();
+    return String.fromCodePoint(
+      ...[...code].map((c) => 0x1f1e6 - 97 + c.charCodeAt(0))
+    );
+  };
 
   // Format mobile number based on country code
   const formatMobileNumber = (value, countryCode) => {
@@ -234,6 +241,8 @@ const Regstion = () => {
   const [formData, setFormData] = useState({
     name: "",
     companyName: "",
+    postalCode: "",
+    districtAddress: "",
     companyAddress: "",
     email: "",
     businessType: "",
@@ -340,11 +349,21 @@ const Regstion = () => {
       const mobileWithCode = normalizedMobile.startsWith("+")
         ? `+${mobileDigits}`
         : `+${countryCodeDigits}${localMobileDigits}`;
+      const fullCompanyAddress = [
+        formData.districtAddress,
+        formData.postalCode,
+        formData.companyAddress,
+      ]
+        .filter(Boolean)
+        .join(", ");
       const payload = {
         ...formData,
+        companyAddress: fullCompanyAddress,
         mobile: mobileWithCode,
       };
       delete payload.mobileCode;
+      delete payload.districtAddress;
+      delete payload.postalCode;
       const formPayload = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
         formPayload.append(key, String(value ?? ""));
@@ -392,6 +411,8 @@ const Regstion = () => {
       setFormData({
         name: "",
         companyName: "",
+        postalCode: "",
+        districtAddress: "",
         companyAddress: "",
         email: "",
         businessType: "",
@@ -554,14 +575,24 @@ const Regstion = () => {
                 errorText={fieldErrors.companyName}
               />
               <CustomInputField
-                label="Company Address"
-                name="companyAddress"
-                icon={LockIcon}
-                value={formData.companyAddress}
+                label="Postal Code"
+                name="postalCode"
+                icon={BusinessIcon}
+                value={formData.postalCode}
                 onChange={handleChange}
-                placeholder="Enter company address"
-                errorText={fieldErrors.companyAddress}
+                placeholder="Enter postal code"
+                errorText={fieldErrors.postalCode}
               />
+              <CustomInputField
+                label="District"
+                name="districtAddress"
+                icon={BusinessIcon}
+                value={formData.districtAddress}
+                onChange={handleChange}
+                placeholder="Enter district"
+                errorText={fieldErrors.districtAddress}
+              />
+            
               <CustomInputField
                 label="Email"
                 name="email"
@@ -646,12 +677,38 @@ const Regstion = () => {
                             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                               {option && (
                                 <>
-                                  <Box
-                                    component="img"
-                                    src={getFlagUrl(option.flagCode)}
-                                    alt={`${option.label} flag`}
-                                    sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                                  />
+                                  <Box sx={{ position: "relative", width: 22, height: 16, flexShrink: 0 }}>
+                                    <Box
+                                      component="img"
+                                      src={getFlagUrl(option.flagCode)}
+                                      alt={`${option.label} flag`}
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                        const fallback = e.target.nextElementSibling;
+                                        if (fallback) fallback.style.display = "block";
+                                      }}
+                                      sx={{
+                                        width: 22,
+                                        height: 16,
+                                        borderRadius: "2px",
+                                        objectFit: "cover",
+                                        display: "block",
+                                      }}
+                                    />
+                                    <Box
+                                      component="span"
+                                      sx={{
+                                        position: "absolute",
+                                        left: 0,
+                                        top: 0,
+                                        fontSize: 16,
+                                        lineHeight: 1,
+                                        display: "none",
+                                      }}
+                                    >
+                                      {getFlagEmoji(option.flagCode)}
+                                    </Box>
+                                  </Box>
                                   <Box component="span" sx={{ fontSize: 13, fontWeight: 500 }}>
                                     {selected}
                                   </Box>
@@ -731,12 +788,31 @@ const Regstion = () => {
                         {mobileCodeOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Box
-                                component="img"
-                                src={getFlagUrl(option.flagCode)}
-                                alt={`${option.label} flag`}
-                                sx={{ width: 20, height: 14, borderRadius: "2px" }}
-                              />
+                              <Box sx={{ width: 24, height: 18, flexShrink: 0 }}>
+                                <Box
+                                  component="img"
+                                  src={getFlagUrl(option.flagCode)}
+                                  alt={`${option.label} flag`}
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                    const fallback = e.target.nextElementSibling;
+                                    if (fallback) fallback.style.display = "inline";
+                                  }}
+                                  sx={{
+                                    width: 24,
+                                    height: 18,
+                                    borderRadius: "2px",
+                                    objectFit: "cover",
+                                    display: "block",
+                                  }}
+                                />
+                                <Box
+                                  component="span"
+                                  sx={{ fontSize: 18, lineHeight: 1, display: "none" }}
+                                >
+                                  {getFlagEmoji(option.flagCode)}
+                                </Box>
+                              </Box>
                               <Box component="span" sx={{ fontSize: 13 }}>
                                 {option.value} - {option.label}
                               </Box>
@@ -771,7 +847,16 @@ const Regstion = () => {
                   </IconButton>
                 }
               />
-            </Grid>
+                <CustomInputField
+                label="Company Address"
+                name="companyAddress"
+                icon={LockIcon}
+                value={formData.companyAddress}
+                onChange={handleChange}
+                placeholder="Enter company address"
+                errorText={fieldErrors.companyAddress}
+              />
+              </Grid>
             </Grid>
 
             {/* Required Documents Section */}

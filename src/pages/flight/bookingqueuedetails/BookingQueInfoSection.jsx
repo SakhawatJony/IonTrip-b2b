@@ -81,7 +81,7 @@ const BookingQueInfoSection = ({ data }) => {
     { label: "PNR", value: pnr },
     { label: "Airlines PNR", value: airlinePNR },
     { label: "Fare Type", value: fareType },
-    { label: "Time Limit", value: cancellationTime },
+   
   ].map((f) => ({ ...f, copyable: COPYABLE_FIELDS.includes(f.label) }));
 
   return (
@@ -148,7 +148,7 @@ const BookingQueInfoSection = ({ data }) => {
       {/* Content */}
       <Grid container spacing={1.5} sx={{ p: 1 }}>
         {infoFields.map((field) => (
-          <Grid item xs={12} sm={6} md={4} lg={2} key={field.label}>
+          <Grid item xs={12} sm={6} md={4} lg={2.4} key={field.label}>
             <Box
               sx={{
                 background: "#DAEBFF",
@@ -198,6 +198,7 @@ const BookingQueInfoSection = ({ data }) => {
                   alignSelf: field.label === "Booking Status" ? "center" : "flex-start",
                   ...(field.label === "Booking Status" && {
                     backgroundColor: "var(--primary-color)",
+                    textTransform: "capitalize",
                     color: "#FFFFFF",
                     px: 1,
                     py: 0.5,
@@ -206,7 +207,9 @@ const BookingQueInfoSection = ({ data }) => {
                   }),
                 }}
               >
-                {field.value}
+                {field.label === "Booking Status" && field.value
+                  ? field.value.charAt(0).toUpperCase() + field.value.slice(1).toLowerCase()
+                  : field.value}
               </Typography>
             </Box>
           </Grid>

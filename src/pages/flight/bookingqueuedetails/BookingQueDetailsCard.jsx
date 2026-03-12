@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { Box, Divider, Typography, Tab, Tabs } from "@mui/material";
+import { Box, Divider, Typography, Tab, Tabs, Checkbox, FormControlLabel } from "@mui/material";
 import FlightIcon from "@mui/icons-material/Flight";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const BookingQueDetailsCard = ({ data }) => {
+const checkboxSx = { color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" }, py: 0 };
+
+const BookingQueDetailsCard = ({
+  data,
+  hideTitle = false,
+  showSelectionCheckboxes = false,
+  departureChecked = true,
+  returnChecked = true,
+  onDepartureCheckChange,
+  onReturnCheckChange,
+}) => {
   const [tab, setTab] = useState(0);
   const [logoErrors, setLogoErrors] = useState({});
   
@@ -98,6 +108,12 @@ const BookingQueDetailsCard = ({ data }) => {
         overflow: "hidden",
       }}
     >
+      {!hideTitle && (
+        <>
+          <Typography fontSize={14} fontWeight={700} color="#111827" sx={{ px: 2, py: 1 }}>Flight Details</Typography>
+          <Divider sx={{ mt: 2, mb: 0 }} />
+        </>
+      )}
       {isRoundTrip ? (
         <Tabs
           value={tab}
@@ -124,10 +140,28 @@ const BookingQueDetailsCard = ({ data }) => {
             disableRipple
             sx={{ alignItems: "flex-start", textTransform: "none" }}
             label={
-              <Box>
-                <Typography fontSize={10} color="#6B7280">
-                  Departure
-                </Typography>
+              <Box onClick={(e) => showSelectionCheckboxes && e.stopPropagation()}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <Typography fontSize={10} color="#6B7280">
+                    Departure
+                  </Typography>
+                  {showSelectionCheckboxes && (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={departureChecked}
+                          onChange={(e) => { e.stopPropagation(); onDepartureCheckChange?.(e.target.checked); }}
+                          onClick={(e) => e.stopPropagation()}
+                          sx={checkboxSx}
+                        />
+                      }
+                      label="Select"
+                      sx={{ mr: 0, "& .MuiFormControlLabel-label": { fontSize: 11 } }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                </Box>
                 <Typography fontSize={13} fontWeight={600} color="#111827">
                   {goRoute}
                 </Typography>
@@ -138,10 +172,28 @@ const BookingQueDetailsCard = ({ data }) => {
             disableRipple
             sx={{ alignItems: "flex-start", textTransform: "none" }}
             label={
-              <Box>
-                <Typography fontSize={10} color="#6B7280">
-                  Return
-                </Typography>
+              <Box onClick={(e) => showSelectionCheckboxes && e.stopPropagation()}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <Typography fontSize={10} color="#6B7280">
+                    Return
+                  </Typography>
+                  {showSelectionCheckboxes && (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={returnChecked}
+                          onChange={(e) => { e.stopPropagation(); onReturnCheckChange?.(e.target.checked); }}
+                          onClick={(e) => e.stopPropagation()}
+                          sx={checkboxSx}
+                        />
+                      }
+                      label="Select"
+                      sx={{ mr: 0, "& .MuiFormControlLabel-label": { fontSize: 11 } }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                </Box>
                 <Typography fontSize={13} fontWeight={600} color="#111827">
                   {backRoute}
                 </Typography>
@@ -151,17 +203,35 @@ const BookingQueDetailsCard = ({ data }) => {
         </Tabs>
       ) : (
         <Box sx={{ px: 2, py: 1.5, borderBottom: "2px solid #D9D9D9" }}>
-          <Typography fontSize={12} color="#94A3B8" fontWeight={600} mb={0.5}>
-            Departure
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography fontSize={16} fontWeight={700} color="#0F172A">
-              {goDeparture}
-            </Typography>
-            <ArrowForwardIcon sx={{ fontSize: 18, color: "#0F2F56" }} />
-            <Typography fontSize={16} fontWeight={700} color="#0F172A">
-              {goArrival}
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+            <Box>
+              <Typography fontSize={12} color="#94A3B8" fontWeight={600} mb={0.5}>
+                Departure
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography fontSize={16} fontWeight={700} color="#0F172A">
+                  {goDeparture}
+                </Typography>
+                <ArrowForwardIcon sx={{ fontSize: 18, color: "#0F2F56" }} />
+                <Typography fontSize={16} fontWeight={700} color="#0F172A">
+                  {goArrival}
+                </Typography>
+              </Box>
+            </Box>
+            {showSelectionCheckboxes && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={departureChecked}
+                    onChange={(e) => onDepartureCheckChange?.(e.target.checked)}
+                    sx={checkboxSx}
+                  />
+                }
+                label="Select"
+                sx={{ "& .MuiFormControlLabel-label": { fontSize: 12 } }}
+              />
+            )}
           </Box>
         </Box>
       )}

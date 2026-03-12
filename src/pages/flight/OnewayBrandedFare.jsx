@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
@@ -108,6 +108,7 @@ const getAmenityIcon = (description) => {
 
 const OnewayBrandedFare = ({ fares, data }) => {
   const navigate = useNavigate();
+  const [selected, setSelected] = useState(true);
   const currency =
     data?.farecurrency ||
     data?.priceCurrency ||
@@ -177,12 +178,43 @@ const OnewayBrandedFare = ({ fares, data }) => {
           }))
       : [];
 
+    const refundLabel = data?.refundable || "Refundability unknown";
+    const isNonRefundable = String(refundLabel).toLowerCase().includes("non-refund") || String(refundLabel).toLowerCase().includes("non refund");
+    const displayTitle =
+      (fareClass === "ECONOMY" ? "Economy" : toCapitalizedText(fareClass)) + " class";
+    const changeFeeText =
+      data?.changeFee != null
+        ? (typeof data.changeFee === "number" ? formatAmount(data.changeFee) : String(data.changeFee))
+        : `${currency} 100`;
+
     return {
       id: "total-fare",
       title: String(airlineHeading),
+      displayTitle,
       subtitle: `${passengerLabel} | Fare Offered by Airline`,
       price: formatAmount(totalFareValue) || "Price unavailable",
       originalPrice: formatAmount(baseFareValue),
+      tripLabel: data?.triptype === "round" || data?.tripType === "round" ? "Round-trip" : data?.triptype === "oneway" || data?.tripType === "oneway" ? "One-way" : null,
+      sections: {
+        baggage: [
+          { label: `Carry-on baggage: ${cabinQty}`, icon: LuggageOutlinedIcon },
+          { label: `Checked baggage: ${checkedQty}`, icon: LuggageOutlinedIcon },
+        ],
+        flexibility: [
+          {
+            label: isNonRefundable ? "Non-refundable (partial segments)" : refundLabel,
+            icon: CancelOutlinedIcon,
+            isNegative: isNonRefundable,
+          },
+          { label: `Change fee: from ${changeFeeText}`, icon: EventRepeatOutlinedIcon },
+        ],
+        otherBenefits: [
+          { label: `Class ${fareClass}`, icon: AirlineSeatReclineNormalOutlinedIcon },
+          { label: bookingClass ? `Booking ${bookingClass}` : "Booking Standard", icon: EventRepeatOutlinedIcon },
+          { label: data?.seats || "Seat availability unknown", icon: AirlineSeatReclineNormalOutlinedIcon },
+          ...amenityPerks,
+        ],
+      },
       perks: [
         { label: `Cabin ${cabinQty}`, icon: WorkOutlineIcon },
         { label: `Check In ${checkedQty}`, icon: LuggageOutlinedIcon },
@@ -236,10 +268,11 @@ const OnewayBrandedFare = ({ fares, data }) => {
       >
           <Box
             key={fareSummary.id}
+            onClick={() => setSelected(true)}
             sx={{
-              border: "1px solid #C9CEDA",
+              border: selected ? "2px solid var(--primary-color, #123D6E)" : "1px solid #E0E0E0",
               borderRadius: 2,
-              backgroundColor: "#FFF7F7",
+              backgroundColor: selected ? "rgba(18, 61, 110, 0.06)" : "#FFFFFF",
               px: 2,
               py: 2,
               display: "flex",
@@ -250,82 +283,134 @@ const OnewayBrandedFare = ({ fares, data }) => {
               width: 250,
               maxWidth: 250,
               flexShrink: 0,
+              cursor: "pointer",
+              transition: "border-color 0.2s, background-color 0.2s",
+              "&:hover": {
+                borderColor: "var(--primary-color, #123D6E)",
+                backgroundColor: selected ? "rgba(18, 61, 110, 0.08)" : "rgba(18, 61, 110, 0.04)",
+              },
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+              <Box>
+                <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>
+                  {fareSummary.displayTitle || fareSummary.title}
+                </Typography>
+                <Typography sx={{ fontSize: 10, color: "#9CA3AF", mt: 0.25 }}>
+                  {fareSummary.subtitle}
+                </Typography>
+              </Box>
               <Box
                 sx={{
-                  width: 18,
-                  height: 18,
+                  width: 20,
+                  height: 20,
                   borderRadius: "50%",
-                  border: "2px solid #2B4D80",
+                  border: "2px solid var(--primary-color, #123D6E)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  mt: "2px",
+                  flexShrink: 0,
                 }}
               >
                 <Box
                   sx={{
-                    width: 8,
-                    height: 8,
+                    width: 10,
+                    height: 10,
                     borderRadius: "50%",
-                    backgroundColor: "#2B4D80",
+                    backgroundColor: "var(--primary-color, #123D6E)",
                   }}
                 />
               </Box>
-              <Box>
-                <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#1F2A44" }}>
-                  {fareSummary.title}
-                </Typography>
-                <Typography sx={{ fontSize: 10, color: "#6B7280" }}>
-                  {fareSummary.subtitle}
-                </Typography>
-              </Box>
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              {fareSummary.perks.map((perk) => {
-                const Icon = perk.icon;
-                return (
-                  <Box key={perk.label} sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Icon sx={{ fontSize: 16, color: "#344054" }} />
-                    <Typography sx={{ fontSize: 11, color: "#4B5563", textTransform: "capitalize" }}>
-                      {perk.label}
-                    </Typography>
-                  </Box>
-                );
-              })}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {fareSummary.sections?.baggage?.length > 0 && (
+                <Box>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#374151", mb: 0.75 }}>
+                    Baggage
+                  </Typography>
+                  {fareSummary.sections.baggage.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Box key={item.label} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 0.5 }}>
+                        <Icon sx={{ fontSize: 16, color: "var(--primary-color, #123D6E)" }} />
+                        <Typography sx={{ fontSize: 11, color: "#4B5563" }}>{item.label}</Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+              {fareSummary.sections?.flexibility?.length > 0 && (
+                <Box>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#374151", mb: 0.75 }}>
+                    Flexibility
+                  </Typography>
+                  {fareSummary.sections.flexibility.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Box key={item.label} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 0.5 }}>
+                        <Icon
+                          sx={{
+                            fontSize: 16,
+                            color: item.isNegative ? "#DC2626" : "var(--primary-color, #123D6E)",
+                          }}
+                        />
+                        <Typography sx={{ fontSize: 11, color: "#4B5563" }}>{item.label}</Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+              {fareSummary.sections?.otherBenefits?.length > 0 && (
+                <Box>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#374151", mb: 0.75 }}>
+                    Other benefits
+                  </Typography>
+                  {fareSummary.sections.otherBenefits.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Box key={item.label} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 0.5 }}>
+                        <Icon sx={{ fontSize: 16, color: "var(--primary-color, #123D6E)" }} />
+                        <Typography sx={{ fontSize: 11, color: "#4B5563" }}>{item.label}</Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
             </Box>
 
             <Box sx={{ mt: "auto" }}>
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-                <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, flexWrap: "wrap" }}>
+                <Typography sx={{ fontSize: 16, fontWeight: 700, color: "var(--primary-color, #123D6E)" }}>
                   {fareSummary.price}
                 </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 11,
-                    color: "#9CA3AF",
-                    textDecoration: "line-through",
-                  }}
-                >
-                  {fareSummary.originalPrice}
-                </Typography>
+                {fareSummary.tripLabel && (
+                  <Typography sx={{ fontSize: 12, color: "#6B7280", fontWeight: 400 }}>
+                    {fareSummary.tripLabel}
+                  </Typography>
+                )}
+                {fareSummary.originalPrice ? (
+                  <Typography sx={{ fontSize: 11, color: "#9CA3AF", textDecoration: "line-through" }}>
+                    {fareSummary.originalPrice}
+                  </Typography>
+                ) : null}
               </Box>
               <Button
                 fullWidth
-                onClick={handleBookNow}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBookNow();
+                }}
                 sx={{
                   mt: 1,
                   textTransform: "none",
-                  backgroundColor: "#0F2F56",
+                  backgroundColor: "var(--primary-color, #123D6E)",
                   color: "#fff",
                   fontSize: 11,
                   height: 30,
                   borderRadius: 1,
                   fontWeight: 600,
-                  "&:hover": { backgroundColor: "#0B2442" },
+                  "&:hover": { backgroundColor: "var(--primary-color, #123D6E)", opacity: 0.9 },
                 }}
               >
                 Book Now

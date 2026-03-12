@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -158,6 +158,8 @@ const tableRows = [
 const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
 const SalesReport = () => {
+  const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
+
   const renderCell = (columnKey, value) => {
     if (columnKey === "reference") {
       return (
@@ -398,13 +400,26 @@ const SalesReport = () => {
                 </Box>
               ))}
             </Box>
-            {tableRows.map((row, index) => (
+            {tableRows.map((row, index) => {
+                const isRowHovered = hoveredRowIndex === index;
+                const isEvenRow = index % 2 === 0;
+                return (
               <Box
                 key={`${row.reference}-${index}`}
+                onMouseEnter={() => setHoveredRowIndex(index)}
+                onMouseLeave={() => setHoveredRowIndex(null)}
                 sx={{
                   display: "grid",
                   gridTemplateColumns: tableGridTemplate,
                   alignItems: "stretch",
+                  backgroundColor: isRowHovered ? "#FFFFFF" : isEvenRow ? "#FFFFFF" : "#F8FAFC",
+                  borderRadius: 1,
+                  mb: 0.5,
+                  transition: "box-shadow 0.2s ease, background-color 0.15s ease",
+                  ...(isRowHovered && {
+                    backgroundColor: "#FFFFFF",
+                    boxShadow: "0 8px 16px -2px rgba(0, 0, 0, 0.1)",
+                  }),
                 }}
               >
                 {tableColumns.map((column) => (
@@ -416,13 +431,15 @@ const SalesReport = () => {
                       px: 2,
                       py: 1.4,
                       borderBottom: "1px solid #E5E7EB",
+                      backgroundColor: "transparent",
                     }}
                   >
                     {renderCell(column.key, row[column.key])}
                   </Box>
                 ))}
               </Box>
-            ))}
+                );
+              })}
           </Box>
         </Box>
 

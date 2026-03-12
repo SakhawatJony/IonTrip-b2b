@@ -64,7 +64,7 @@ const AddDeposit = () => {
     receiverName: "",
     reference: "",
     amount: "",
-    currency: "USD",
+    currency: "MYR",
     cashInput: "",
     documentFile: null,
     documentPreview: null,
@@ -175,7 +175,7 @@ const AddDeposit = () => {
       // Add required fields for all payment methods
       formDataToSend.append("email", agentEmail);
       formDataToSend.append("amount", parseFloat(formData.amount));
-      formDataToSend.append("currency", formData.currency);
+      formDataToSend.append("currency", "MYR");
       formDataToSend.append("paymentMethod", paymentMethod);
 
       // Add fields based on payment method
@@ -226,7 +226,7 @@ const AddDeposit = () => {
         receiverName: "",
         reference: "",
         amount: "",
-        currency: "USD",
+        currency: "MYR",
         cashInput: "",
         documentFile: null,
         documentPreview: null,
@@ -628,89 +628,6 @@ const AddDeposit = () => {
               />
             </Box>
             <Box sx={formRowSx}>
-              <Typography sx={labelSx}>Currency</Typography>
-              <FormControl fullWidth variant="standard">
-                <Select
-                  value={formData.currency}
-                  onChange={handleInputChange("currency")}
-                  renderValue={(value) => {
-                    const selected = currencies.find((item) => item.code === value);
-                    return (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                        <Box
-                          component="img"
-                          src={selected ? getFlagUrl(selected.flagCode) : ""}
-                          alt={selected?.label || "Flag"}
-                          sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                        />
-                        <Box component="span" sx={{ fontSize: 13.5 }}>
-                          {selected?.label || value}
-                        </Box>
-                      </Box>
-                    );
-                  }}
-                  sx={{
-                    fontSize: 13.5,
-                    backgroundColor: "transparent",
-                    "& .MuiSelect-select": {
-                      py: 0.5,
-                      backgroundColor: "transparent",
-                    },
-                    "&:before": {
-                      borderBottom: "none !important",
-                    },
-                    "&:hover:before": {
-                      borderBottom: "none !important",
-                    },
-                    "&:after": {
-                      borderBottom: "none !important",
-                    },
-                    "&.Mui-focused": {
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      "&:after": {
-                        borderBottom: "none !important",
-                      },
-                    },
-                    "&:focus": {
-                      outline: "none",
-                      backgroundColor: "transparent",
-                    },
-                    "& .MuiSelect-icon": {
-                      color: "#111827",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                      outline: "none",
-                    },
-                  }}
-                  disableUnderline
-                >
-                  {currencies.map((item) => (
-                    <MenuItem key={item.code} value={item.code}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                        <Box
-                          component="img"
-                          src={getFlagUrl(item.flagCode)}
-                          alt={`${item.label} flag`}
-                          sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                        />
-                        <Box component="span" sx={{ fontSize: 13.5 }}>
-                          {item.label}
-                        </Box>
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <Box sx={formRowSx}>
               <Typography sx={labelSx}>Reference (Reference No etc)</Typography>
               <TextField
                 fullWidth
@@ -739,93 +656,7 @@ const AddDeposit = () => {
             </Box>
           </>
         )}
-        {/* Currency field - only for non-Cheque tabs */}
-        {selectedTab !== 1 && (
-        <Box sx={formRowSx}>
-          <Typography sx={labelSx}>Currency</Typography>
-          <FormControl fullWidth variant="standard">
-            <Select
-              value={formData.currency}
-              onChange={handleInputChange("currency")}
-              renderValue={(value) => {
-                const selected = currencies.find((item) => item.code === value);
-                return (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                    <Box
-                      component="img"
-                      src={selected ? getFlagUrl(selected.flagCode) : ""}
-                      alt={selected?.label || "Flag"}
-                      sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                    />
-                    <Box component="span" sx={{ fontSize: 13.5 }}>
-                      {selected?.label || value}
-                    </Box>
-                  </Box>
-                );
-              }}
-              sx={{
-                fontSize: 13.5,
-                backgroundColor: "transparent",
-                "& .MuiSelect-select": {
-                  py: 0.5,
-                  backgroundColor: "transparent",
-                },
-                "&:before": {
-                  borderBottom: "none !important",
-                },
-                "&:hover:before": {
-                  borderBottom: "none !important",
-                },
-                "&:after": {
-                  borderBottom: "none !important",
-                },
-                "&.Mui-focused": {
-                  backgroundColor: "transparent",
-                  outline: "none",
-                  "&:after": {
-                  borderBottom: "none !important",
-                  },
-                },
-                "&:focus": {
-                  outline: "none",
-                  backgroundColor: "transparent",
-                },
-                "& .MuiSelect-icon": {
-                  color: "#111827",
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  border: "none",
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  border: "none",
-                },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  border: "none",
-                  outline: "none",
-                },
-              }}
-              disableUnderline
-            >
-              {currencies.map((item) => (
-                <MenuItem key={item.code} value={item.code}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                    <Box
-                      component="img"
-                      src={getFlagUrl(item.flagCode)}
-                      alt={`${item.label} flag`}
-                      sx={{ width: 18, height: 12, borderRadius: "2px" }}
-                    />
-                    <Box component="span" sx={{ fontSize: 13.5 }}>
-                      {item.label}
-                    </Box>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-        )}
-        
+
         {/* Document Upload for All Payment Methods */}
         <Box sx={formRowSx}>
           <Typography sx={labelSx}>
