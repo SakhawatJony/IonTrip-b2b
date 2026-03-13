@@ -794,6 +794,13 @@ const OneWaySearchResult = () => {
     };
   }, [flights]);
 
+  const selectedDateLowestPrice = useMemo(() => {
+    const prices = flights
+      .map((f) => (typeof f?.priceValue === "number" && !Number.isNaN(f.priceValue) && f.priceValue > 0 ? f.priceValue : null))
+      .filter((p) => p !== null);
+    return prices.length > 0 ? Math.min(...prices) : null;
+  }, [flights]);
+
   // Handle sort change callback
   const handleSortChange = useCallback((newSortBy) => {
     console.log("📞 Parent: handleSortChange called with:", newSortBy);
@@ -931,6 +938,7 @@ const OneWaySearchResult = () => {
           passengerCounts={passengerCounts}
           travelClass={travelClass}
           email={email}
+          selectedDatePrice={selectedDateLowestPrice}
         />
       </Box>
 

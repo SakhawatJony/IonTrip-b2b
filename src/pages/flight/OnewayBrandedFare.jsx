@@ -228,20 +228,28 @@ const OnewayBrandedFare = ({ fares, data }) => {
   }, [data, currency]);
 
   const handleBookNow = () => {
-    const serializableFareSummary = {
-      ...fareSummary,
-      perks: Array.isArray(fareSummary?.perks)
-        ? fareSummary.perks.map((perk, index) => ({
-            id: perk?.id || `perk-${index}`,
-            label: perk?.label || "",
-          }))
-        : [],
-    };
+    const serializableFareSummary = fareSummary
+      ? {
+          id: fareSummary.id,
+          title: fareSummary.title,
+          displayTitle: fareSummary.displayTitle,
+          subtitle: fareSummary.subtitle,
+          price: fareSummary.price,
+          originalPrice: fareSummary.originalPrice,
+          tripLabel: fareSummary.tripLabel,
+          perks: Array.isArray(fareSummary.perks)
+            ? fareSummary.perks.map((perk, index) => ({
+                id: perk?.id || `perk-${index}`,
+                label: perk?.label || "",
+              }))
+            : [],
+        }
+      : null;
 
     navigate("/dashboard/flightbooking", {
       state: {
         selectedFlight: data || null,
-        selectedFare: serializableFareSummary || null,
+        selectedFare: serializableFareSummary,
       },
     });
   };
@@ -396,8 +404,10 @@ const OnewayBrandedFare = ({ fares, data }) => {
                 ) : null}
               </Box>
               <Button
+                type="button"
                 fullWidth
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   handleBookNow();
                 }}

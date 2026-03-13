@@ -686,6 +686,13 @@ const RoundWaySearchResult = () => {
     };
   }, [flights]);
 
+  const selectedDateLowestPrice = useMemo(() => {
+    const prices = flights
+      .map((f) => (Number.isFinite(f?.priceValue) && f.priceValue > 0 ? f.priceValue : null))
+      .filter((p) => p !== null);
+    return prices.length > 0 ? Math.min(...prices) : null;
+  }, [flights]);
+
   return (
     <Box>
       <Box sx={{ mt: 2 }}>
@@ -711,6 +718,7 @@ const RoundWaySearchResult = () => {
           tripType={searchParams.tripType}
           returnDateISO={effectiveReturnDateISO}
           returnDate={searchParams.returnDate}
+          selectedDatePrice={selectedDateLowestPrice}
         />
       </Box>
 

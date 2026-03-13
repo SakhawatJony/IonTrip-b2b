@@ -3,15 +3,13 @@ import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
-import DateSelectionBarSkeleton from "./DateSelectionBarSkeleton";
-import useAuth from "../../hooks/useAuth";
 
 const DateSelectionBar = ({ 
   selectedDate, 
   onDateSelect, 
   from, 
   to,
-  currency: propCurrency,
+  currency: propCurrency = "BDT",
   fromCode,
   toCode,
   passengerCounts = { adults: 1, children: 0, infants: 0 },
@@ -19,15 +17,10 @@ const DateSelectionBar = ({
   email = "user@example.com",
   tripType = "one-way",
   returnDateISO = "",
-  returnDate = ""
+  returnDate = "",
+  selectedDatePrice = null,
 }) => {
-  const { currency: authCurrency, agentToken } = useAuth();
-  // Use authCurrency from navbar if available, otherwise use prop currency
-  const currency = authCurrency || propCurrency || "USD";
-  
-  const [datePrices, setDatePrices] = useState({});
-  const [loadingPrices, setLoadingPrices] = useState(false);
-  
+  const currency = propCurrency || "BDT";
   // State for display center date (for navigation without triggering search)
   const [displayCenterDate, setDisplayCenterDate] = useState(() => {
     return selectedDate ? dayjs(selectedDate) : dayjs();
@@ -82,165 +75,7 @@ const DateSelectionBar = ({
     });
   }, [displayCenterDate]);
 
-  // Fetch prices for all dates
-  useEffect(() => {
-    if (!fromCode || !toCode || dates.length === 0) {
-      setDatePrices({});
-      return;
-    }
-
-    const controller = new AbortController();
-    const fetchPrices = async () => {
-      setLoadingPrices(true);
-      setDatePrices({}); // Clear previous prices while loading
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
-        const pricePromises = dates.map(async (dateInfo) => {
-          try {
-            const requestBody = {
-              tripType: normalizedTripType,
-              journeyfrom: fromCode,
-              journeyto: toCode,
-              adult: passengerCounts.adults || 1,
-              child: passengerCounts.children || 0,
-              infant: passengerCounts.infants || 0,
-              cabinclass: (travelClass || "economy").toLowerCase(),
-              departuredate: dateInfo.dateStr,
-              email: email,
-              currency: currency,
-            };
-            if (normalizedTripType === "roundway") {
-              requestBody.returndate = dateInfo.date
-                .add(roundTripOffsetDays, "day")
-                .format("YYYY-MM-DD");
-            }
-
-            const token = agentToken || localStorage.getItem("agentToken") || "";
-            const headers = {
-              "Content-Type": "application/json",
-            };
-            if (token) {
-              headers.Authorization = `Bearer ${token}`;
-            }
-            
-            const response = await fetch(`${baseUrl}/flight/searchFlights`, {
-              method: "POST",
-              headers,
-              body: JSON.stringify(requestBody),
-              signal: controller.signal,
-            });
-
-            if (!response.ok) {
-              console.warn(`Price fetch failed for ${dateInfo.dateStr}: ${response.status}`);
-              return { dateStr: dateInfo.dateStr, price: null };
-            }
-
-            const payload = await response.json();
-            const rawFlights = Array.isArray(payload)
-              ? payload
-              : payload?.data || payload?.flights || payload?.results || payload?.items || payload;
-            const normalized = Array.isArray(rawFlights) ? rawFlights : rawFlights ? [rawFlights] : [];
-
-            if (normalized.length === 0) {
-              console.warn(`No flights found for ${dateInfo.dateStr}`);
-              return { dateStr: dateInfo.dateStr, price: null };
-            }
-
-            // Get the lowest price from all flights
-            const prices = normalized
-              .map((item) => {
-                // Try multiple price fields
-                let priceValue = 
-                  item?.clientFare ||
-                  item?.agentFare ||
-                  item?.netPrice ||
-                  item?.basePrice ||
-                  item?.totalPrice ||
-                  item?.fare ||
-                  item?.price ||
-                  item?.AirFareData?.price?.grandTotal ||
-                  item?.AirFareData?.price?.total ||
-                  item?.AirFareData?.price?.baseFare ||
-                  null;
-
-                // If no direct price, try currency-specific fields
-                if (!priceValue && currency) {
-                  const currencyUpper = currency.toUpperCase();
-                  priceValue = 
-                    item?.[currencyUpper]?.clientFare ||
-                    item?.[currencyUpper]?.netPrice ||
-                    item?.[currencyUpper]?.agentFare ||
-                    item?.[currencyUpper]?.fare ||
-                    null;
-                }
-
-                // Try pricebreakdown array
-                if (!priceValue && item?.pricebreakdown && Array.isArray(item.pricebreakdown) && item.pricebreakdown.length > 0) {
-                  const breakdown = item.pricebreakdown[0];
-                  priceValue = 
-                    breakdown?.TotalFare ||
-                    breakdown?.BaseFare ||
-                    breakdown?.TotalPrice ||
-                    breakdown?.Price ||
-                    null;
-                }
-
-                // Try to extract numeric value
-                if (priceValue) {
-                  const numValue = typeof priceValue === 'string' 
-                    ? parseFloat(priceValue.replace(/[^\d.]/g, '')) 
-                    : parseFloat(priceValue);
-                  return !isNaN(numValue) && numValue > 0 ? numValue : null;
-                }
-                return null;
-              })
-              .filter((p) => p !== null && p > 0);
-
-            const lowestPrice = prices.length > 0 ? Math.min(...prices) : null;
-            return { dateStr: dateInfo.dateStr, price: lowestPrice };
-          } catch (err) {
-            if (err.name !== "AbortError") {
-              return { dateStr: dateInfo.dateStr, price: null };
-            }
-            return null;
-          }
-        });
-
-        const results = await Promise.all(pricePromises);
-        const pricesMap = {};
-        results.forEach((result) => {
-          if (result && result.dateStr) {
-            pricesMap[result.dateStr] = result.price;
-            // Log for debugging - especially for selected date
-            if (result.dateStr === selectedDateStr) {
-              console.log(`Price for selected date ${result.dateStr}:`, result.price);
-            }
-          }
-        });
-        setDatePrices(pricesMap);
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error("Error fetching prices:", err);
-        }
-      } finally {
-        setLoadingPrices(false);
-      }
-    };
-
-    // Debounce the fetch to avoid too many requests
-    const timeoutId = setTimeout(() => {
-      fetchPrices();
-    }, 300);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timeoutId);
-    };
-  }, [dates, fromCode, toCode, passengerCounts, travelClass, email, currency, normalizedTripType, roundTripOffsetDays, agentToken]);
-
-  const getPriceForDate = (dateStr) => {
-    return datePrices[dateStr] || null;
-  };
+  // No automatic price fetch: searchFlights is only called when user clicks a date (via parent's onDateSelect).
 
   const handlePreviousWeek = () => {
     // Only navigate dates, don't trigger search
@@ -251,13 +86,6 @@ const DateSelectionBar = ({
     // Only navigate dates, don't trigger search
     setDisplayCenterDate((prev) => prev.add(7, "day"));
   };
-
-  // Show skeleton on initial load when prices haven't been fetched yet
-  const showSkeleton = loadingPrices && Object.keys(datePrices).length === 0;
-
-  if (showSkeleton) {
-    return <DateSelectionBarSkeleton />;
-  }
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -309,8 +137,6 @@ const DateSelectionBar = ({
           {dates
             .map((dateInfo, index) => {
             const isSelected = dateInfo.dateStr === selectedDateStr;
-            const price = getPriceForDate(dateInfo.dateStr);
-            const isLoading = loadingPrices && !(dateInfo.dateStr in datePrices);
 
             return (
               <Box
@@ -360,11 +186,11 @@ const DateSelectionBar = ({
                     minHeight: 16,
                   }}
                 >
-                  {isLoading
-                    ? "..."
-                    : isSelected && price !== null
-                    ? `${currency} ${price.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-                    : "View Price"}
+                  {isSelected && selectedDatePrice != null && Number(selectedDatePrice) > 0
+                    ? `${currency} ${Number(selectedDatePrice).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                    : isSelected
+                    ? "Selected"
+                    : "View"}
                 </Typography>
               </Box>
             );
