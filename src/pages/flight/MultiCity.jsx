@@ -35,7 +35,7 @@ const MultiCity = () => {
   const inputContainerSx = {
     backgroundColor: "#F6F8FB",
     borderRadius: 1.5,
-    border: "1px solid #E6EDF5",
+    border: "1px solid var(--secondary-color, #024DAF)",
     px: 1.5,
     display: "flex",
     alignItems: "center",
@@ -77,13 +77,13 @@ const MultiCity = () => {
       height: "46px",
       minHeight: "46px",
       "& fieldset": {
-        border: "1px solid #E6EDF5",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&:hover fieldset": {
-        border: "1px solid #D7E0EC",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&.Mui-focused fieldset": {
-        border: "1px solid #C7D3E3",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
     },
     "& .MuiInputBase-input": {
@@ -448,7 +448,7 @@ const MultiCity = () => {
         <Button
           startIcon={<SendIcon sx={{ fontSize: 18 }} />}
           sx={{
-            backgroundColor: "#123D6E",
+            backgroundColor: "var(--secondary-color, #024DAF)",
             color: "#fff",
             px: 4.5,
             height: "42px",
@@ -456,9 +456,10 @@ const MultiCity = () => {
             fontSize: "14px",
             fontWeight: 600,
             textTransform: "none",
-            boxShadow: "0px 6px 16px rgba(18,61,110,0.25)",
+            boxShadow: "0px 6px 16px rgba(2,77,175,0.25)",
             "&:hover": {
-              backgroundColor: "#0f2f56",
+              backgroundColor: "var(--secondary-color, #024DAF)",
+              opacity: 0.9,
             },
           }}
         >

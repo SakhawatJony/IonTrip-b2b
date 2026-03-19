@@ -56,12 +56,19 @@ const STATUS_OPTIONS = [
   { value: "TICKETED", label: "Ticketed" },
 ];
 
-const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking" }) => {
+const AgentFlightBooking = ({
+  title = "All Booking",
+  buttonLabel = "All Booking",
+  defaultStatus = "",
+  viewMode = "",
+}) => {
   const navigate = useNavigate();
   const { agentToken, agentData } = useAuth();
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
   
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(
+    viewMode === "TICKETED" || viewMode === "CANCELLED" ? "" : (defaultStatus || "")
+  );
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
   const [bookings, setBookings] = useState([]);
@@ -163,8 +170,17 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
       const bookingsData = response?.data?.data || [];
       const paginationData = response?.data || {};
       const summaryData = response?.data?.statusSummary || [];
-      
-      setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+
+      // If we're in Refund view (or Refund selected) but API doesn't
+      // support strict REFUND filtering, fall back to client-side filter
+      let normalizedBookings = Array.isArray(bookingsData) ? bookingsData : [];
+      if (status === "REFUND") {
+        normalizedBookings = normalizedBookings.filter((booking) =>
+          (booking?.status || "").toString().toLowerCase().includes("refund")
+        );
+      }
+
+      setBookings(normalizedBookings);
       setTotalPages(paginationData.totalPages || 1);
       setTotal(paginationData.total || 0);
       setStatusSummary(Array.isArray(summaryData) ? summaryData : []);
@@ -207,6 +223,34 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
   }, [bookingIdFilter, pnrFilter, airlinesFilter, fetchBookings]);
 
   const selectedStatusLabel = STATUS_OPTIONS.find((opt) => opt.value === status)?.label || buttonLabel;
+
+  const isRefundView = (defaultStatus || "").toUpperCase() === "REFUND" && viewMode !== "TICKETED" && viewMode !== "CANCELLED";
+  const isTicketedView = viewMode === "TICKETED";
+  const isCancelledView = viewMode === "CANCELLED";
+
+  // Group bookings by status for the Refund view
+  const groupedRefundView =
+    isRefundView
+      ? {
+          refund: bookings.filter((b) =>
+            (b?.status || "").toString().toLowerCase().includes("refund")
+          ),
+          ticketed: bookings.filter((b) =>
+            (b?.status || "").toString().toLowerCase().includes("ticketed")
+          ),
+          cancelled: bookings.filter((b) =>
+            (b?.status || "").toString().toLowerCase().includes("cancelled")
+          ),
+        }
+      : null;
+
+  // Ticketed-only and Cancelled-only rows for separate routes
+  const ticketedRows = isTicketedView
+    ? bookings.filter((b) => (b?.status || "").toString().toLowerCase().includes("ticketed"))
+    : [];
+  const cancelledRows = isCancelledView
+    ? bookings.filter((b) => (b?.status || "").toString().toLowerCase().includes("cancelled"))
+    : [];
 
   // Format status summary for display
   const getStatusCards = () => {
@@ -553,6 +597,124 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
     );
   };
 
+  const BookingsTableSection = ({
+    title,
+    rows,
+    loading,
+    error,
+    emptyLabel,
+    mapBookingToTableRow,
+    hoveredRowIndex,
+    setHoveredRowIndex,
+  }) => (
+    <Box
+      sx={{
+        border: "1px solid #E5E7EB",
+        borderRadius: 1.5,
+        backgroundColor: "#FFFFFF",
+        overflowX: "auto",
+        overflowY: "auto",
+      }}
+    >
+      <Box>
+        {title && (
+          <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #E5E7EB" }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+              {title}
+            </Typography>
+          </Box>
+        )}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: tableGridTemplate,
+            alignItems: "stretch",
+            backgroundColor: "#F8FAFC",
+          }}
+        >
+          {tableColumns?.map((column) => (
+            <Box
+              key={column.key}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                py: 1,
+                borderBottom: "1px solid #E5E7EB",
+                backgroundColor: "#F8FAFC",
+              }}
+            >
+              <Typography sx={{ fontSize: 10.5, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
+                {column.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+            <CircularProgress size={24} sx={{ color: "#0F2F56" }} />
+          </Box>
+        ) : error ? (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+            <Typography sx={{ fontSize: 12, color: "#d32f2f" }}>{error}</Typography>
+          </Box>
+        ) : rows.length === 0 ? (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+            <Typography sx={{ fontSize: 12, color: "#6B7280" }}>{emptyLabel}</Typography>
+          </Box>
+        ) : (
+          rows.map((booking, index) => {
+            const row = mapBookingToTableRow(booking);
+            const isRowHovered = hoveredRowIndex === index;
+            return (
+              <Box
+                key={`${booking.bookingId || booking.id || index}-${index}`}
+                onMouseEnter={() => setHoveredRowIndex(index)}
+                onMouseLeave={() => setHoveredRowIndex(null)}
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: tableGridTemplate,
+                  alignItems: "stretch",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: 1,
+                  mb: 0.5,
+                  transition: "box-shadow 0.2s ease",
+                  ...(isRowHovered && {
+                    backgroundColor: "#FFFFFF",
+                    boxShadow: "0 8px 20px -2px rgba(0, 0, 0, 0.1)",
+                    width: "100%",
+                  }),
+                }}
+              >
+                {tableColumns.map((column) => {
+                  const value = row[column.key] || "-";
+                  const originalBookingId = booking?.bookingId || booking?.id || null;
+                  const carrierCode = row.carrierCode || null;
+                  return (
+                    <Box
+                      key={`${booking.bookingId || booking.id || index}-${column.key}`}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        px: 1,
+                        py: 0.5,
+                        borderBottom: "1px solid #E5E7EB",
+                        backgroundColor: "transparent",
+                      }}
+                    >
+                      {renderCell(column.key, value, originalBookingId, carrierCode)}
+                    </Box>
+                  );
+                })}
+              </Box>
+            );
+          })
+        )}
+      </Box>
+    </Box>
+  );
+
   return (
     <Box
       sx={{
@@ -811,107 +973,52 @@ const AgentFlightBooking = ({ title = "All Booking", buttonLabel = "All Booking"
           </Button>
         </Box>
 
-        <Box
-          sx={{
-            border: "1px solid #E5E7EB",
-            borderRadius: 1.5,
-            backgroundColor: "#FFFFFF",
-            overflowX: "auto",
-            overflowY: "auto",
-            // maxHeight: "55vh",
-          }}
-        >
-          <Box >
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: tableGridTemplate,
-                alignItems: "stretch",
-                backgroundColor: "#F8FAFC",
-              }}
-            >
-              {tableColumns?.map((column, columnIndex) => (
-                <Box
-                  key={column.key}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    
-                   py:1,
-                    borderBottom: "1px solid #E5E7EB",
-                    backgroundColor: "#F8FAFC",
-                  }}
-                >
-                  <Typography sx={{ fontSize: 10.5, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
-                    {column.label}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-            {loading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-                <CircularProgress size={24} sx={{ color: "#0F2F56" }} />
-              </Box>
-            ) : error ? (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-                <Typography sx={{ fontSize: 12, color: "#d32f2f" }}>{error}</Typography>
-              </Box>
-            ) : bookings.length === 0 ? (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-                <Typography sx={{ fontSize: 12, color: "#6B7280" }}>No bookings found</Typography>
-              </Box>
-            ) : (
-              bookings.map((booking, index) => {
-                const row = mapBookingToTableRow(booking);
-                const isRowHovered = hoveredRowIndex === index;
-                return (
-                  <Box
-                    key={`${booking.bookingId || booking.id || index}-${index}`}
-                    onMouseEnter={() => setHoveredRowIndex(index)}
-                    onMouseLeave={() => setHoveredRowIndex(null)}
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: tableGridTemplate,
-                      alignItems: "stretch",
-                      backgroundColor: "#FFFFFF",
-                      borderRadius: 1,
-                      mb: 0.5,
-                      transition: "box-shadow 0.2s ease",
-                      ...(isRowHovered && {
-                        backgroundColor: "#FFFFFF",
-                        boxShadow: "0 8px 20px -2px rgba(0, 0, 0, 0.1)",
-                        width: "100%",
-                      }),
-                    }}
-                  >
-                    {tableColumns.map((column) => {
-                      const value = row[column.key] || "-";
-                      const originalBookingId = booking?.bookingId || booking?.id || null;
-                      const carrierCode = row.carrierCode || null;
-                      return (
-                        <Box
-                          key={`${booking.bookingId || booking.id || index}-${column.key}`}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            px: 1,
-                            py: 0.5,
-                            borderBottom: "1px solid #E5E7EB",
-                            backgroundColor: "transparent",
-                          }}
-                        >
-                          {renderCell(column.key, value, originalBookingId, carrierCode)}
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                );
-              })
-            )}
-          </Box>
-        </Box>
+        {/* Main bookings table area */}
+        {isRefundView && groupedRefundView ? (
+          <BookingsTableSection
+            title="Refund Request Bookings"
+            rows={groupedRefundView.refund}
+            loading={loading}
+            error={error}
+            emptyLabel="No refund request bookings found"
+            mapBookingToTableRow={mapBookingToTableRow}
+            hoveredRowIndex={hoveredRowIndex}
+            setHoveredRowIndex={setHoveredRowIndex}
+          />
+        ) : isTicketedView ? (
+          <BookingsTableSection
+            title="Ticketed Bookings"
+            rows={ticketedRows}
+            loading={loading}
+            error={error}
+            emptyLabel="No ticketed bookings found"
+            mapBookingToTableRow={mapBookingToTableRow}
+            hoveredRowIndex={hoveredRowIndex}
+            setHoveredRowIndex={setHoveredRowIndex}
+          />
+        ) : isCancelledView ? (
+          <BookingsTableSection
+            title="Cancelled Bookings"
+            rows={cancelledRows}
+            loading={loading}
+            error={error}
+            emptyLabel="No cancelled bookings found"
+            mapBookingToTableRow={mapBookingToTableRow}
+            hoveredRowIndex={hoveredRowIndex}
+            setHoveredRowIndex={setHoveredRowIndex}
+          />
+        ) : (
+          <BookingsTableSection
+            title=""
+            rows={bookings}
+            loading={loading}
+            error={error}
+            emptyLabel="No bookings found"
+            mapBookingToTableRow={mapBookingToTableRow}
+            hoveredRowIndex={hoveredRowIndex}
+            setHoveredRowIndex={setHoveredRowIndex}
+          />
+        )}
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 0.5 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>

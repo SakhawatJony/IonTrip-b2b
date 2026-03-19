@@ -8,14 +8,16 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Avatar,
   IconButton,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
 
-import DashboardIcon from "@mui/icons-material/Home";
-import BookingsIcon from "@mui/icons-material/Storage";
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import FlightIcon from "@mui/icons-material/Flight";
+import HotelIcon from "@mui/icons-material/Hotel";
+import ExploreIcon from "@mui/icons-material/Explore";
+import BadgeIcon from "@mui/icons-material/Badge";
 import SettingsIcon from "@mui/icons-material/Settings";
 import WalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AccountIcon from "@mui/icons-material/Person";
@@ -24,6 +26,7 @@ import ReportIcon from "@mui/icons-material/BarChart";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import companyLogo from "../../assets/companylogo.jpg";
 
 const MENU_TEXT_COLOR = "#4B5563";
@@ -39,7 +42,7 @@ const SUBMENU_ACTIVE_COLOR = "#1F4D8B";
 const SUBMENU_ICON_BORDER = "#D1D5DB";
 const SUBMENU_ICON_ACTIVE = "#1F4D8B";
 
-const menuItem = (icon, text, options = {}, location = null) => {
+const menuItem = (icon, text, options = {}, location = null, collapsed = false) => {
   const { dropdown = false, path, end = false, sx, onClick, isOpen, activePaths = [] } = options;
 
   // Check if current route matches this menu item or any of its active paths
@@ -56,12 +59,19 @@ const menuItem = (icon, text, options = {}, location = null) => {
       {...buttonProps}
       onClick={onClick}
       sx={{
-        py: 1.2,
-        px: 1.25,
+        py: collapsed ? 0.9 : 1.2,
+        px: collapsed ? 0 : 1.25,
         borderRadius: 1.25,
         minHeight: 42,
+        width: "100%",
         alignItems: "center",
-        gap: 1.25,
+        justifyContent: collapsed ? "center" : "flex-start",
+        gap: collapsed ? 0 : 1.25,
+        textAlign: collapsed ? "center" : "left",
+        boxSizing: "border-box",
+        borderLeft: isActive
+          ? "3px solid var(--primary-color, #024DAF)"
+          : "3px solid transparent",
         bgcolor: isActive ? "rgba(31, 42, 68, 0.08)" : "transparent",
         "&.active": {
           bgcolor: "rgba(31, 42, 68, 0.08)",
@@ -74,7 +84,11 @@ const menuItem = (icon, text, options = {}, location = null) => {
     >
       <ListItemIcon 
         sx={{ 
-          minWidth: 34, 
+          minWidth: collapsed ? 0 : 34,
+          pr: collapsed ? 0 : undefined,
+          width: collapsed ? "100%" : "auto",
+          display: "flex",
+          justifyContent: "center",
           color: isActive ? MENU_ACTIVE_COLOR : MENU_ICON_COLOR,
           "& .MuiSvgIcon-root": {
             color: isActive ? MENU_ACTIVE_COLOR : MENU_ICON_COLOR,
@@ -91,9 +105,10 @@ const menuItem = (icon, text, options = {}, location = null) => {
           color: isActive ? MENU_ACTIVE_COLOR : MENU_TEXT_COLOR,
         }}
         primary={text}
+        sx={{ display: collapsed ? "none" : "block" }}
       />
 
-      {dropdown && (
+      {!collapsed && dropdown && (
         <IconButton
           size="small"
           onClick={(e) => {
@@ -122,7 +137,7 @@ const menuItem = (icon, text, options = {}, location = null) => {
   );
 };
 
-const SubMenuItem = ({ text, path, location }) => {
+const SubMenuItem = ({ text, path, location, collapsed = false }) => {
   const isActive = location.pathname === path;
 
   return (
@@ -133,14 +148,19 @@ const SubMenuItem = ({ text, path, location }) => {
         position: "relative",
         display: "flex",
         alignItems: "center",
-        gap: 1.75,
+        justifyContent: collapsed ? "center" : "flex-start",
+        gap: collapsed ? 0 : 1.75,
         py: 0.55,
-        pl: 5.25,
-        pr: 1.25,
+        pl: collapsed ? 0 : 5.25,
+        pr: collapsed ? 0 : 1.25,
         minHeight: 32,
         textDecoration: "none",
         cursor: "pointer",
         width: "100%",
+        boxSizing: "border-box",
+        borderLeft: isActive
+          ? "3px solid var(--primary-color, #024DAF)"
+          : "3px solid transparent",
         "&:hover": {
           bgcolor: "transparent",
         },
@@ -165,7 +185,7 @@ const SubMenuItem = ({ text, path, location }) => {
           color: isActive ? SUBMENU_ACTIVE_COLOR : SUBMENU_TEXT_COLOR,
           lineHeight: 1.6,
           whiteSpace: "nowrap",
-          display: "block",
+          display: collapsed ? "none" : "block",
           flex: 1,
           zIndex: 1,
           position: "relative",
@@ -177,15 +197,40 @@ const SubMenuItem = ({ text, path, location }) => {
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearAuthSession } = useAuth();
   const [expandedMenu, setExpandedMenu] = useState(null);
 
   useEffect(() => {
-    if (location.pathname.startsWith("/dashboard/bookings")) {
-      setExpandedMenu("bookings");
+    if (collapsed) {
+      // When sidebar collapses, close any opened submenu sections.
+      setExpandedMenu(null);
+    }
+  }, [collapsed]);
+
+  useEffect(() => {
+    if (
+      location.pathname.startsWith("/dashboard/bookings") ||
+      location.pathname.startsWith("/dashboard/flightinfo") ||
+      location.pathname.startsWith("/dashboard/reschedulepax")
+    ) {
+      setExpandedMenu("flight");
+      return;
+    }
+    if (
+      location.pathname.startsWith("/dashboard/hotel")
+    ) {
+      setExpandedMenu("hotel");
+      return;
+    }
+    if (location.pathname.startsWith("/dashboard/tour")) {
+      setExpandedMenu("tour");
+      return;
+    }
+    if (location.pathname.startsWith("/dashboard/visa")) {
+      setExpandedMenu("visa");
       return;
     }
     if (location.pathname.startsWith("/dashboard/wallet")) {
@@ -241,12 +286,12 @@ const Sidebar = () => {
     <Box
       sx={{
         height: "100vh",
-        borderRight: `1px solid ${SIDEBAR_BORDER}`,
+        borderRight: collapsed ? "none" : `1px solid ${SIDEBAR_BORDER}`,
         display: "flex",
         flexDirection: "column",
-        bgcolor: "#fff",
-        px: 2,
-        overflowY: "auto",
+        bgcolor: "#ffffff",
+        px: 0,
+        overflowY: "hidden",
         overflowX: "hidden",
         "&::-webkit-scrollbar": {
           width: "2px",
@@ -264,25 +309,88 @@ const Sidebar = () => {
         },
       }}
     >
-      <Box sx={{ px: 1, py: 1.5, textAlign: "center", flexShrink: 0 }}>
+      <Box
+        sx={{
+          px: collapsed ? 0 : 1.5,
+          py: collapsed ? 1.8 : 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap: 1,
+          flexShrink: 0,
+          borderBottom: collapsed ? "none" : `1px solid ${SIDEBAR_BORDER}`,
+          overflow: "hidden",
+          minWidth: 0,
+        }}
+      >
+        <Box
+          component="img"
+          src={companyLogo}
+          alt="mynztrip"
+          sx={{
+            width: 28,
+            height: 28,
+            borderRadius: "6px",
+            objectFit: "cover",
+            display: collapsed ? "none" : "block",
+          }}
+        />
 
-        <Typography fontWeight={800} fontSize={22} color={BRAND_PRIMARY}>
-          ionTrip
-        </Typography>
         <Typography
-          fontWeight={700}
-          fontSize={13}
-          letterSpacing={2}
-          color={BRAND_ACCENT}
+          sx={{
+            fontWeight: 800,
+            fontSize: 18,
+            color: "var(--secondary-color, #024DAF)",
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            flex: 1,
+            minWidth: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: collapsed ? "none" : "block",
+          }}
         >
-          TECH
+          iontrip.com
         </Typography>
+
+        <Box sx={{ ml: collapsed ? 0 : "auto", display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <IconButton
+            size="small"
+            aria-label="Back"
+            onClick={onToggleCollapsed}
+            sx={{
+              width: 28,
+              height: 28,
+              border: "1px solid #D1D5DB",
+              bgcolor: "#FFFFFF",
+              "&:hover": { bgcolor: "#F9FAFB" },
+              flexShrink: 0,
+            }}
+          >
+            <MenuOpenIcon sx={{ fontSize: 18, color: "#6B7280" }} />
+          </IconButton>
+        </Box>
       </Box>
 
       <Box
         sx={{
           flexGrow: 1,
-          overflow: "visible",
+          overflowY: "auto",
+          overflowX: "hidden",
+          "&::-webkit-scrollbar": {
+            width: "2px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#f1f1f1",
+            borderRadius: "2px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: BRAND_PRIMARY,
+            borderRadius: "2px",
+            "&:hover": {
+              background: "#0F172A",
+            },
+          },
         }}
       >
         <List
@@ -290,20 +398,27 @@ const Sidebar = () => {
             display: "flex",
             flexDirection: "column",
             gap: 0.75,
+            ...(collapsed && {
+              alignItems: "center",
+              width: "100%",
+              p: 0,
+              py: 0.5,
+              "& .MuiListItemButton-root": { maxWidth: "100%" },
+            }),
           }}
         >
-          {menuItem(<DashboardIcon sx={{ fontSize: 23 }} />, "Dashboard", {
+          {menuItem(<QueryStatsIcon sx={{ fontSize: 23 }} />, "Search", {
             path: "/dashboard",
             end: true,
-          }, location)}
+          }, location, collapsed)}
 
-        {menuItem(<BookingsIcon sx={{ fontSize: 23 }} />, "Bookings", {
+        {menuItem(<FlightIcon sx={{ fontSize: 23 }} />, "Flight", {
           dropdown: true,
-          isOpen: expandedMenu === "bookings",
-          onClick: () => handleToggle("bookings"),
-          activePaths: ["/dashboard/bookings"],
-        }, location)}
-        <Collapse in={expandedMenu === "bookings"} timeout="auto" unmountOnExit>
+          isOpen: expandedMenu === "flight",
+          onClick: () => handleToggle("flight"),
+          activePaths: ["/dashboard/bookings", "/dashboard/flightinfo", "/dashboard/reschedulepax"],
+        }, location, collapsed)}
+        <Collapse in={expandedMenu === "flight"} timeout="auto" unmountOnExit>
           <Box
             sx={{
               position: "relative",
@@ -312,7 +427,8 @@ const Sidebar = () => {
               "&::before": {
                 content: '""',
                 position: "absolute",
-                left: 49,
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
                 top: 16,
                 bottom: 16,
                 width: 2,
@@ -320,23 +436,115 @@ const Sidebar = () => {
               },
             }}
           >
-            <SubMenuItem text="All Booking" path="/dashboard/bookings" location={location} />
-            {/* <SubMenuItem text="Confirmed Booking" path="/dashboard/bookings/confirmed" location={location} />
-            <SubMenuItem text="Refund Booking" path="/dashboard/bookings/refund" location={location} />
-            <SubMenuItem text="Reissue Booking" path="/dashboard/bookings/reissue" location={location} /> */}
+            <SubMenuItem collapsed={collapsed} text="Bookings" path="/dashboard/bookings" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Ticketed" path="/dashboard/bookings/ticketed" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Cancelled" path="/dashboard/bookings/cancelled" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Reissue" path="/dashboard/bookings/reissue" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Refunds" path="/dashboard/bookings/refund" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Flight Info" path="/dashboard/flightinfo" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Reschedule Pax" path="/dashboard/reschedulepax" location={location} />
           </Box>
         </Collapse>
 
-        {menuItem(<SettingsIcon sx={{ fontSize: 23 }} />, "Settings", {
-          path: "/dashboard/settings",
-        }, location)}
+        {menuItem(<HotelIcon sx={{ fontSize: 23 }} />, "Hotel", {
+          dropdown: true,
+          isOpen: expandedMenu === "hotel",
+          onClick: () => handleToggle("hotel"),
+          activePaths: ["/dashboard/hotel/bookings", "/dashboard/hotel/confirmed", "/dashboard/hotel/cancelled"],
+        }, location, collapsed)}
+        <Collapse in={expandedMenu === "hotel"} timeout="auto" unmountOnExit>
+          <Box
+            sx={{
+              position: "relative",
+              pl: 0,
+              pr: 0,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
+                top: 16,
+                bottom: 16,
+                width: 2,
+                bgcolor: SUBMENU_ICON_BORDER,
+              },
+            }}
+          >
+           
+            <SubMenuItem collapsed={collapsed} text="All Bookings" path="/dashboard/hotel/bookings" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Confirmed Booking" path="/dashboard/hotel/confirmed" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Cancelled Booking" path="/dashboard/hotel/cancelled" location={location} />
+          </Box>
+        </Collapse>
+
+        {menuItem(<ExploreIcon sx={{ fontSize: 23 }} />, "Tour", {
+          dropdown: true,
+          isOpen: expandedMenu === "tour",
+          onClick: () => handleToggle("tour"),
+          activePaths: ["/dashboard/tour/bookings", "/dashboard/tour/confirmed", "/dashboard/tour/cancelled", "/dashboard/tour/refunds"],
+        }, location, collapsed)}
+        <Collapse in={expandedMenu === "tour"} timeout="auto" unmountOnExit>
+          <Box
+            sx={{
+              position: "relative",
+              pl: 0,
+              pr: 0,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
+                top: 16,
+                bottom: 16,
+                width: 2,
+                bgcolor: SUBMENU_ICON_BORDER,
+              },
+            }}
+          >
+            <SubMenuItem collapsed={collapsed} text="All Bookings" path="/dashboard/tour/bookings" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Confirmed Booking" path="/dashboard/tour/confirmed" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Cancelled Booking" path="/dashboard/tour/cancelled" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Refunds Booking" path="/dashboard/tour/refunds" location={location} />
+          </Box>
+        </Collapse>
+
+        {menuItem(<BadgeIcon sx={{ fontSize: 23 }} />, "Visa", {
+          dropdown: true,
+          isOpen: expandedMenu === "visa",
+          onClick: () => handleToggle("visa"),
+          activePaths: ["/dashboard/visa/bookings", "/dashboard/visa/confirmed", "/dashboard/visa/cancelled", "/dashboard/visa/refunds"],
+        }, location, collapsed)}
+        <Collapse in={expandedMenu === "visa"} timeout="auto" unmountOnExit>
+          <Box
+            sx={{
+              position: "relative",
+              pl: 0,
+              pr: 0,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
+                top: 16,
+                bottom: 16,
+                width: 2,
+                bgcolor: SUBMENU_ICON_BORDER,
+              },
+            }}
+          >
+            <SubMenuItem collapsed={collapsed} text="All Bookings" path="/dashboard/visa/bookings" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Confirmed Booking" path="/dashboard/visa/confirmed" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Cancelled Booking" path="/dashboard/visa/cancelled" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Refunds Booking" path="/dashboard/visa/refunds" location={location} />
+          </Box>
+        </Collapse>
 
         {menuItem(<WalletIcon sx={{ fontSize: 23 }} />, "Wallet", {
           dropdown: true,
           isOpen: expandedMenu === "wallet",
           onClick: () => handleToggle("wallet"),
-          activePaths: ["/dashboard/wallet", "/dashboard/agentdeposit"],
-        }, location)}
+          activePaths: ["/dashboard/wallet", "/dashboard/agentdeposit", "/dashboard/agentdeposit/add"],
+        }, location, collapsed)}
         <Collapse in={expandedMenu === "wallet"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -346,7 +554,8 @@ const Sidebar = () => {
               "&::before": {
                 content: '""',
                 position: "absolute",
-                left: 49,
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
                 top: 16,
                 bottom: 16,
                 width: 2,
@@ -355,7 +564,8 @@ const Sidebar = () => {
             }}
           >
             {/* <SubMenuItem text="Wallet Overview" path="/dashboard/wallet" location={location} /> */}
-            <SubMenuItem text="Agent Deposit" path="/dashboard/agentdeposit" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Agent Deposit" path="/dashboard/agentdeposit" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Deposit Request" path="/dashboard/agentdeposit/add" location={location} />
           </Box>
         </Collapse>
 
@@ -364,7 +574,7 @@ const Sidebar = () => {
           isOpen: expandedMenu === "account",
           onClick: () => handleToggle("account"),
           activePaths: ["/dashboard/account", "/dashboard/account/activitylog", "/dashboard/account/alltraveler", "/dashboard/account/addtraveler"],
-        }, location)}
+        }, location, collapsed)}
         <Collapse in={expandedMenu === "account"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -374,7 +584,8 @@ const Sidebar = () => {
               "&::before": {
                 content: '""',
                 position: "absolute",
-                left: 49,
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
                 top: 16,
                 bottom: 16,
                 width: 2,
@@ -382,22 +593,22 @@ const Sidebar = () => {
               },
             }}
           >
-            <SubMenuItem text="Profile" path="/dashboard/account" location={location} />
-            <SubMenuItem text="Activity Log" path="/dashboard/account/activitylog" location={location} />
-            <SubMenuItem text="All Traveler" path="/dashboard/account/alltraveler" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Profile" path="/dashboard/account" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Activity Log" path="/dashboard/account/activitylog" location={location} />
+            <SubMenuItem collapsed={collapsed} text="All Traveler" path="/dashboard/account/alltraveler" location={location} />
           </Box>
         </Collapse>
 
-        {menuItem(<ManageIcon sx={{ fontSize: 23 }} />, "Manage", {
+        {/* {menuItem(<ManageIcon sx={{ fontSize: 23 }} />, "Manage", {
           path: "/dashboard/manage",
-        }, location)}
+        }, location, collapsed)} */}
 
         {menuItem(<ReportIcon sx={{ fontSize: 23 }} />, "Ot Reports", {
           dropdown: true,
           isOpen: expandedMenu === "reports",
           onClick: () => handleToggle("reports"),
           activePaths: ["/dashboard/ledgerreport", "/dashboard/salesreport", "/dashboard/searchreport"],
-        }, location)}
+        }, location, collapsed)}
         <Collapse in={expandedMenu === "reports"} timeout="auto" unmountOnExit>
           <Box
             sx={{
@@ -407,7 +618,8 @@ const Sidebar = () => {
               "&::before": {
                 content: '""',
                 position: "absolute",
-                left: 49,
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
                 top: 16,
                 bottom: 16,
                 width: 2,
@@ -415,41 +627,20 @@ const Sidebar = () => {
               },
             }}
           >
-            <SubMenuItem text="Ledger Report" path="/dashboard/ledgerreport" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Ledger Report" path="/dashboard/ledgerreport" location={location} />
             {/* <SubMenuItem text="Sales Report" path="/dashboard/salesreport" location={location} /> */}
-            <SubMenuItem text="Search Report" path="/dashboard/searchreport" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Search Report" path="/dashboard/searchreport" location={location} />
           </Box>
         </Collapse>
 
         {menuItem(<HeadsetMicIcon sx={{ fontSize: 23 }} />, "Support", {
           path: "/dashboard/support",
-        }, location)}
+        }, location, collapsed)}
 
         {menuItem(<LogoutIcon sx={{ fontSize: 23 }} />, "Logout", {
           onClick: handleLogout,
-        }, location)}
+        }, location, collapsed)}
         </List>
-      </Box>
-
-      <Box
-        sx={{
-          p: 2,
-          borderTop: `1px solid ${SIDEBAR_BORDER}`,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          flexShrink: 0,
-        }}
-      >
-        <Avatar sx={{ width: 36, height: 36 }} />
-        <Box>
-          <Typography fontSize={12} fontWeight={600}>
-            Sakhawat Hosen
-          </Typography>
-          <Typography fontSize={12} color="text.secondary">
-            Project Manager
-          </Typography>
-        </Box>
       </Box>
     </Box>
   );

@@ -41,8 +41,9 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
   const { currency } = useAuth();
   const normalizedPathname = location.pathname.replace(/\/+$/, "");
   const isDashboardHome = normalizedPathname === "/dashboard";
-  const searchButtonColor = isDashboardHome ? "#123D6E" : "#525371";
-  const searchButtonHoverColor = isDashboardHome ? "#0f2f56" : "#424055";
+  const secondaryColor = "var(--secondary-color, #024DAF)";
+  const searchButtonColor = isDashboardHome ? secondaryColor : "#525371";
+  const searchButtonHoverColor = isDashboardHome ? secondaryColor : "#424055";
   const searchButtonShadow = isDashboardHome
     ? "0px 6px 16px rgba(18,61,110,0.25)"
     : "0px 6px 16px rgba(82,83,113,0.25)";
@@ -166,8 +167,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
   const inputContainerSx = {
     backgroundColor: "#F6F8FB",
     borderRadius: 1.5,
-    border: "1px solid #E6EDF5",
-  
+    border: "1px solid var(--secondary-color, #024DAF)",
     display: "flex",
     alignItems: "center",
     gap: 1.5,
@@ -182,13 +182,13 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
       height: "46px",
       minHeight: "46px",
       "& fieldset": {
-        border: "1px solid #E6EDF5",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&:hover fieldset": {
-        border: "1px solid #D7E0EC",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&.Mui-focused fieldset": {
-        border: "1px solid #C7D3E3",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
     },
     "& .MuiInputBase-input": {
@@ -233,7 +233,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
     minWidth: "100%",
     zIndex: 20,
     backgroundColor: "#FFFFFF",
-    border: "1px solid #E6EDF5",
+    border: "1px solid var(--secondary-color, #024DAF)",
     borderRadius: 1.5,
     boxShadow: "0px 6px 16px rgba(18,61,110,0.12)",
     maxHeight: 280,
@@ -689,7 +689,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
                 sx: {
                   mt: 1,
                   borderRadius: 2,
-                  border: "1px solid #E6EDF5",
+                  border: "1px solid var(--secondary-color, #024DAF)",
                   boxShadow: "0px 8px 24px rgba(18,61,110,0.18)",
                 },
               }}
@@ -714,8 +714,8 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
                   />
                   <Box
                     sx={{
-                      borderLeft: { xs: "none", md: "1px solid #E6EDF5" },
-                      borderTop: { xs: "1px solid #E6EDF5", md: "none" },
+                      borderLeft: { xs: "none", md: "1px solid var(--secondary-color, #024DAF)" },
+                      borderTop: { xs: "1px solid var(--secondary-color, #024DAF)", md: "none" },
                     }}
                   />
                   <DateCalendar
@@ -879,7 +879,7 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
                     </IconButton>
                   </Box>
                 </Box>
-                <Box sx={{ pt: 1.5, borderTop: "1px solid #E6EDF5" }}>
+                <Box sx={{ pt: 1.5, borderTop: "1px solid var(--secondary-color, #024DAF)" }}>
                   <RadioGroup
                     value={travelClass}
                     onChange={(event) => setTravelClass(event.target.value)}

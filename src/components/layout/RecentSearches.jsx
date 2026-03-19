@@ -269,7 +269,7 @@ const RecentSearches = () => {
   const totalSlides = Math.ceil(recentSearches.length / itemsPerView);
 
   return (
-    <Box my={10}>
+    <Box mt={5}>
       <Box
         sx={{
           position: "relative",

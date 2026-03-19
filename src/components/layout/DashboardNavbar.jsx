@@ -1,23 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, IconButton, Menu, MenuItem } from "@mui/material";
-import PhoneIcon from "@mui/icons-material/Phone";
-import EmailIcon from "@mui/icons-material/Email";
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+  Button,
+  Select,
+  FormControl,
+  CircularProgress,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
+import HistoryIcon from "@mui/icons-material/History";
 import useAuth from "../../hooks/useAuth";
+import {
+  useAgentWalletBalance,
+  formatWalletBalance,
+} from "../../hooks/useAgentWalletBalance";
 import { useNavigate } from "react-router-dom";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
 
+const CURRENCIES = ["MYR", "USD", "BDT", "EUR", "GBP"];
+
 const DashboardNavbar = () => {
-  const { agentData, clearAuthSession } = useAuth();
+  const { agentData, currency, setCurrency, clearAuthSession } = useAuth();
+  const {
+    balance: walletApiBalance,
+    loading: walletLoading,
+    refetch: refetchWallet,
+    displayNumeric,
+    currencySymbol,
+  } = useAgentWalletBalance();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [profileAnchor, setProfileAnchor] = useState(null);
   const [logoError, setLogoError] = useState(false);
-  const open = Boolean(anchorEl);
+  const [balanceAnchorEl, setBalanceAnchorEl] = useState(null);
 
   const agentLogoUrl = agentData?.logoUrl || agentData?.logo;
   const agentLogoFullUrl = agentLogoUrl
@@ -26,35 +52,38 @@ const DashboardNavbar = () => {
       : `${baseUrl}/${agentLogoUrl.replace(/^\//, "")}`
     : null;
 
-  useEffect(() => {
-    setLogoError(false);
-  }, [agentLogoFullUrl]);
+  const balanceLine =
+    displayNumeric !== null && displayNumeric !== undefined
+      ? `${currencySymbol} ${formatWalletBalance(displayNumeric)}`
+      : walletLoading
+        ? null
+        : "--";
 
-  const handleProfileClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault();
+    if (!searchValue?.trim()) return;
+    navigate(`/dashboard/bookings?search=${encodeURIComponent(searchValue.trim())}`);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleProfileClick = (event) => setProfileAnchor(event.currentTarget);
+  const handleProfileClose = () => setProfileAnchor(null);
 
   const handleMyProfile = () => {
-    handleMenuClose();
+    handleProfileClose();
     navigate("/dashboard/account");
   };
 
   const handleLogout = () => {
-    handleMenuClose();
+    handleProfileClose();
     clearAuthSession();
     navigate("/login");
   };
 
-  const supportPhone = "09613001005";
-  const supportEmail = "support@iontrip.tech";
-  const crmPhone = "+8801332564525";
-  const crmEmail = "khaza@iontrip.tech";
-  const rewardPoints = agentData?.rewardPoints ?? 5337;
-  const tlCoins = agentData?.tlCoins ?? agentData?.walletBalance ?? 156;
+  const primaryColor = "var(--primary-color, #024DAF)";
+  const secondaryColor = "var(--secondary-color, #024DAF)";
+
+  const pillRadius = "9999px";
+  const inputHeight = 36;
 
   return (
     <Box
@@ -62,134 +91,178 @@ const DashboardNavbar = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        px: 3,
-        py: 1,
+        gap: 2,
+        px: 2.5,
+        py: 1.25,
         bgcolor: "#FFFFFF",
         borderBottom: "1px solid #E5E7EB",
         flexWrap: "wrap",
-        gap: 2,
       }}
     >
-      {/* Left: Support & Reservation | CRM (Khaza) */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <Box>
-          <Typography sx={{ fontSize: 10.5, color: "#6B7280", mb: 0.25 }}>Support & Reservation</Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <PhoneIcon sx={{ fontSize: 13, color: "#374151" }} />
-            <Typography sx={{ fontSize: 12, color: "#374151" }}>{supportPhone}</Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <EmailIcon sx={{ fontSize: 13, color: "#374151" }} />
-            <Typography sx={{ fontSize: 12, color: "#374151" }}>{supportEmail}</Typography>
-          </Box>
-        </Box>
-        <Box sx={{ width: "1px", height: 40, bgcolor: "#D1D5DB" }} />
-        {/* <Box>
-          <Typography sx={{ fontSize: 10.5, color: "#6B7280", mb: 0.25 }}>CRM (Khaza)</Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <PhoneIcon sx={{ fontSize: 13, color: "#374151" }} />
-            <Typography sx={{ fontSize: 12, color: "#374151" }}>{crmPhone}</Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <EmailIcon sx={{ fontSize: 13, color: "#374151" }} />
-            <Typography sx={{ fontSize: 12, color: "#374151" }}>{crmEmail}</Typography>
-          </Box>
-        </Box> */}
+      {/* Search bar: input + button (single pill-shaped unit) */}
+      <Box
+        component="form"
+        onSubmit={handleSearchSubmit}
+        sx={{
+          display: "flex",
+          alignItems: "stretch",
+          gap: 0,
+          flex: 1,
+          minWidth: 0,
+          maxWidth: 540,
+          height: inputHeight,
+        }}
+      >
+        <TextField
+          placeholder="PNR/Booking Ref/Passport/Ticket Number"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          variant="outlined"
+          sx={{
+            flex: 1,
+            "& .MuiOutlinedInput-root": {
+              height: "100%",
+              bgcolor: "#FFFFFF",
+              borderRadius: `${pillRadius} 0 0 ${pillRadius}`,
+              borderRight: "none",
+              fontSize: 13,
+              "& fieldset": {
+                borderColor: "#E5E7EB",
+                borderWidth: "1px",
+                borderRight: "none",
+              },
+              "&:hover fieldset": { borderColor: "#D1D5DB" },
+              "&.Mui-focused fieldset": { borderColor: secondaryColor, borderWidth: "1px" },
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "#6B7280",
+              fontSize: 13,
+              opacity: 1,
+            },
+          }}
+          inputProps={{ "aria-label": "Search PNR or booking reference" }}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          startIcon={<SearchIcon sx={{ color: "#fff", fontSize: 20 }} />}
+          sx={{
+            height: "100%",
+            borderRadius: `0 ${pillRadius} ${pillRadius} 0`,
+            bgcolor: secondaryColor,
+            color: "#FFFFFF",
+            fontSize: 13,
+            fontWeight: 600,
+            px: 2.25,
+            boxShadow: "none",
+            border: `1px solid ${secondaryColor}`,
+            borderLeft: "none",
+            "&:hover": { bgcolor: secondaryColor, opacity: 0.9, boxShadow: "none", borderColor: secondaryColor },
+          }}
+        >
+          Search
+        </Button>
       </Box>
 
-      {/* Right: Reward Points, TL Coins, User Profile */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
-        {/* <Box
+      {/* Right: $ Balance pill, MYR pill, circular icons */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
+        {/* $ Balance – pill-shaped box with chevron, click opens Balance Summary below */}
+        <Box
+          onClick={(e) => setBalanceAnchorEl(e.currentTarget)}
+          role="button"
+          aria-label="View balance summary"
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
-            px: 2,
-            py: 1,
-            borderRadius: "12px",
-            border: "1px solid #C4C1E0",
-            background: "linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%)",
+            gap: 0.75,
+            minHeight: 40,
+            px: 1.5,
+            py: 0.5,
+            bgcolor: "#FFFFFF",
+            border: "1px solid #D1D5DB",
+            borderRadius: pillRadius,
             minWidth: 140,
+            cursor: "pointer",
+            "&:hover": { borderColor: "#9CA3AF", bgcolor: "#F9FAFB" },
           }}
         >
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              bgcolor: "rgba(255,255,255,0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <MonetizationOnIcon sx={{ fontSize: 20, color: "#B45309" }} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Reward Points</Typography>
-            <Typography sx={{ fontSize: 14, fontWeight: 700, color: "#374151" }}>{rewardPoints}</Typography>
-          </Box>
-        </Box> */}
-
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            px: 2,
-            py: 1,
-            borderRadius: "12px",
-            border: "1px solid #C4C1E0",
-            bgcolor: "#F3F4F6",
-            minWidth: 160,
-          }}
-        >
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              bgcolor: "#fff",
-              border: "1px solid #E5E7EB",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <AccountBalanceWalletIcon sx={{ fontSize: 20, color: "#6B7280" }} />
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>IT Coins</Typography>
-            <Typography sx={{ fontSize: 14, fontWeight: 700, color: "#374151" }}>
-              <span style={{ color: "#059669" }}>+</span> {Number(tlCoins).toFixed(2)}
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", minWidth: 0, flex: 1 }}>
+            <Typography sx={{ fontSize: 14, color: "#6B7280", fontWeight: 600, lineHeight: 1.2 }}>
+              Balance
             </Typography>
+            
           </Box>
-          <IconButton size="small" sx={{ "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}>
-            <RefreshIcon sx={{ fontSize: 18, color: "#6B7280" }} />
-          </IconButton>
+          <KeyboardArrowDownIcon sx={{ fontSize: 20, color: "#374151", flexShrink: 0 }} />
         </Box>
-
-        <Box
+        {/* MYR – pill-shaped dropdown */}
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <Select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            IconComponent={KeyboardArrowDownIcon}
+            sx={{
+              height: 40,
+              bgcolor: "#FFFFFF",
+              borderRadius: pillRadius,
+              fontSize: 15,
+              fontWeight: 400,
+              color: "#374151",
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "1px solid #D1D5DB",
+                borderRadius: pillRadius,
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#9CA3AF" },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#2563EB" },
+            }}
+          >
+            {CURRENCIES.map((c) => (
+              <MenuItem key={c} value={c} sx={{ fontSize: 15 }}>{c}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {/* Circular icons: headset, bell, profile – white bg, 1px black border, black icon */}
+        <IconButton
+          aria-label="Support"
+          onClick={() => navigate("/dashboard/support")}
+          sx={{
+            width: 40,
+            height: 40,
+            bgcolor: "#FFFFFF",
+            border: "1px solid #1F2937",
+            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
+          }}
+        >
+          <HeadsetMicIcon sx={{ fontSize: 20, color: "#1F2937" }} />
+        </IconButton>
+        <IconButton
+          aria-label="Notifications"
+          sx={{
+            width: 40,
+            height: 40,
+            bgcolor: "#FFFFFF",
+            border: "1px solid #1F2937",
+            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
+          }}
+        >
+          <NotificationsNoneIcon sx={{ fontSize: 20, color: "#1F2937" }} />
+        </IconButton>
+        <IconButton
+          aria-label="Profile"
           onClick={handleProfileClick}
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 48,
-            height: 48,
-            borderRadius: "12px",
-            border: "1px solid #C4C1E0",
-            p: 0.75,
-            cursor: "pointer",
-            "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
+            width: 40,
+            height: 40,
+            bgcolor: "#FFFFFF",
+            border: "1px solid #1F2937",
+            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
           }}
         >
           <Box
             sx={{
-              width: 36,
-              height: 36,
+              width: 22,
+              height: 22,
               borderRadius: "50%",
-              bgcolor: agentLogoFullUrl ? "transparent" : "var(--primary-color)",
+              bgcolor: agentLogoFullUrl ? "transparent" : "#1F2937",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -200,82 +273,126 @@ const DashboardNavbar = () => {
               <Box
                 component="img"
                 src={agentLogoFullUrl}
-                alt="Agent logo"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+                alt="Profile"
+                sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                 onError={() => setLogoError(true)}
               />
-            ) : null}
-            <Box
-              sx={{
-                display: agentLogoFullUrl && !logoError ? "none" : "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <PersonIcon sx={{ fontSize: 20, color: "#FFFFFF" }} />
-            </Box>
+            ) : (
+              <PersonIcon sx={{ fontSize: 14, color: "#FFFFFF" }} />
+            )}
           </Box>
-        </Box>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-          slotProps={{
-            paper: {
-              sx: {
-                mt: 1.5,
-                minWidth: 180,
-                py: 1,
-                borderRadius: "12px",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-              },
-            },
-          }}
-        >
-          <MenuItem
-            onClick={handleMyProfile}
-            sx={{
-              mx: 1,
-              mb: 0.5,
-              borderRadius: "8px",
-              border: "1px solid #C4C1E0",
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              color: "#8B8A9E",
-              py: 1.25,
-            }}
-          >
-            <PersonIcon sx={{ fontSize: 20, color: "#8B8A9E" }} />
-            <Typography sx={{ fontSize: 14 }}>My Profile</Typography>
-          </MenuItem>
-          <MenuItem
-            onClick={handleLogout}
-            sx={{
-              mx: 1,
-              mb: 1,
-              borderRadius: "8px",
-              border: "1px solid #C4C1E0",
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              color: "#8B8A9E",
-              py: 1.25,
-            }}
-          >
-            <LogoutIcon sx={{ fontSize: 20, color: "#8B8A9E" }} />
-            <Typography sx={{ fontSize: 14 }}>Logout</Typography>
-          </MenuItem>
-        </Menu>
+        </IconButton>
       </Box>
+
+      {/* Balance Summary popup – opens below navbar $ Balance */}
+      <Menu
+        anchorEl={balanceAnchorEl}
+        open={Boolean(balanceAnchorEl)}
+        onClose={() => setBalanceAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1.5,
+              borderRadius: "12px",
+              border: `2px solid ${primaryColor}`,
+              minWidth: 420,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+              py: 2,
+              px: 2,
+            },
+          },
+        }}
+      >
+        <Typography sx={{ fontWeight: 700, fontSize: 18, color: "#1F2937", mb: 1.5 }}>
+          Balance Summary
+        </Typography>
+        <Typography component="div" sx={{ fontSize: 14, color: "#374151", mb: 2 }}>
+          <Box component="span" sx={{ fontWeight: 700, color: "#1F2937" }}>Current Balance: </Box>
+          <Box component="span">
+            {walletLoading && walletApiBalance === null && (displayNumeric === null || displayNumeric === undefined) ? (
+              <CircularProgress size={18} sx={{ ml: 1, verticalAlign: "middle", color: secondaryColor }} />
+            ) : (
+              `${currency} ${formatWalletBalance(displayNumeric ?? 0)}`
+            )}
+          </Box>
+        </Typography>
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+          <Button
+            variant="outlined"
+            disabled={walletLoading}
+            startIcon={<AddIcon sx={{ fontSize: 18 }} />}
+            onClick={async () => {
+              await refetchWallet();
+              setBalanceAnchorEl(null);
+              navigate("/dashboard/agentdeposit/add");
+            }}
+            sx={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+              fontWeight: 600,
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": { borderColor: primaryColor, bgcolor: "rgba(2, 77, 175, 0.04)" },
+            }}
+          >
+            Reload Balance
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<HistoryIcon sx={{ fontSize: 18 }} />}
+            onClick={() => {
+              setBalanceAnchorEl(null);
+              navigate("/dashboard/agentdeposit");
+            }}
+            sx={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+              fontWeight: 600,
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": { borderColor: primaryColor, bgcolor: "rgba(2, 77, 175, 0.04)" },
+            }}
+          >
+            Reload History
+          </Button>
+        </Box>
+      </Menu>
+
+      <Menu
+        anchorEl={profileAnchor}
+        open={Boolean(profileAnchor)}
+        onClose={handleProfileClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1.5,
+              minWidth: 180,
+              py: 1,
+              borderRadius: "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+            },
+          },
+        }}
+      >
+        <MenuItem
+          onClick={handleMyProfile}
+          sx={{ mx: 1, mb: 0.5, borderRadius: "8px", display: "flex", alignItems: "center", gap: 1.5, py: 1.25 }}
+        >
+          <PersonIcon sx={{ fontSize: 20, color: "#6B7280" }} />
+          <Typography sx={{ fontSize: 14 }}>My Profile</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ mx: 1, borderRadius: "8px", display: "flex", alignItems: "center", gap: 1.5, py: 1.25, color: "#6B7280" }}
+        >
+          <LogoutIcon sx={{ fontSize: 20 }} />
+          <Typography sx={{ fontSize: 14 }}>Logout</Typography>
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

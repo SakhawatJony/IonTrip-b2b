@@ -420,10 +420,11 @@ const RoundWayFlight = ({ flight }) => {
                 Flight Details
               </Button>
               <Button
+                endIcon={<KeyboardArrowDownIcon sx={{ fontSize: 12 }} />}
                 onClick={handleToggleBranded}
                 sx={{
                   textTransform: "none",
-                  backgroundColor: "#0F2F56",
+                  backgroundColor: "var(--secondary-color, #024DAF)",
                   color: "#fff",
                   fontSize: 11,
                   height: 28,
@@ -431,7 +432,10 @@ const RoundWayFlight = ({ flight }) => {
                   
                   whiteSpace: "nowrap",
                   fontWeight: 600,
-                  "&:hover": { backgroundColor: "#0B2442" },
+                  "&:hover": {
+                    backgroundColor: "var(--secondary-color, #024DAF)",
+                    opacity: 0.9,
+                  },
                 }}
               >
                 Select

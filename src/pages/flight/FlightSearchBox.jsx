@@ -61,7 +61,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
   return (
     <Box sx={{
       backgroundColor: "#FFFFFF",
-      borderRadius: "12px",
+      borderRadius: "10px",
    
       p: 1.5,
       position: "relative",
@@ -87,9 +87,9 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
             control={
               <Radio
                 sx={{
-                  color: tripType === "round-way" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "round-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   "&.Mui-checked": {
-                    color: "#123D6E",
+                    color: "var(--secondary-color, #024DAF)",
                   },
                   "& .MuiSvgIcon-root": {
                     fontSize: 20,
@@ -102,7 +102,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
                 sx={{
                   fontSize: 14,
                   fontWeight: 500,
-                  color: tripType === "round-way" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "round-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   ml: 1,
                 }}
               >
@@ -115,9 +115,9 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
             control={
               <Radio
                 sx={{
-                  color: tripType === "one-way" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   "&.Mui-checked": {
-                    color: "#123D6E",
+                    color: "var(--secondary-color, #024DAF)",
                   },
                   "& .MuiSvgIcon-root": {
                     fontSize: 20,
@@ -130,7 +130,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
                 sx={{
                   fontSize: 14,
                   fontWeight: 500,
-                  color: tripType === "one-way" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   ml: 1,
                 }}
               >
@@ -143,9 +143,9 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
             control={
               <Radio
                 sx={{
-                  color: tripType === "multi-city" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "multi-city" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   "&.Mui-checked": {
-                    color: "#123D6E",
+                    color: "var(--secondary-color, #024DAF)",
                   },
                   "& .MuiSvgIcon-root": {
                     fontSize: 20,
@@ -158,7 +158,7 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
                 sx={{
                   fontSize: 14,
                   fontWeight: 500,
-                  color: tripType === "multi-city" ? "#123D6E" : "#9E9E9E",
+                  color: tripType === "multi-city" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
                   ml: 1,
                 }}
               >

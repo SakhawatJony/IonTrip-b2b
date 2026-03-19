@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Button, Typography, IconButton } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Button, Typography, IconButton, CircularProgress } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -12,11 +12,57 @@ const BookingQueRefund = () => {
   const navigate = useNavigate();
   const { agentToken, agentData } = useAuth();
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
-  const data = location.state?.bookingData || null;
+  const stateBookingData = location.state?.bookingData || null;
+  const stateBookingId = location.state?.bookingId || "";
+  const stateEmail = location.state?.email || "";
 
-  const agentEmail = agentData?.email || "";
-  const bookingId = data?.bookingId || "";
+  const [data, setData] = useState(stateBookingData);
+  const [loading, setLoading] = useState(!stateBookingData && !!stateBookingId && !!stateEmail);
+  const [loadError, setLoadError] = useState("");
+  const agentEmail = stateEmail || agentData?.email || "";
+  const bookingId = data?.bookingId || stateBookingId || "";
   const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (stateBookingData || !stateBookingId || !agentEmail) {
+      setLoading(false);
+      return;
+    }
+    const token = agentToken || localStorage.getItem("agentToken") || "";
+    if (!token) {
+      setLoadError("Agent token missing. Please login again.");
+      setLoading(false);
+      return;
+    }
+    const fetchBooking = async () => {
+      setLoading(true);
+      setLoadError("");
+      try {
+        const response = await axios.get(
+          `${baseUrl}/booking/agent/${stateBookingId}?email=${encodeURIComponent(agentEmail)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const bookingData = response?.data || response?.data?.data || null;
+        setData(bookingData);
+      } catch (err) {
+        const msg =
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message ||
+          "Failed to load booking details.";
+        setLoadError(msg);
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooking();
+  }, [stateBookingId, agentEmail, agentToken, baseUrl, stateBookingData]);
 
   const handleSendRefundRequest = async (payload) => {
     const token = agentToken || localStorage.getItem("agentToken") || "";
@@ -97,21 +143,30 @@ const BookingQueRefund = () => {
   };
 
   const handleBack = () => {
-    navigate("/dashboard/bookingqueuedetails", { state: { bookingId: data?.bookingId } });
+    navigate("/dashboard/bookingqueuedetails", { state: { bookingId: data?.bookingId || stateBookingId } });
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2 }}>
+        <CircularProgress size={32} sx={{ color: "var(--primary-color)" }} />
+        <Typography sx={{ fontSize: 14, color: "#6B7280" }}>Loading booking details…</Typography>
+      </Box>
+    );
+  }
 
   if (!data) {
     return (
       <Box sx={{ minHeight: "100vh", px: 4, py: 4 }}>
         <Typography sx={{ fontSize: 14, color: "#6B7280", mb: 2 }}>
-          No booking data. Please go back and open Refund from the booking details.
+          {loadError || "No booking data. Please go back and open Refund from the booking details."}
         </Typography>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/dashboard/bookings")}
+          onClick={() => navigate("/dashboard/bookings/refund")}
           variant="outlined"
         >
-          Back to Bookings
+          Back to Refunds
         </Button>
       </Box>
     );

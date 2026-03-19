@@ -32,6 +32,18 @@ import AllTraveler from "./pages/agent/AllTraveler";
 import AddTraveler from "./pages/agent/AddTraveler";
 import ActivityLogPage from "./pages/agent/ActivityLogPage";
 import Support from "./pages/dashboard/Support";
+import HotelDashboard from "./pages/hotel/HotelDashboard";
+import HotelBookings from "./pages/hotel/HotelBookings";
+import HotelConfirmedBooking from "./pages/hotel/HotelConfirmedBooking";
+import HotelCancelledBooking from "./pages/hotel/HotelCancelledBooking";
+import TourBookings from "./pages/tour/TourBookings";
+import TourConfirmedBooking from "./pages/tour/TourConfirmedBooking";
+import TourCancelledBooking from "./pages/tour/TourCancelledBooking";
+import TourRefundsBooking from "./pages/tour/TourRefundsBooking";
+import VisaBookings from "./pages/visa/VisaBookings";
+import VisaConfirmedBooking from "./pages/visa/VisaConfirmedBooking";
+import VisaCancelledBooking from "./pages/visa/VisaCancelledBooking";
+import VisaRefundsBooking from "./pages/visa/VisaRefundsBooking";
 
 export default function App() {
   const location = useLocation();
@@ -61,12 +73,54 @@ export default function App() {
         />
         <Route
           path="bookings/refund"
-          element={<AgentFlightBooking title="Refund Booking" buttonLabel="Refund Booking" />}
+          element={
+            <AgentFlightBooking
+              title="Refund Booking"
+              buttonLabel="Refund Booking"
+              defaultStatus="REFUND"
+            />
+          }
+        />
+        <Route
+          path="bookings/ticketed"
+          element={
+            <AgentFlightBooking
+              title="Ticketed"
+              buttonLabel="Ticketed"
+              defaultStatus=""
+              viewMode="TICKETED"
+            />
+          }
+        />
+        <Route
+          path="bookings/cancelled"
+          element={
+            <AgentFlightBooking
+              title="Cancelled"
+              buttonLabel="Cancelled"
+              defaultStatus=""
+              viewMode="CANCELLED"
+            />
+          }
         />
         <Route
           path="bookings/reissue"
-          element={<AgentFlightBooking title="Reissue Booking" buttonLabel="Reissue Booking" />}
+          element={<AgentFlightBooking title="Reissue Booking" buttonLabel="Reissue Booking" defaultStatus="REISSUE" />}
         />
+        <Route path="flightinfo" element={<Dashboard />} />
+        <Route path="reschedulepax" element={<Dashboard />} />
+     
+        <Route path="hotel/bookings" element={<HotelBookings />} />
+        <Route path="hotel/confirmed" element={<HotelConfirmedBooking />} />
+        <Route path="hotel/cancelled" element={<HotelCancelledBooking />} />
+        <Route path="tour/bookings" element={<TourBookings />} />
+        <Route path="tour/confirmed" element={<TourConfirmedBooking />} />
+        <Route path="tour/cancelled" element={<TourCancelledBooking />} />
+        <Route path="tour/refunds" element={<TourRefundsBooking />} />
+        <Route path="visa/bookings" element={<VisaBookings />} />
+        <Route path="visa/confirmed" element={<VisaConfirmedBooking />} />
+        <Route path="visa/cancelled" element={<VisaCancelledBooking />} />
+        <Route path="visa/refunds" element={<VisaRefundsBooking />} />
         <Route path="onewaysearchresult" element={<OneWaySearchResult />} />
         <Route path="roundwaysearchresult" element={<RoundWaySearchResult />} />
         <Route path="flightbooking" element={<FlightBooking />} />
@@ -78,6 +132,7 @@ export default function App() {
         <Route path="settings" element={<Dashboard />} />
         <Route path="wallet" element={<Dashboard />} />
         <Route path="agentdeposit" element={<AgentAllDeposit />} />
+        <Route path="agentdeposit/add" element={<AddDeposit />} />
         <Route path="adddeposit" element={<AddDeposit />} />
         <Route path="account" element={<AgentProfile />} />
         <Route path="account/activitylog" element={<ActivityLogPage />} />

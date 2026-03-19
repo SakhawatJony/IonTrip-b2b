@@ -41,8 +41,9 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
   const { currency } = useAuth();
   const normalizedPathname = location.pathname.replace(/\/+$/, "");
   const isDashboardHome = normalizedPathname === "/dashboard";
-  const searchButtonColor = isDashboardHome ? "#123D6E" : "#525371";
-  const searchButtonHoverColor = isDashboardHome ? "#0f2f56" : "#424055";
+  const secondaryColor = "var(--secondary-color, #024DAF)";
+  const searchButtonColor = isDashboardHome ? secondaryColor : "#525371";
+  const searchButtonHoverColor = isDashboardHome ? secondaryColor : "#424055";
   const searchButtonShadow = isDashboardHome
     ? "0px 6px 16px rgba(18,61,110,0.25)"
     : "0px 6px 16px rgba(82,83,113,0.25)";
@@ -194,7 +195,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
   const inputContainerSx = {
     backgroundColor: "#F6F8FB",
     borderRadius: 1.5,
-    border: "1px solid #E6EDF5",
+    border: "1px solid var(--secondary-color, #024DAF)",
     px: 1.5,
     display: "flex",
     alignItems: "center",
@@ -242,13 +243,13 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
       height: "46px",
       minHeight: "46px",
       "& fieldset": {
-        border: "1px solid #E6EDF5",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&:hover fieldset": {
-        border: "1px solid #D7E0EC",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
       "&.Mui-focused fieldset": {
-        border: "1px solid #C7D3E3",
+        border: "1px solid var(--secondary-color, #024DAF)",
       },
     },
     "& .MuiInputBase-input": {
@@ -263,7 +264,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
   const addReturnBoxSx = {
     backgroundColor: "#F6F8FB",
     borderRadius: 1.5,
-    border: "1px solid #E6EDF5",
+    border: "1px solid var(--secondary-color, #024DAF)",
     height: "46px",
     minHeight: "46px",
     display: "flex",
@@ -279,7 +280,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
     minWidth: "100%",
     zIndex: 20,
     backgroundColor: "#FFFFFF",
-    border: "1px solid #E6EDF5",
+    border: "1px solid var(--secondary-color, #024DAF)",
     borderRadius: 1.5,
     boxShadow: "0px 6px 16px rgba(18,61,110,0.12)",
     maxHeight: 280,
@@ -582,20 +583,20 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                   popper: {
                     sx: {
                       "& .MuiPickersDay-root.Mui-selected": {
-                        backgroundColor: "#123D6E !important",
+                        backgroundColor: "var(--secondary-color, #024DAF) !important",
                         color: "#fff",
                       },
                       "& .MuiPickersDay-root.Mui-selected:hover": {
-                        backgroundColor: "#123D6E !important",
+                        backgroundColor: "var(--secondary-color, #024DAF) !important",
                       },
                       "& .MuiPickersDay-root.MuiPickersDay-today": {
-                        borderColor: "#123D6E !important",
+                        borderColor: "var(--secondary-color, #024DAF) !important",
                       },
                       "& .MuiPickersArrowSwitcher-button": {
-                        color: "#123D6E !important",
+                        color: "var(--secondary-color, #024DAF) !important",
                       },
                       "& .MuiPickersYear-yearButton.Mui-selected": {
-                        backgroundColor: "#123D6E",
+                        backgroundColor: "var(--secondary-color, #024DAF)",
                       },
                     },
                   },
@@ -788,10 +789,10 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                               fontWeight: 600,
                               color: "#1F2A44",
                               "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#E6EDF5",
+                                borderColor: "var(--secondary-color, #024DAF)",
                               },
                               "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#D7E0EC",
+                                borderColor: "var(--secondary-color, #024DAF)",
                               },
                             }}
                           >

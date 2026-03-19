@@ -61,18 +61,42 @@ const DashboardLayout = () => {
     <Box >
       <Grid container sx={{ height: "100vh", overflow: "hidden" }}>
         {/* Sidebar Grid Item */}
-        <Grid item md={2} sx={{ height: "100vh", overflow: "hidden" }}>
-          <Sidebar />
+        <Grid
+          item
+          md={open ? 2 : 0.5}
+          sx={{
+            height: "100vh",
+            overflow: "hidden",
+          }}
+        >
+          <Sidebar
+            collapsed={!open}
+            onToggleCollapsed={handleDrawerToggle}
+          />
         </Grid>
 
         {/* Main Content Grid Item */}
-        <Grid item xs={12} md={10} sx={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <Grid
+          item
+          xs={12}
+          md={open ? 10 : 11.5}
+          sx={{
+            height: "100vh",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            // Collapsed sidebar: clear separation between rail and dashboard routes
+            borderLeft: !open
+              ? "3px solid var(--primary-color, #024DAF)"
+              : "none",
+          }}
+        >
           <Grid container sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
             <Grid item xs={12} sx={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
               <DashboardNavbar />
               <Box
                 sx={{
-                  pt: "20px",
+                  
                   flex: 1,
                   minHeight: 0,
                   boxSizing: "border-box",
@@ -95,7 +119,7 @@ const DashboardLayout = () => {
                   },
                 }}
               >
-                <BalanceNoticeBar />
+                {/* <BalanceNoticeBar /> */}
                 <Outlet />
               </Box>
             </Grid>

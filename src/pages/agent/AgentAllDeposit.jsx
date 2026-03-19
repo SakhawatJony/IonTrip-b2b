@@ -172,7 +172,7 @@ const AgentAllDeposit = () => {
   };
 
   const handleAddDeposit = () => {
-    navigate("/dashboard/adddeposit");
+    navigate("/dashboard/agentdeposit/add");
   };
 
   // Get status colors based on status value
@@ -467,7 +467,7 @@ const AgentAllDeposit = () => {
               "&:hover": { backgroundColor: "#1a1a1a" },
             }}
           >
-            Add Deposit
+            Deposit Request
           </Button>
         </Box>
 
