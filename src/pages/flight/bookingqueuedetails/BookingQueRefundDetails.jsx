@@ -26,7 +26,7 @@ const REFUND_STYLES = {
   bulletText: { color: "#A0A0A0", fontSize: "13px" },
   durationBlue: { color: "#007bff", fontSize: "13px", fontWeight: 700 },
   redIconBg: "#E74C3C",
-  tableHeaderBg: "#2E86C1",
+  tableHeaderBg: "var(--secondary-color, #024DAF)",
   tableHeaderText: { color: "#FFFFFF", fontSize: "13px", fontWeight: 700 },
   tableRowBg: "#FFFFFF",
   tableRowAltBg: "#E8F4FC",

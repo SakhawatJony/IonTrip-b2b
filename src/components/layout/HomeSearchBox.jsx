@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
-import homeBg1 from "../../assets/Home/home2.png";
-import {
-  FlightTabIcon,
-  HotelTabIcon,
-  TourTabIcon,
-  VisaTabIcon,
-} from "../icons/TravelTabIcons";
+import FlightTakeoffOutlined from "@mui/icons-material/FlightTakeoffOutlined";
+import LocationCityOutlined from "@mui/icons-material/LocationCityOutlined";
+import TravelExploreOutlined from "@mui/icons-material/TravelExploreOutlined";
+import ContactPageOutlined from "@mui/icons-material/ContactPageOutlined";
+import homeBg1 from "../../assets/Home/home1.png";
 import FlightSearchBox from "../../pages/flight/FlightSearchBox";
 import TourSearchBox from "../../pages/tour/TourSearchBox";
 import HotelSearchBox from "../../pages/hotel/HotelSearchBox";
@@ -14,6 +12,8 @@ import VisaSearchBox from "../../pages/visa/VisaSearchBox";
 import BalanceNoticeBar from "./BalanceNoticeBar";
 import RecentSearches from "./RecentSearches";
 import Promotion from "./Promotion";
+
+const tabIconSx = { fontSize: 22, color: "inherit" };
 
 const HomeSearchBox = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -50,31 +50,44 @@ const HomeSearchBox = () => {
         sx={{
           position: "relative",
           width: "100%",
-          pt: 3,
+          pt: { xs: 2, sm: 0 },
           pb: 4,
           px: 0,
-          backgroundImage: `url(${homeBg1})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-          backgroundRepeat: "no-repeat",
           borderRadius: 0,
           overflow: "hidden",
         }}
       >
+        {/* Banner background (fixed height) */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "220px",
+            backgroundImage: `url(${homeBg1})`,
+            backgroundSize: "100% 100%",
+            backgroundPosition: "center top",
+            backgroundRepeat: "no-repeat",
+            zIndex: 0,
+          }}
+        />
+
         <BalanceNoticeBar />
-
-
 
         <Box
           sx={{
             width: "100%",
             maxWidth: "100%",
-            px: { xs: 2, sm: "30px" },
+            px: { xs: 2, sm: "100px" },
+            py: { xs: 2, sm: 3 },
             boxSizing: "border-box",
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {/* Tabs - inside white box */}
-          <Box sx={{ px: 0.5, pt: 1.5 }}>
+          <Box >
             <Tabs
               value={tabValue}
               onChange={handleChange}
@@ -101,7 +114,8 @@ const HomeSearchBox = () => {
                   minHeight: "unset",
                   fontSize: 13,
                   fontWeight: 600,
-                  gap: 1,
+                  gap: 0.75,
+                  "& .MuiTab-iconWrapper": { marginRight: 0 },
                   backgroundColor: "var(--primary-color) !important",
                   color: "var(--white)",
                   borderRight: "1px solid rgba(255,255,255,0.28)",
@@ -116,17 +130,25 @@ const HomeSearchBox = () => {
               }}
             >
               <Tab
-                icon={<FlightTabIcon />}
+                icon={<FlightTakeoffOutlined sx={tabIconSx} />}
                 iconPosition="start"
                 label="Flight"
               />
-              <Tab icon={<HotelTabIcon />} iconPosition="start" label="Hotel" />
               <Tab
-                icon={<TourTabIcon />}
+                icon={<LocationCityOutlined sx={tabIconSx} />}
+                iconPosition="start"
+                label="Hotel"
+              />
+              <Tab
+                icon={<TravelExploreOutlined sx={tabIconSx} />}
                 iconPosition="start"
                 label="Tour Package"
               />
-              <Tab icon={<VisaTabIcon />} iconPosition="start" label="Visa" />
+              <Tab
+                icon={<ContactPageOutlined sx={tabIconSx} />}
+                iconPosition="start"
+                label="Visa"
+              />
             </Tabs>
           </Box>
 

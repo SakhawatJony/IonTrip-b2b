@@ -20,14 +20,14 @@ const BalanceNoticeBar = () => {
     <Box
       sx={{
         mx: "15px",
-        mb:5,
-        backgroundColor: "var(--white)",
+        mb: 5,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
         borderRadius: "2px",
-        px: 2,
+        px: 4,
         py: 1,
         display: "flex",
         alignItems: "center",
-
+        mx: "60px",
         gap: 2,
       }}
     >
@@ -58,7 +58,7 @@ const BalanceNoticeBar = () => {
         </Typography>
       </Box>
 
-      
+
 
       {/* Marquee Animation */}
       <style>

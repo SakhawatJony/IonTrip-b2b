@@ -30,7 +30,7 @@ export function useAgentWalletBalance() {
   const { agentToken, agentData, currency } = useAuth();
   const baseUrl =
     import.meta.env.VITE_API_BASE_URL ||
-    "https://iontrip-backend-production.up.railway.app";
+    "https://iontrip-backend-production-2d3b.up.railway.app";
   const agentEmail = agentData?.email || "";
 
   const [balance, setBalance] = useState(null);

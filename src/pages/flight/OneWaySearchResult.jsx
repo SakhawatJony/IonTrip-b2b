@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Grid, Typography, Select, MenuItem, Pagination, Button, Dialog } from "@mui/material";
+import { Box, Grid, Typography, Select, MenuItem, Pagination, Button, Dialog, LinearProgress } from "@mui/material";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import dayjs from "dayjs";
-import AfterSearchBanner from "../../components/layout/AfterSearchBanner";
+import ModifySearchBar from "../../components/layout/ModifySearchBar";
 import OnewayFlightFilter from "./OnewayFlightFilter";
 import OnewayFlight from "./OnewayFlight";
 import OnewayFlightSkeleton from "./OnewayFlightSkeleton";
@@ -23,6 +24,7 @@ const OneWaySearchResult = () => {
   const searchParams = useMemo(() => {
     const data = location.state || {};
     return {
+      tripType: data.tripType || "one-way",
       from: data.from || "Dubai Int Airport (DXB)",
       to: data.to || "Hazrat Shahjalal Int Airport (DAC)",
       travelDate: data.travelDate || "",
@@ -68,12 +70,13 @@ const OneWaySearchResult = () => {
   const [sortBy, setSortBy] = useState("lowest");
   const [sortTimestamp, setSortTimestamp] = useState(Date.now());
   const [remainingSeconds, setRemainingSeconds] = useState(20 * 60);
+  const [progress, setProgress] = useState(18);
   const [searchRefreshKey, setSearchRefreshKey] = useState(0);
-  
+
   // Use ref to track the last search params to prevent duplicate API calls
   const lastSearchParamsRef = useRef(null);
   const isSearchingRef = useRef(false);
-  
+
   // Debug: Log when sortBy changes
   useEffect(() => {
     console.log("🔍 sortBy state changed to:", sortBy);
@@ -111,6 +114,20 @@ const OneWaySearchResult = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, [remainingSeconds]);
+
+  useEffect(() => {
+    if (!loading) {
+      setProgress(100);
+      return undefined;
+    }
+
+    setProgress(18);
+    const timer = setInterval(() => {
+      setProgress((prev) => (prev >= 92 ? 18 : Math.min(prev + 8, 92)));
+    }, 350);
+
+    return () => clearInterval(timer);
+  }, [loading, location.key]);
 
   const formatCount = (count, singular, plural) =>
     `${count} ${count === 1 ? singular : plural}`;
@@ -449,9 +466,9 @@ const OneWaySearchResult = () => {
       if (!duration) {
         return null;
       }
-      
+
       const durationStr = String(duration).trim();
-      
+
       // Try format like "7H 55Min" or "10H 50Min" - more specific pattern first
       // Pattern: number + H + space + number + Min
       let match = durationStr.match(/(\d+)\s*[Hh](?:r|our|ours)?\s*(\d+)\s*[Mm](?:in|inute|inutes)?/i);
@@ -461,7 +478,7 @@ const OneWaySearchResult = () => {
         const totalMinutes = hours * 60 + minutes;
         return totalMinutes;
       }
-      
+
       // Try format like "10H 50Min" or "10 H 50 Min" (with capital H and Min) - original pattern
       match = durationStr.match(/(\d+)\s*(?:h|hr|hour|hours|Hr|H|Hour|Hours)\s*(\d+)?\s*(?:m|min|minute|minutes|Min|M|Minute|Minutes)?/i);
       if (match) {
@@ -470,21 +487,21 @@ const OneWaySearchResult = () => {
         const totalMinutes = hours * 60 + minutes;
         return totalMinutes;
       }
-      
+
       // Try format like "1h" or "1 Hr" or "1Hr" or "10H" (hours only)
       match = durationStr.match(/(\d+)\s*(?:h|hr|hour|hours|Hr|H|Hour|Hours)/i);
       if (match) {
         const hours = Number(match[1]) || 0;
         return hours * 60;
       }
-      
+
       // Try format like "30m" or "30 Min" or "30Min" or "50Min" (minutes only)
       match = durationStr.match(/(\d+)\s*(?:m|min|minute|minutes|Min|M|Minute|Minutes)/i);
       if (match) {
         const minutes = Number(match[1]) || 0;
         return minutes;
       }
-      
+
       // Try format like "1:30" (hours:minutes) or "01:30:00" (with seconds)
       match = durationStr.match(/(\d+):(\d+)(?::\d+)?/);
       if (match) {
@@ -492,13 +509,13 @@ const OneWaySearchResult = () => {
         const minutes = Number(match[2]) || 0;
         return hours * 60 + minutes;
       }
-      
+
       // Try pure number (assume minutes)
       const pureNumber = parseFloat(durationStr);
       if (!isNaN(pureNumber) && pureNumber > 0) {
         return pureNumber;
       }
-      
+
       return null;
     } catch (error) {
       console.error("Error parsing duration:", error, duration);
@@ -511,7 +528,7 @@ const OneWaySearchResult = () => {
     try {
       if (!time) return null;
       const timeStr = String(time);
-      
+
       // Try format like "HH:MM" or "H:MM"
       let match = timeStr.match(/(\d{1,2}):(\d{2})/);
       if (match) {
@@ -519,7 +536,7 @@ const OneWaySearchResult = () => {
         const minutes = Number(match[2]) || 0;
         return hours * 60 + minutes;
       }
-      
+
       // Try format like "HH:MM:SS"
       match = timeStr.match(/(\d{1,2}):(\d{2}):(\d{2})/);
       if (match) {
@@ -527,7 +544,7 @@ const OneWaySearchResult = () => {
         const minutes = Number(match[2]) || 0;
         return hours * 60 + minutes;
       }
-      
+
       return null;
     } catch (error) {
       console.error("Error parsing time:", error, time);
@@ -537,7 +554,7 @@ const OneWaySearchResult = () => {
 
   const filteredAndSortedFlights = useMemo(() => {
     console.log("🔄 Recalculating filteredAndSortedFlights - sortBy:", sortBy, "flights count:", flights?.length);
-    
+
     if (!flights || flights.length === 0) {
       return [];
     }
@@ -623,7 +640,7 @@ const OneWaySearchResult = () => {
                 priceA = parsed;
               }
             }
-            
+
             let priceB = Infinity;
             if (b?.priceValue && typeof b.priceValue === 'number' && !isNaN(b.priceValue) && b.priceValue > 0) {
               priceB = b.priceValue;
@@ -634,12 +651,12 @@ const OneWaySearchResult = () => {
                 priceB = parsed;
               }
             }
-            
+
             // Put flights without valid prices at the end
             if (priceA === Infinity && priceB === Infinity) return 0;
             if (priceA === Infinity) return 1;
             if (priceB === Infinity) return -1;
-            
+
             return priceA - priceB;
           } catch (error) {
             console.error("Error sorting by price:", error);
@@ -685,17 +702,17 @@ const OneWaySearchResult = () => {
           try {
             const durationA = parseDuration(a?.duration);
             const durationB = parseDuration(b?.duration);
-            
+
             // Put flights without duration at the end
             if (durationA === null && durationB === null) return 0;
             if (durationA === null) return 1;
             if (durationB === null) return -1;
-            
+
             // Handle NaN cases
             if (isNaN(durationA) && isNaN(durationB)) return 0;
             if (isNaN(durationA)) return 1;
             if (isNaN(durationB)) return -1;
-            
+
             // Both are valid numbers, sort ascending (shortest first)
             return durationA - durationB;
           } catch (error) {
@@ -752,7 +769,7 @@ const OneWaySearchResult = () => {
     console.log("📄 Pagination updated - sortBy:", sortBy, "currentPage:", currentPage, "paginated count:", paginated.length);
     return paginated;
   }, [filteredAndSortedFlights, currentPage, sortBy, sortTimestamp, flightsPerPage]);
-  
+
   const totalPages = Math.ceil(filteredAndSortedFlights.length / flightsPerPage);
 
   // Reset to page 1 when filters or sort change
@@ -836,6 +853,15 @@ const OneWaySearchResult = () => {
   };
 
   const handleDateSelect = (selectedDateStr) => {
+    // Show loader immediately when a new date is selected
+    setLoading(true);
+    setFlights([]);
+    setError("");
+    setHasSearched(false);
+    setCurrentPage(1);
+    lastSearchParamsRef.current = null;
+    isSearchingRef.current = false;
+
     // Update the search with new date
     const newSearchParams = {
       ...searchParams,
@@ -923,13 +949,62 @@ const OneWaySearchResult = () => {
 
   return (
     <Box>
-      <Box sx={{ mt: 2 }}>
-        <AfterSearchBanner initialSearchParams={searchParams} />
+      <Box
+        sx={{
+          mt: 0.5,
+          px: { xs: 2, md: 4 },
+          py: 1.5,
+
+        }}
+      >
+        <ModifySearchBar
+          searchParams={searchParams}
+          flightCount={filteredAndSortedFlights.length}
+          loading={loading}
+        />
       </Box>
-      <Box sx={{ mt: 2,px: { xs: 2, md: 4 } }}>
+      {loading ? (
+        <Box sx={{ mt: 0.5, px: { xs: 2, md: 4 } }}>
+          <Box
+            sx={{
+              px: { xs: 2, sm: "5px" },
+              py: 0.5,
+              borderRadius: "5px",
+
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#001B48",
+                lineHeight: 1.3,
+                mb: 0.75,
+              }}
+            >
+              Getting the best deals from over 750 airlines...
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={progress}
+              sx={{
+                height: 4,
+                borderRadius: "999px",
+                backgroundColor: "#D7D9E2",
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: "999px",
+                  backgroundColor: "var(--secondary-color, #024DAF)",
+                },
+              }}
+            />
+          </Box>
+        </Box>
+      ) : null}
+      <Box sx={{ mt: 0.5, px: { xs: 2, md: 4 } }}>
         <DateSelectionBar
           selectedDate={effectiveDepartureDateISO || travelDate}
           onDateSelect={handleDateSelect}
+          loading={loading}
           from={from}
           to={to}
           currency={effectiveCurrency}
@@ -942,8 +1017,8 @@ const OneWaySearchResult = () => {
         />
       </Box>
 
-      <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
-        <Grid container spacing={3}>
+      <Box sx={{ px: { xs: 2, md: 4 },}}>
+        <Grid container spacing={1.5}>
           <Grid item xs={12} md={2.4} >
             {loading ? (
               <OnewayFilterSkeleton />
@@ -1042,66 +1117,9 @@ const OneWaySearchResult = () => {
                 },
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: { xs: "flex-start", md: "center" },
-                  justifyContent: "space-between",
-                  mb: 2,
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 1.5,
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
-                    {from} → {to}
-                  </Typography>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                      {loading
-                        ? "Searching flights..."
-                        : `${filteredAndSortedFlights.length} Flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
-                    </Typography>
-                    <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                      {travelDate || "Travel date not set"} | {travelClass}
-                    </Typography>
-                    <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                      {passengerSummary} | Direct flight: {directFlight ? "Yes" : "No"}
-                    </Typography>
-                    {childAgeSummary ? (
-                      <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                        {childAgeSummary}
-                      </Typography>
-                    ) : null}
-                    {error ? (
-                      <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography>
-                    ) : null}
-                  </Box>
-                </Box>
+           
 
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography sx={{ fontSize: 13, color: "#6B6B6B" }}>Sort By</Typography>
-                  <Select
-                    size="small"
-                    // value={sortBy}
-                    // onChange={(e) => handleSortChange(e.target.value)}
-                    sx={{
-                      backgroundColor: "#FFFFFF",
-                      fontSize: 13,
-                      height: 34,
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "rgba(0,0,0,0.12)",
-                      },
-                    }}
-                  >
-                    <MenuItem value="lowest">AgentFare</MenuItem>
-                    <MenuItem value="highest">ClientFare</MenuItem>
-                 
-                  </Select>
-                </Box>
-              </Box>
 
-             
 
               {/* Airline Filter Card */}
               {!loading && flights.length > 0 && (
@@ -1113,7 +1131,7 @@ const OneWaySearchResult = () => {
                   currency={effectiveCurrency}
                 />
               )}
-               {loading ? (
+              {loading ? (
                 <FlightSortFilterSkeleton />
               ) : (
                 <FlightSortFilter
@@ -1125,71 +1143,71 @@ const OneWaySearchResult = () => {
               )}
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <OnewayFlightSkeleton key={`flight-skeleton-${index}`} />
-                ))
-              ) : hasSearched && filteredAndSortedFlights.length === 0 ? (
-                <Typography sx={{ fontSize: 14, color: "#6B6B6B" }}>
-                  No flights found.
-                </Typography>
-              ) : (
-                <>
-                  {paginatedFlights?.map((flight, index) => {
-                    // Force re-render by including sortBy and currentPage in key
-                    return (
-                      <OnewayFlight 
-                        key={`flight-${flight.id}-${sortBy}-${sortTimestamp}-${currentPage}-${index}`} 
-                        flight={flight} 
-                      />
-                    );
-                  })}
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <OnewayFlightSkeleton key={`flight-skeleton-${index}`} />
+                  ))
+                ) : hasSearched && filteredAndSortedFlights.length === 0 ? (
+                  <Typography sx={{ fontSize: 14, color: "#6B6B6B" }}>
+                    No flights found.
+                  </Typography>
+                ) : (
+                  <>
+                    {paginatedFlights?.map((flight, index) => {
+                      // Force re-render by including sortBy and currentPage in key
+                      return (
+                        <OnewayFlight
+                          key={`flight-${flight.id}-${sortBy}-${sortTimestamp}-${currentPage}-${index}`}
+                          flight={flight}
+                        />
+                      );
+                    })}
 
-                  {/* Pagination - show when there are results (even for single page) */}
-                  {filteredAndSortedFlights.length > 0 && totalPages >= 1 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        mt: 4,
-                        mb: 2,
-                      }}
-                    >
-                      <Pagination
-                        count={Math.max(1, totalPages)}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="large"
-                        showFirstButton
-                        showLastButton
+                    {/* Pagination - show when there are results (even for single page) */}
+                    {filteredAndSortedFlights.length > 0 && totalPages >= 1 && (
+                      <Box
                         sx={{
-                          "& .MuiPaginationItem-root": {
-                            fontSize: 14,
-                            fontWeight: 500,
-                            color: "#1F1F1F",
-                            "&.Mui-selected": {
-                              backgroundColor: "var(--primary-color)",
-                              color: "#FFFFFF",
-                              "&:hover": {
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          mt: 4,
+                          mb: 2,
+                        }}
+                      >
+                        <Pagination
+                          count={Math.max(1, totalPages)}
+                          page={currentPage}
+                          onChange={handlePageChange}
+                          color="primary"
+                          size="large"
+                          showFirstButton
+                          showLastButton
+                          sx={{
+                            "& .MuiPaginationItem-root": {
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: "#1F1F1F",
+                              "&.Mui-selected": {
                                 backgroundColor: "var(--primary-color)",
-                                opacity: 0.9,
+                                color: "#FFFFFF",
+                                "&:hover": {
+                                  backgroundColor: "var(--primary-color)",
+                                  opacity: 0.9,
+                                },
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(18, 61, 110, 0.08)",
                               },
                             },
-                            "&:hover": {
-                              backgroundColor: "rgba(18, 61, 110, 0.08)",
+                            "& .MuiPaginationItem-icon": {
+                              color: "var(--primary-color)",
                             },
-                          },
-                          "& .MuiPaginationItem-icon": {
-                            color: "var(--primary-color)",
-                          },
-                        }}
-                      />
-                    </Box>
-                  )}
-                </>
-              )}
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </>
+                )}
               </Box>
             </Box>
           </Grid>
@@ -1201,29 +1219,89 @@ const OneWaySearchResult = () => {
         aria-labelledby="session-expired-title"
         aria-describedby="session-expired-description"
       >
-        <Box sx={{ p: 2.5, minWidth: { xs: 260, sm: 320 }, textAlign: "center" }}>
-          <Typography
-            id="session-expired-title"
-            sx={{ fontSize: 20, fontWeight: 700, color: "#B42318", mb: 0.75 }}
+        <Box
+          sx={{
+            p: 3,
+            minWidth: { xs: 280, sm: 420 },
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.5,
+          }}
+        >
+          <Box
+            sx={{
+              width: 320,
+              maxWidth: "100%",
+              height: 150,
+              borderRadius: 3,
+              bgcolor: "#FFFFFF",
+              boxShadow: "0px 10px 30px rgba(0,0,0,0.08)",
+              border: "1px solid rgba(2, 77, 175, 0.08)",
+              px: 2,
+              pt: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
           >
-            Session expired
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  width: 56,
+                  height: 36,
+                  bgcolor: "#EAF2FB",
+                  borderRadius: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <SearchOutlinedIcon sx={{ color: "var(--secondary-color, #024DAF)", fontSize: 20 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ height: 10, bgcolor: "#EAF2FB", borderRadius: 2, mb: 1 }} />
+                <Box sx={{ height: 10, bgcolor: "#EAF2FB", borderRadius: 2 }} />
+              </Box>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#A9C8F7", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#0FA3A3", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#F2C94C", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+            </Box>
+          </Box>
+
+          <Typography id="session-expired-title" sx={{ fontSize: 18, fontWeight: 800, color: "#1F2E72", mt: 0.5 }}>
+            Your Results are outdated
           </Typography>
-          <Typography
-            id="session-expired-description"
-            sx={{ fontSize: 14, color: "#5F6B7A", mb: 2 }}
-          >
-            Please search again.
+          <Typography id="session-expired-description" sx={{ fontSize: 14, color: "#5F6B7A" }}>
+            To see the latest availability and prices, please refresh results
           </Typography>
+
           <Button
             variant="contained"
             onClick={handleSearchAgain}
             sx={{
+              mt: 0.5,
               textTransform: "none",
               backgroundColor: "var(--primary-color)",
+              borderRadius: 1.5,
+              px: 3,
               "&:hover": { backgroundColor: "var(--primary-color)", opacity: 0.9 },
             }}
           >
-            Search Again
+            Start a new Search
           </Button>
         </Box>
       </Dialog>

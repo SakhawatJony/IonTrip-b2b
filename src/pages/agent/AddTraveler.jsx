@@ -105,7 +105,7 @@ const AddTraveler = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   
   const travelerId = location.state?.travelerId || null;
   const isEditMode = !!travelerId;

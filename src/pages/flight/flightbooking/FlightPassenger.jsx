@@ -105,7 +105,7 @@ const NATIONALITY_OPTIONS = [
 
 const FlightPassenger = ({ index, type, values = {}, onFieldChange }) => {
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   const agentEmail = agentData?.email || "";
   
   const selectedTitle = values?.title || "Mr";

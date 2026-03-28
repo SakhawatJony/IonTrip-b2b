@@ -14,7 +14,13 @@ import RoundWay from "./RoundWay";
 import MultiCity from "./MultiCity";
 import useAuth from "../../hooks/useAuth";
 
-const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSearchParams }) => {
+const FlightSearchBox = ({
+  tripType: tripTypeProp,
+  onTripTypeChange,
+  initialSearchParams,
+  /** Used inside ModifySearchBar expand panel — no outer card shadow */
+  embedded = false,
+}) => {
   const [localTripType, setLocalTripType] = useState("one-way");
   const tripType = tripTypeProp ?? localTripType;
   const { currency, setCurrency } = useAuth();
@@ -59,16 +65,23 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
   };
 
   return (
-    <Box sx={{
-      backgroundColor: "#FFFFFF",
-      borderRadius: "10px",
-   
-      p: 1.5,
-      position: "relative",
-    }}>
-      {/* Header with Trip Type and Currency */}
+    <Box
+      sx={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: embedded ? 0 : "10px",
+        boxShadow: embedded ? "none" : undefined,
+        ...(embedded
+          ? {
+              px: { xs: 1.5, sm: 2 },
+              pt: { xs: 1.5, sm: 2 },
+              pb: { xs: 2.5, sm: 3 },
+            }
+          : { p: 1.5 }),
+        position: "relative",
+      }}
+    >
+      {/* Trip type — order: One Way, Round Way, Multi Way (results modify panel) */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        {/* Trip Type Radio Buttons */}
         <FormControl component="fieldset">
         <RadioGroup
           row
@@ -76,12 +89,41 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
           onChange={handleTripTypeChange}
           sx={{
             display: "flex",
-            gap: 3,
+            flexWrap: "wrap",
+            gap: { xs: 2, sm: 3 },
             "& .MuiFormControlLabel-root": {
               margin: 0,
             },
           }}
         >
+          <FormControlLabel
+            value="one-way"
+            control={
+              <Radio
+                sx={{
+                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
+                  "&.Mui-checked": {
+                    color: "var(--secondary-color, #024DAF)",
+                  },
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 20,
+                  },
+                }}
+              />
+            }
+            label={
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: tripType === "one-way" ? 600 : 500,
+                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
+                  ml: 0.5,
+                }}
+              >
+                One Way
+              </Typography>
+            }
+          />
           <FormControlLabel
             value="round-way"
             control={
@@ -103,38 +145,10 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
                   fontSize: 14,
                   fontWeight: 500,
                   color: tripType === "round-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
-                  ml: 1,
+                  ml: 0.5,
                 }}
               >
                 Round Way
-              </Typography>
-            }
-          />
-          <FormControlLabel
-            value="one-way"
-            control={
-              <Radio
-                sx={{
-                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
-                  "&.Mui-checked": {
-                    color: "var(--secondary-color, #024DAF)",
-                  },
-                  "& .MuiSvgIcon-root": {
-                    fontSize: 20,
-                  },
-                }}
-              />
-            }
-            label={
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: tripType === "one-way" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
-                  ml: 1,
-                }}
-              >
-                One Way
               </Typography>
             }
           />
@@ -159,10 +173,10 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
                   fontSize: 14,
                   fontWeight: 500,
                   color: tripType === "multi-city" ? "var(--secondary-color, #024DAF)" : "#9E9E9E",
-                  ml: 1,
+                  ml: 0.5,
                 }}
               >
-                Multi City
+                Multi Way
               </Typography>
             }
           />
@@ -227,14 +241,15 @@ const FlightSearchBox = ({ tripType: tripTypeProp, onTripTypeChange, initialSear
         {tripType === "round-way" && (
           <RoundWay
             tripType={tripType}
+            embedded={embedded}
             onRemoveReturn={() => setTripTypeValue("one-way")}
             initialSearchParams={initialSearchParams}
           />
         )}
         {tripType === "one-way" && (
-          <OneWay 
+          <OneWay
             tripType={tripType}
-            onAddReturn={() => setTripTypeValue("round-way")} 
+            onAddReturn={() => setTripTypeValue("round-way")}
             initialSearchParams={initialSearchParams}
           />
         )}

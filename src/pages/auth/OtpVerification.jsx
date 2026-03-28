@@ -11,7 +11,7 @@ const OtpVerification = () => {
   const location = useLocation();
   const baseUrl =
     import.meta.env.VITE_API_BASE_URL ||
-    "https://iontrip-backend-production.up.railway.app";
+    "https://iontrip-backend-production-2d3b.up.railway.app";
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
   const [isVerifying, setIsVerifying] = useState(false);

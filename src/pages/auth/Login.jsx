@@ -16,7 +16,7 @@ const Login = () => {
   const { setAuthSession } = useAuth();
   const baseUrl =
     import.meta.env.VITE_API_BASE_URL ||
-    "https://iontrip-backend-production.up.railway.app";
+    "https://iontrip-backend-production-2d3b.up.railway.app";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -138,7 +138,7 @@ const Login = () => {
             <Typography
               sx={{
                 fontSize: "14px",
-                color: "#5F6368",
+                color: "var(--primary-color)",
                 fontWeight: 500,
                 mb: 1,
               }}
@@ -149,16 +149,18 @@ const Login = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                borderBottom: "1px solid #E0E0E0",
-                pb: 1,
+                border: "1px solid var(--secondary-color, #024DAF)",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
                 "&:focus-within": {
-                  borderBottom: "2px solid var(--primary-color)",
+                  border: "2px solid var(--secondary-color, #024DAF)",
                 },
               }}
             >
               <EmailIcon
                 sx={{
-                  color: "#9E9E9E",
+                  color: "var(--secondary-color, #024DAF)",
                   mr: 2,
                   fontSize: "20px",
                 }}
@@ -184,7 +186,7 @@ const Login = () => {
                 onClick={() => copyToClipboard(email)}
                 edge="end"
                 sx={{
-                  color: "#9E9E9E",
+                  color: "var(--secondary-color, #024DAF)",
                   ml: 1,
                   padding: "4px",
                   "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
@@ -201,7 +203,7 @@ const Login = () => {
             <Typography
               sx={{
                 fontSize: "14px",
-                color: "#5F6368",
+                color: "var(--primary-color)",
                 fontWeight: 500,
                 mb: 1,
               }}
@@ -212,16 +214,18 @@ const Login = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                borderBottom: "1px solid #E0E0E0",
-                pb: 1,
+                border: "1px solid var(--secondary-color, #024DAF)",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
                 "&:focus-within": {
-                  borderBottom: "2px solid var(--primary-color)",
+                  border: "2px solid var(--secondary-color, #024DAF)",
                 },
               }}
             >
               <LockIcon
                 sx={{
-                  color: "#9E9E9E",
+                  color: "var(--secondary-color, #024DAF)",
                   mr: 2,
                   fontSize: "20px",
                 }}
@@ -247,7 +251,7 @@ const Login = () => {
                 onClick={() => copyToClipboard(password)}
                 edge="end"
                 sx={{
-                  color: "#9E9E9E",
+                  color: "var(--secondary-color, #024DAF)",
                   ml: 1,
                   padding: "4px",
                   "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
@@ -260,7 +264,7 @@ const Login = () => {
                 onClick={() => setShowPassword((prev) => !prev)}
                 edge="end"
                 sx={{
-                  color: "#9E9E9E",
+                  color: "var(--secondary-color, #024DAF)",
                   ml: 0.5,
                   padding: "4px",
                   "&:hover": {

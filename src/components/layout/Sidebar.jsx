@@ -21,6 +21,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import SettingsIcon from "@mui/icons-material/Settings";
 import WalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AccountIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
 import ManageIcon from "@mui/icons-material/Autorenew";
 import ReportIcon from "@mui/icons-material/BarChart";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -43,7 +44,16 @@ const SUBMENU_ICON_BORDER = "#D1D5DB";
 const SUBMENU_ICON_ACTIVE = "#1F4D8B";
 
 const menuItem = (icon, text, options = {}, location = null, collapsed = false) => {
-  const { dropdown = false, path, end = false, sx, onClick, isOpen, activePaths = [] } = options;
+  const {
+    dropdown = false,
+    path,
+    end = false,
+    sx,
+    onClick,
+    onToggleClick,
+    isOpen,
+    activePaths = [],
+  } = options;
 
   // Check if current route matches this menu item or any of its active paths
   const isActive = path
@@ -113,7 +123,7 @@ const menuItem = (icon, text, options = {}, location = null, collapsed = false) 
           size="small"
           onClick={(e) => {
             e.stopPropagation();
-            onClick?.(e);
+            onToggleClick?.(e);
           }}
           sx={{
             ml: "auto",
@@ -257,11 +267,27 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
       setExpandedMenu("account");
       return;
     }
+    if (location.pathname.startsWith("/dashboard/sub-users")) {
+      setExpandedMenu("subUsers");
+      return;
+    }
     setExpandedMenu(null);
   }, [location.pathname]);
 
   const handleToggle = (menuKey) => {
     setExpandedMenu((prev) => (prev === menuKey ? null : menuKey));
+  };
+
+  const handleMainMenuClick = (menuKey, firstSubRoute) => {
+    if (expandedMenu === menuKey) {
+      setExpandedMenu(null);
+      return;
+    }
+
+    setExpandedMenu(menuKey);
+    if (firstSubRoute && location.pathname !== firstSubRoute) {
+      navigate(firstSubRoute);
+    }
   };
 
   const handleLogout = () => {
@@ -407,7 +433,7 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
             }),
           }}
         >
-          {menuItem(<QueryStatsIcon sx={{ fontSize: 23 }} />, "Search", {
+          {menuItem(<QueryStatsIcon sx={{ fontSize: 23 }} />, "Dashboard", {
             path: "/dashboard",
             end: true,
           }, location, collapsed)}
@@ -415,7 +441,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<FlightIcon sx={{ fontSize: 23 }} />, "Flight", {
           dropdown: true,
           isOpen: expandedMenu === "flight",
-          onClick: () => handleToggle("flight"),
+          onClick: () => handleMainMenuClick("flight", "/dashboard/bookings"),
+          onToggleClick: () => handleToggle("flight"),
           activePaths: ["/dashboard/bookings", "/dashboard/flightinfo", "/dashboard/reschedulepax"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "flight"} timeout="auto" unmountOnExit>
@@ -449,7 +476,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<HotelIcon sx={{ fontSize: 23 }} />, "Hotel", {
           dropdown: true,
           isOpen: expandedMenu === "hotel",
-          onClick: () => handleToggle("hotel"),
+          onClick: () => handleMainMenuClick("hotel", "/dashboard/hotel/bookings"),
+          onToggleClick: () => handleToggle("hotel"),
           activePaths: ["/dashboard/hotel/bookings", "/dashboard/hotel/confirmed", "/dashboard/hotel/cancelled"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "hotel"} timeout="auto" unmountOnExit>
@@ -480,7 +508,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<ExploreIcon sx={{ fontSize: 23 }} />, "Tour", {
           dropdown: true,
           isOpen: expandedMenu === "tour",
-          onClick: () => handleToggle("tour"),
+          onClick: () => handleMainMenuClick("tour", "/dashboard/tour/bookings"),
+          onToggleClick: () => handleToggle("tour"),
           activePaths: ["/dashboard/tour/bookings", "/dashboard/tour/confirmed", "/dashboard/tour/cancelled", "/dashboard/tour/refunds"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "tour"} timeout="auto" unmountOnExit>
@@ -511,7 +540,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<BadgeIcon sx={{ fontSize: 23 }} />, "Visa", {
           dropdown: true,
           isOpen: expandedMenu === "visa",
-          onClick: () => handleToggle("visa"),
+          onClick: () => handleMainMenuClick("visa", "/dashboard/visa/bookings"),
+          onToggleClick: () => handleToggle("visa"),
           activePaths: ["/dashboard/visa/bookings", "/dashboard/visa/confirmed", "/dashboard/visa/cancelled", "/dashboard/visa/refunds"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "visa"} timeout="auto" unmountOnExit>
@@ -542,7 +572,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<WalletIcon sx={{ fontSize: 23 }} />, "Wallet", {
           dropdown: true,
           isOpen: expandedMenu === "wallet",
-          onClick: () => handleToggle("wallet"),
+          onClick: () => handleMainMenuClick("wallet", "/dashboard/agentdeposit"),
+          onToggleClick: () => handleToggle("wallet"),
           activePaths: ["/dashboard/wallet", "/dashboard/agentdeposit", "/dashboard/agentdeposit/add"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "wallet"} timeout="auto" unmountOnExit>
@@ -572,7 +603,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         {menuItem(<AccountIcon sx={{ fontSize: 23 }} />, "Account", {
           dropdown: true,
           isOpen: expandedMenu === "account",
-          onClick: () => handleToggle("account"),
+          onClick: () => handleMainMenuClick("account", "/dashboard/account"),
+          onToggleClick: () => handleToggle("account"),
           activePaths: ["/dashboard/account", "/dashboard/account/activitylog", "/dashboard/account/alltraveler", "/dashboard/account/addtraveler"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "account"} timeout="auto" unmountOnExit>
@@ -599,14 +631,45 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
           </Box>
         </Collapse>
 
+        {menuItem(<GroupIcon sx={{ fontSize: 23 }} />, "Sub Users", {
+          dropdown: true,
+          isOpen: expandedMenu === "subUsers",
+          onClick: () => handleMainMenuClick("subUsers", "/dashboard/sub-users/sub-user-list"),
+          onToggleClick: () => handleToggle("subUsers"),
+          activePaths: ["/dashboard/sub-users"],
+        }, location, collapsed)}
+        <Collapse in={expandedMenu === "subUsers"} timeout="auto" unmountOnExit>
+          <Box
+            sx={{
+              position: "relative",
+              pl: 0,
+              pr: 0,
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: collapsed ? "50%" : 49,
+                transform: collapsed ? "translateX(-50%)" : "none",
+                top: 16,
+                bottom: 16,
+                width: 2,
+                bgcolor: SUBMENU_ICON_BORDER,
+              },
+            }}
+          >
+            <SubMenuItem collapsed={collapsed} text="Sub User List" path="/dashboard/sub-users/sub-user-list" location={location} />
+            <SubMenuItem collapsed={collapsed} text="Add User" path="/dashboard/sub-users/add-user" location={location} />
+          </Box>
+        </Collapse>
+
         {/* {menuItem(<ManageIcon sx={{ fontSize: 23 }} />, "Manage", {
           path: "/dashboard/manage",
         }, location, collapsed)} */}
 
-        {menuItem(<ReportIcon sx={{ fontSize: 23 }} />, "Ot Reports", {
+        {menuItem(<ReportIcon sx={{ fontSize: 23 }} />, "Reports", {
           dropdown: true,
           isOpen: expandedMenu === "reports",
-          onClick: () => handleToggle("reports"),
+          onClick: () => handleMainMenuClick("reports", "/dashboard/ledgerreport"),
+          onToggleClick: () => handleToggle("reports"),
           activePaths: ["/dashboard/ledgerreport", "/dashboard/salesreport", "/dashboard/searchreport"],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "reports"} timeout="auto" unmountOnExit>

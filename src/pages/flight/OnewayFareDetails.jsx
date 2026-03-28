@@ -130,7 +130,7 @@ const OnewayFareDetails = ({ data }) => {
   };
 
   const headerCellSx = {
-    backgroundColor: "#123D6E",
+    backgroundColor: "var(--secondary-color, #024DAF)",
     color: "#FFFFFF",
     fontSize: 12,
     fontWeight: 600,

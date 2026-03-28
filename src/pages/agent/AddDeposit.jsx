@@ -157,7 +157,7 @@ const PAYMENT_METHODS = ["Bank Transfer", "Bank Transfer", "Cash", "Cheque", "Mo
 const AddDeposit = () => {
   const { agentToken, agentData } = useAuth();
   const navigate = useNavigate();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   const agentEmail = agentData?.email || "";
   const agentDisplayName = agentData?.name || agentData?.fullName || agentEmail || "Agent";
   const walletBalance = Number(agentData?.walletBalance ?? agentData?.balance ?? 0);

@@ -29,7 +29,7 @@ const CustomInputField = memo(
       <Typography
         sx={{
           fontSize: "14px",
-          color: "#5F6368",
+          color: "var(--primary-color)",
           fontWeight: 500,
           mb: 1,
         }}
@@ -40,17 +40,19 @@ const CustomInputField = memo(
         sx={{
           display: "flex",
           alignItems: "center",
-          borderBottom: "1px solid #E0E0E0",
-          pb: 1,
+          border: "1px solid var(--secondary-color, #024DAF)",
+          borderRadius: "4px",
+          px: 1.5,
+          py: 0.5,
           "&:focus-within": {
-            borderBottom: "2px solid var(--primary-color)",
+            border: "2px solid var(--secondary-color, #024DAF)",
           },
         }}
       >
         {Icon && (
           <Icon
             sx={{
-              color: "#9E9E9E",
+              color: "var(--secondary-color, #024DAF)",
               mr: 2,
               fontSize: "20px",
             }}
@@ -121,7 +123,7 @@ const CustomSelectField = memo(
       <Typography
         sx={{
           fontSize: "14px",
-          color: "#5F6368",
+          color: "var(--primary-color)",
           fontWeight: 500,
           mb: 1,
         }}
@@ -132,17 +134,19 @@ const CustomSelectField = memo(
         sx={{
           display: "flex",
           alignItems: "center",
-          borderBottom: "1px solid #E0E0E0",
-          pb: 1,
+          border: "1px solid var(--secondary-color, #024DAF)",
+          borderRadius: "4px",
+          px: 1.5,
+          py: 0.5,
           "&:focus-within": {
-            borderBottom: "2px solid var(--primary-color)",
+            border: "2px solid var(--secondary-color, #024DAF)",
           },
         }}
       >
         {Icon && (
           <Icon
             sx={{
-              color: "#9E9E9E",
+              color: "var(--secondary-color, #024DAF)",
               mr: 2,
               fontSize: "20px",
             }}
@@ -735,7 +739,7 @@ const Regstion = () => {
                           },
                           "& .MuiSelect-icon": {
                             fontSize: 18,
-                            color: "#5F6368",
+                            color: "var(--secondary-color, #024DAF)",
                           },
                           "&:before": {
                             borderBottom: "none !important",
@@ -837,7 +841,7 @@ const Regstion = () => {
                   <IconButton
                     size="small"
                     onClick={() => setPasswordVisible((prev) => !prev)}
-                    sx={{ color: "#5F6368", ml: 1 }}
+                    sx={{ color: "var(--secondary-color, #024DAF)", ml: 1 }}
                   >
                     {passwordVisible ? (
                       <VisibilityOffIcon fontSize="small" />
@@ -864,7 +868,7 @@ const Regstion = () => {
             <Typography
               sx={{
                 fontSize: "16px",
-                color: "#202124",
+                color: "var(--primary-color)",
                 fontWeight: 500,
                 mb: 2,
               }}
@@ -879,8 +883,10 @@ const Regstion = () => {
                   startIcon={<CloudUploadIcon />}
                   title={documents.tinCopy?.name || "Choose TIN Copy"}
                   sx={{
-                    borderColor: "var(--primary-color)",
-                    color: "var(--primary-color)",
+                    borderStyle: "dotted",
+                    borderWidth: 2,
+                    borderColor: "var(--secondary-color, #024DAF)",
+                    color: "var(--secondary-color, #024DAF)",
                     textTransform: "none",
                     height:"40px",
                     py: 1.5,
@@ -891,8 +897,10 @@ const Regstion = () => {
                       mr: 0.75,
                     },
                     "&:hover": {
-                      borderColor: "var(--primary-color)",
-                      bgcolor: "rgba(18, 61, 110, 0.04)",
+                      borderStyle: "dotted",
+                      borderWidth: 2,
+                      borderColor: "var(--secondary-color, #024DAF)",
+                      bgcolor: "rgba(2, 77, 175, 0.06)",
                     },
                   }}
                   component="label"
@@ -942,8 +950,10 @@ const Regstion = () => {
                   startIcon={<CloudUploadIcon />}
                   title={documents.nidCopy?.name || "Choose NID Copy"}
                   sx={{
-                    borderColor: "var(--primary-color)",
-                    color: "var(--primary-color)",
+                    borderStyle: "dotted",
+                    borderWidth: 2,
+                    borderColor: "var(--secondary-color, #024DAF)",
+                    color: "var(--secondary-color, #024DAF)",
                     textTransform: "none",
                     py: 1.5,
                     height:"40px",
@@ -954,8 +964,10 @@ const Regstion = () => {
                       mr: 0.75,
                     },
                     "&:hover": {
-                      borderColor: "var(--primary-color)",
-                      bgcolor: "rgba(18, 61, 110, 0.04)",
+                      borderStyle: "dotted",
+                      borderWidth: 2,
+                      borderColor: "var(--secondary-color, #024DAF)",
+                      bgcolor: "rgba(2, 77, 175, 0.06)",
                     },
                   }}
                   component="label"
@@ -1005,8 +1017,10 @@ const Regstion = () => {
                   startIcon={<CloudUploadIcon />}
                   title={documents.civilAviationCopy?.name || "Choose Civil Aviation Copy"}
                   sx={{
-                    borderColor: "var(--primary-color)",
-                    color: "var(--primary-color)",
+                    borderStyle: "dotted",
+                    borderWidth: 2,
+                    borderColor: "var(--secondary-color, #024DAF)",
+                    color: "var(--secondary-color, #024DAF)",
                     textTransform: "none",
                     py: 1.5,
                     height:"40px",
@@ -1017,8 +1031,10 @@ const Regstion = () => {
                       mr: 0.75,
                     },
                     "&:hover": {
-                      borderColor: "var(--primary-color)",
-                      bgcolor: "rgba(18, 61, 110, 0.04)",
+                      borderStyle: "dotted",
+                      borderWidth: 2,
+                      borderColor: "var(--secondary-color, #024DAF)",
+                      bgcolor: "rgba(2, 77, 175, 0.06)",
                     },
                   }}
                   component="label"

@@ -107,11 +107,21 @@ const RoundWayBrandedFare = ({ fares, data }) => {
     const amenityPerks = Array.isArray(allAmenities)
       ? allAmenities
           .filter((item) => item?.description)
-          .map((item, index) => ({
-            label: `${toCapitalizedText(item.description)} (${item.isChargeable ? "Paid" : "Free"})`,
-            icon: getAmenityIcon(item.description),
-            id: `amenity-${index}`,
-          }))
+          .reduce((acc, item) => {
+            const normalizedDescription = toCapitalizedText(item.description);
+            const chargeType = item.isChargeable ? "Paid" : "Free";
+            const uniqueKey = `${normalizedDescription.toLowerCase()}-${chargeType.toLowerCase()}`;
+
+            if (acc.seen.has(uniqueKey)) return acc;
+            acc.seen.add(uniqueKey);
+            acc.items.push({
+              label: `${normalizedDescription} (${chargeType})`,
+              icon: getAmenityIcon(item.description),
+              id: `amenity-${acc.items.length}`,
+            });
+            return acc;
+          }, { items: [], seen: new Set() })
+          .items
       : [];
 
     const refundLabel = data?.refundable || "Refundability unknown";

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Grid, Typography, Pagination } from "@mui/material";
+import { Box, Grid, Typography, Pagination, LinearProgress } from "@mui/material";
 import dayjs from "dayjs";
-import AfterSearchBanner from "../../components/layout/AfterSearchBanner";
+import ModifySearchBar from "../../components/layout/ModifySearchBar";
 import OnewayFlightFilter from "./OnewayFlightFilter";
 import RoundWayFlight from "./RoundWayFlight";
 import FlightSortFilter from "./FlightSortFilter";
@@ -39,11 +39,12 @@ const RoundWaySearchResult = () => {
   }, [location.state]);
 
   const [flights, setFlights] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [sortBy, setSortBy] = useState("lowest");
   const [currentPage, setCurrentPage] = useState(1);
+  const [progress, setProgress] = useState(18);
   const flightsPerPage = 10;
   
   // Use ref to track the last search params to prevent duplicate API calls
@@ -187,7 +188,7 @@ const RoundWaySearchResult = () => {
   // Reset state and refs when location changes (new search)
   useEffect(() => {
     setFlights([]);
-    setLoading(false);
+    setLoading(true);
     setError("");
     setHasSearched(false);
     setSortBy("lowest");
@@ -209,6 +210,20 @@ const RoundWaySearchResult = () => {
     lastSearchParamsRef.current = null;
     isSearchingRef.current = false;
   }, [location.key, location.state]);
+
+  useEffect(() => {
+    if (!loading) {
+      setProgress(100);
+      return undefined;
+    }
+
+    setProgress(18);
+    const timer = setInterval(() => {
+      setProgress((prev) => (prev >= 92 ? 18 : Math.min(prev + 8, 92)));
+    }, 350);
+
+    return () => clearInterval(timer);
+  }, [loading, location.key]);
 
   useEffect(() => {
     if (!requestBody.journeyfrom || !requestBody.journeyto || !requestBody.departuredate || !requestBody.returndate) {
@@ -582,6 +597,13 @@ const RoundWaySearchResult = () => {
   };
 
   const handleDateSelect = (selectedDateStr) => {
+    // Show loader immediately when a new date is selected
+    setLoading(true);
+    setFlights([]);
+    setError("");
+    setHasSearched(false);
+    setCurrentPage(1);
+
     const selectedDeparture = dayjs(selectedDateStr);
     const currentDeparture = dayjs(effectiveDepartureDateISO);
     const currentReturn = dayjs(effectiveReturnDateISO);
@@ -695,10 +717,56 @@ const RoundWaySearchResult = () => {
 
   return (
     <Box>
-      <Box sx={{ mt: 2 }}>
-        <AfterSearchBanner initialSearchParams={searchParams} />
+      <Box
+        sx={{
+          mt: 1,
+          px: { xs: 2, md: 4 },
+          py: 1.5,
+        }}
+      >
+        <ModifySearchBar
+          searchParams={searchParams}
+          flightCount={filteredFlights.length}
+          loading={loading}
+        />
       </Box>
-      <Box sx={{ mt: 2, px: { xs: 2, md: 4 } }}>
+      {loading ? (
+        <Box sx={{ mt: 0.5, px: { xs: 2, md: 4 } }}>
+          <Box
+            sx={{
+              px: { xs: 2, sm: "5px" },
+              py: 0.5,
+              borderRadius: "5px",
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#001B48",
+                lineHeight: 1.3,
+                mb: 0.75,
+              }}
+            >
+              Getting the best deals from over 750 airlines...
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={progress}
+              sx={{
+                height: 4,
+                borderRadius: "999px",
+                backgroundColor: "#D7D9E2",
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: "999px",
+                  backgroundColor: "var(--secondary-color, #024DAF)",
+                },
+              }}
+            />
+          </Box>
+        </Box>
+      ) : null}
+      <Box sx={{ mt: 1, px: { xs: 2, md: 4 } }}>
         <DateSelectionBar
           selectedDate={
             effectiveDepartureDateISO ||
@@ -707,6 +775,7 @@ const RoundWaySearchResult = () => {
               : dayjs().format("YYYY-MM-DD"))
           }
           onDateSelect={handleDateSelect}
+          loading={loading}
           from={searchParams.from}
           to={searchParams.to}
           currency={effectiveCurrency}
@@ -722,9 +791,9 @@ const RoundWaySearchResult = () => {
         />
       </Box>
 
-      <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
+      <Box sx={{ px: { xs: 2, md: 4 }, }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={2.4} mt={8}>
+          <Grid item xs={12} md={2.4}>
             {loading ? (
               <OnewayFilterSkeleton />
             ) : (
@@ -795,32 +864,7 @@ const RoundWaySearchResult = () => {
                 },
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: { xs: "flex-start", md: "center" },
-                  justifyContent: "space-between",
-                  mb: 2,
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 1.5,
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
-                    {searchParams.from} ⇄ {searchParams.to}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                    {loading
-                      ? "Searching round-way flights..."
-                      : `${filteredFlights.length} Round-trip flights found${totalPages > 1 ? ` (Page ${currentPage} of ${totalPages})` : ""}`}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#6B6B6B" }}>
-                    {searchParams.travelDate || "-"} → {searchParams.returnDate || "-"} |{" "}
-                    {searchParams.travelClass}
-                  </Typography>
-                  {error ? <Typography sx={{ fontSize: 12, color: "#D32F2F" }}>{error}</Typography> : null}
-                </Box>
-              </Box>
+              
 
               {!loading && flights.length > 0 && (
                 <AirlineFilterCard

@@ -40,7 +40,7 @@ const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
 const SearchReport = () => {
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   const [allData, setAllData] = useState([]); // Store all fetched data
   const [tableRows, setTableRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -554,7 +554,7 @@ const SearchReport = () => {
                 display: "grid",
                 gridTemplateColumns: tableGridTemplate,
                 alignItems: "stretch",
-                backgroundColor: "#F8FAFC",
+                backgroundColor: "var(--secondary-color, #024DAF)",
               }}
             >
               {tableColumns?.map((column) => (
@@ -565,11 +565,11 @@ const SearchReport = () => {
                     alignItems: "center",
                     px: 2,
                     py: 1,
-                    borderBottom: "1px solid #E5E7EB",
-                    backgroundColor: "#F8FAFC",
+                    borderBottom: "1px solid rgba(255,255,255,0.2)",
+                    backgroundColor: "var(--secondary-color, #024DAF)",
                   }}
                 >
-                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#0F2F56" }}>
+                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#FFFFFF" }}>
                     {column.label}
                   </Typography>
                 </Box>

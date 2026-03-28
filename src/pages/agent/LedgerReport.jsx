@@ -32,7 +32,7 @@ const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
 
 const LedgerReport = () => {
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
 
   const [ledgerData, setLedgerData] = useState([]);
   const [statusCards, setStatusCards] = useState([
@@ -549,7 +549,7 @@ const LedgerReport = () => {
                 display: "grid",
                 gridTemplateColumns: tableGridTemplate,
                 alignItems: "stretch",
-                backgroundColor: "#F8FAFC",
+                backgroundColor: "var(--secondary-color, #024DAF)",
               }}
             >
               {tableColumns?.map((column) => (
@@ -560,11 +560,11 @@ const LedgerReport = () => {
                     alignItems: "center",
                     px: 2,
                     py: 1,
-                    borderBottom: "1px solid #E5E7EB",
-                    backgroundColor: "#F8FAFC",
+                    borderBottom: "1px solid rgba(255,255,255,0.2)",
+                    backgroundColor: "var(--secondary-color, #024DAF)",
                   }}
                 >
-                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
+                  <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#FFFFFF" }}>
                     {column.label}
                   </Typography>
                 </Box>

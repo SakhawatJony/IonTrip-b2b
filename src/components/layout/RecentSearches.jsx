@@ -27,7 +27,7 @@ const RecentSearches = () => {
   const scrollContainerRef = useRef(null);
   const navigate = useNavigate();
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
 
   useEffect(() => {
     // Fetch recent searches from API
@@ -269,7 +269,7 @@ const RecentSearches = () => {
   const totalSlides = Math.ceil(recentSearches.length / itemsPerView);
 
   return (
-    <Box mt={5}>
+    <Box mt={2} mx="60px">
       <Box
         sx={{
           position: "relative",

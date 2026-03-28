@@ -161,17 +161,36 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
       return FlightData.slice(0, 7);
     }
     const normalizedQuery = query.replace(/\s*\(.*?\)\s*/g, " ").trim();
-    const matches = FlightData.filter((airport) => {
+    const q = normalizedQuery || query;
+
+    // Rank matches so airport code results appear first (e.g., typing "kul" shows KUL on top).
+    const rankedMatches = FlightData.map((airport) => {
       const code = airport.code?.toLowerCase() || "";
       const name = airport.name?.toLowerCase() || "";
       const address = airport.Address?.toLowerCase() || "";
-      return (
-        code.includes(normalizedQuery) ||
-        name.includes(normalizedQuery) ||
-        address.includes(normalizedQuery)
-      );
-    }).slice(0, 8);
-    return matches.length ? matches : FlightData.slice(0, 7);
+
+      const codeStarts = code.startsWith(q);
+      const codeIncludes = code.includes(q);
+      const nameIncludes = name.includes(q);
+      const addressIncludes = address.includes(q);
+
+      if (!codeIncludes && !nameIncludes && !addressIncludes) return null;
+
+      // Lower score = higher priority.
+      let score = 50;
+      if (codeStarts) score = 0;
+      else if (codeIncludes) score = 10;
+      else if (nameIncludes) score = 20;
+      else if (addressIncludes) score = 30;
+
+      return { airport, score };
+    })
+      .filter(Boolean)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 8)
+      .map((item) => item.airport);
+
+    return rankedMatches.length ? rankedMatches : FlightData.slice(0, 7);
   };
 
   const handleSelectAirport = (airport, field) => {
@@ -292,7 +311,8 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
     py: 1,
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    gap: 1.25,
     cursor: "pointer",
     "&:hover": {
       backgroundColor: "#F6F8FB",
@@ -424,20 +444,46 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                         sx={suggestionItemSx}
                         onMouseDown={() => handleSelectAirport(airport, "from")}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <LocalAirportIcon sx={{ fontSize: 16, color: "#93A3B8" }} />
-                          <Box>
-                          <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1F2A44" }}>
-                            {formatAddress(airport.Address)}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontSize: 13,
+                              fontWeight: 800,
+                              color: "#1F4D8B",
+                              minWidth: 46,
+                            }}
+                          >
+                            {airport.code}
                           </Typography>
-                          <Typography sx={{ fontSize: 12, color: "#6B7A90" }}>
-                            {airport.name}
-                          </Typography>
+
+                          <LocalAirportIcon sx={{ fontSize: 16, color: "#93A3B8", flexShrink: 0 }} />
+
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography
+                              sx={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: "#1F2A44",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {airport.name}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#6B7A90",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {formatAddress(airport.Address)}
+                            </Typography>
                           </Box>
                         </Box>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1F4D8B" }}>
-                          {airport.code}
-                        </Typography>
                       </Box>
                     ))}
                   </Box>
@@ -522,20 +568,46 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                         sx={suggestionItemSx}
                         onMouseDown={() => handleSelectAirport(airport, "to")}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <LocalAirportIcon sx={{ fontSize: 16, color: "#93A3B8" }} />
-                          <Box>
-                          <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1F2A44" }}>
-                            {formatAddress(airport.Address)}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontSize: 13,
+                              fontWeight: 800,
+                              color: "#1F4D8B",
+                              minWidth: 46,
+                            }}
+                          >
+                            {airport.code}
                           </Typography>
-                          <Typography sx={{ fontSize: 12, color: "#6B7A90" }}>
-                            {airport.name}
-                          </Typography>
+
+                          <LocalAirportIcon sx={{ fontSize: 16, color: "#93A3B8", flexShrink: 0 }} />
+
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography
+                              sx={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: "#1F2A44",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {airport.name}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                color: "#6B7A90",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {formatAddress(airport.Address)}
+                            </Typography>
                           </Box>
                         </Box>
-                        <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1F4D8B" }}>
-                          {airport.code}
-                        </Typography>
                       </Box>
                     ))}
                   </Box>
@@ -570,7 +642,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                       ...boxedFieldSx,
                       "& .MuiInputBase-input": {
                         ...boxedFieldSx["& .MuiInputBase-input"],
-                        fontSize: 11.3,
+                        fontSize: 15,
                         textOverflow: "clip",
                       },
                     },
@@ -662,7 +734,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                     color: "var(--primary-color)",
                     textTransform: "none",
                     fontSize: 13,
-                    fontWeight: 600,
+                    fontWeight: 500,
                     justifyContent: "flex-start",
                     px: 0,
                     minWidth: 0,
@@ -699,7 +771,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                 ...boxedFieldSx,
                 "& .MuiInputBase-input": {
                   ...boxedFieldSx["& .MuiInputBase-input"],
-                  fontSize: 11,
+                  fontSize: 15,
                 },
               }}
             />
@@ -1023,26 +1095,26 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
       <Box
         sx={{
           position: "absolute",
-          bottom: "-18px",
+          bottom: location.pathname === "/dashboard/onewaysearchresult" ? "10px" : "-18px",
           left: "50%",
           transform: "translateX(-50%)",
         }}
       >
         <Button
-          startIcon={<SendIcon sx={{ fontSize: 18 }} />}
+          startIcon={<SendIcon sx={{ fontSize: 16 }} />}
           type="submit"
           sx={{
             backgroundColor: searchButtonColor,
             color: "#fff",
-            px: 4.5,
-            height: "42px",
+            px: 2.5,
+            height: "35px",
             borderRadius: "999px",
             fontSize: "14px",
             fontWeight: 600,
             textTransform: "none",
             boxShadow: searchButtonShadow,
             "&:hover": {
-              backgroundColor: searchButtonHoverColor,
+              backgroundColor: searchButtonColor,
             },
           }}
         >

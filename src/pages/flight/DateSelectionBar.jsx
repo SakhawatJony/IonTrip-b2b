@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Skeleton } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import dayjs from "dayjs";
@@ -19,6 +19,7 @@ const DateSelectionBar = ({
   returnDateISO = "",
   returnDate = "",
   selectedDatePrice = null,
+  loading = false,
 }) => {
   const currency = propCurrency || "BDT";
   // State for display center date (for navigation without triggering search)
@@ -138,10 +139,16 @@ const DateSelectionBar = ({
             .map((dateInfo, index) => {
             const isSelected = dateInfo.dateStr === selectedDateStr;
 
+            const showSkeleton = Boolean(loading);
+            const isPending = showSkeleton && isSelected;
+
             return (
               <Box
                 key={dateInfo.dateStr}
-                onClick={() => onDateSelect && onDateSelect(dateInfo.dateStr)}
+                onClick={() => {
+                  if (loading) return;
+                  onDateSelect && onDateSelect(dateInfo.dateStr);
+                }}
                 sx={{
                   display: "flex",
                   flexDirection: "column",
@@ -157,7 +164,11 @@ const DateSelectionBar = ({
                   backgroundColor: "transparent",
                   position: "relative",
                   borderRight: index < dates.length - 1 ? "1px solid #E0E0E0" : "none",
-                  borderBottom: isSelected ? `1px solid var(--primary-color)` : "1px solid transparent",
+                  borderBottom: showSkeleton
+                    ? "1px solid transparent"
+                    : isSelected
+                    ? `1px solid var(--primary-color)`
+                    : "1px solid transparent",
                   "&:hover": {
                     backgroundColor: "rgba(18, 61, 110, 0.03)",
                   },
@@ -170,9 +181,19 @@ const DateSelectionBar = ({
                     color: isSelected ? "var(--primary-color)" : "#4F4F4F",
                     textAlign: "center",
                     lineHeight: 1.2,
+                    minHeight: 16,
                   }}
                 >
-                  {dateInfo.dayName}, {dateInfo.month} {dateInfo.dayNumber}
+                  {showSkeleton ? (
+                    <Skeleton
+                      variant="text"
+                      width={84}
+                      height={16}
+                      sx={{ transform: "none", borderRadius: "4px", mx: "auto" }}
+                    />
+                  ) : (
+                    `${dateInfo.dayName}, ${dateInfo.month} ${dateInfo.dayNumber}`
+                  )}
                 </Typography>
                 <Typography
                   sx={{
@@ -186,7 +207,16 @@ const DateSelectionBar = ({
                     minHeight: 16,
                   }}
                 >
-                  {isSelected && selectedDatePrice != null && Number(selectedDatePrice) > 0
+                  {showSkeleton
+                    ? (
+                      <Skeleton
+                        variant="text"
+                        width={58}
+                        height={16}
+                        sx={{ transform: "none", borderRadius: "4px", mx: "auto" }}
+                      />
+                    )
+                    : isSelected && selectedDatePrice != null && Number(selectedDatePrice) > 0
                     ? `${currency} ${Number(selectedDatePrice).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
                     : isSelected
                     ? "Selected"

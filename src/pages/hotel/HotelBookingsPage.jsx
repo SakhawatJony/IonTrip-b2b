@@ -292,7 +292,7 @@ const HotelBookingsPage = ({
               display: "grid",
               gridTemplateColumns: tableGridTemplate,
               alignItems: "stretch",
-              backgroundColor: "#F8FAFC",
+              backgroundColor: "var(--secondary-color, #024DAF)",
             }}
           >
             {tableColumns.map((column) => (
@@ -303,15 +303,15 @@ const HotelBookingsPage = ({
                   alignItems: "center",
                   justifyContent: "center",
                   py: 1,
-                  borderBottom: "1px solid #E5E7EB",
-                  backgroundColor: "#F8FAFC",
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  backgroundColor: "var(--secondary-color, #024DAF)",
                 }}
               >
                 <Typography
                   sx={{
                     fontSize: 10.5,
                     fontWeight: 600,
-                    color: "var(--primary-color, #123D6E)",
+                    color: "#FFFFFF",
                   }}
                 >
                   {column.label}

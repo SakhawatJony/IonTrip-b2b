@@ -87,7 +87,7 @@ const FlightBooking = () => {
   const { agentToken } = useAuth();
   const baseUrl =
     import.meta.env.VITE_API_BASE_URL ||
-    "https://iontrip-backend-production.up.railway.app";
+    "https://iontrip-backend-production-2d3b.up.railway.app";
   const selectedFlight =
     location.state?.selectedFlight || location.state?.data || null;
   const [offerPriceData, setOfferPriceData] = useState(null);

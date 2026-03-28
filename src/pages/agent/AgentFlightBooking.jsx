@@ -7,12 +7,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
 
-const headerTitleSx = {
-  fontSize: 22,
-  fontWeight: 700,
-  color: "#0F172A",
-};
-
 // Status mapping from API to display labels (Booked shown as Hold in stats)
 const statusLabelMap = {
   "ticketed": "Ticketed",
@@ -42,7 +36,13 @@ const tableColumns = [
 
 
 
-const tableGridTemplate = tableColumns.map((col) => col.width).join(" ");
+/** Weighted `fr` columns so the grid always fills 100% of the card (stable at any zoom). */
+const tableGridTemplate = tableColumns
+  .map((col) => {
+    const n = parseInt(String(col.width).replace(/\D/g, ""), 10) || 80;
+    return `${n}fr`;
+  })
+  .join(" ");
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Booking" },
@@ -57,14 +57,13 @@ const STATUS_OPTIONS = [
 ];
 
 const AgentFlightBooking = ({
-  title = "All Booking",
-  buttonLabel = "All Booking",
+  buttonLabel = "Bookings History",
   defaultStatus = "",
   viewMode = "",
 }) => {
   const navigate = useNavigate();
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   
   const [status, setStatus] = useState(
     viewMode === "TICKETED" || viewMode === "CANCELLED" ? "" : (defaultStatus || "")
@@ -609,14 +608,19 @@ const AgentFlightBooking = ({
   }) => (
     <Box
       sx={{
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+        alignSelf: "stretch",
         border: "1px solid #E5E7EB",
         borderRadius: 1.5,
         backgroundColor: "#FFFFFF",
         overflowX: "auto",
         overflowY: "auto",
+        boxSizing: "border-box",
       }}
     >
-      <Box>
+      <Box sx={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
         {title && (
           <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #E5E7EB" }}>
             <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
@@ -627,9 +631,11 @@ const AgentFlightBooking = ({
         <Box
           sx={{
             display: "grid",
+            width: "100%",
+            minWidth: 0,
             gridTemplateColumns: tableGridTemplate,
             alignItems: "stretch",
-            backgroundColor: "#F8FAFC",
+            backgroundColor: "var(--secondary-color, #024DAF)",
           }}
         >
           {tableColumns?.map((column) => (
@@ -639,12 +645,24 @@ const AgentFlightBooking = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                minWidth: 0,
                 py: 1,
-                borderBottom: "1px solid #E5E7EB",
-                backgroundColor: "#F8FAFC",
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                backgroundColor: "var(--secondary-color, #024DAF)",
               }}
             >
-              <Typography sx={{ fontSize: 10.5, fontWeight: 600, color: "var(--primary-color, #123D6E)" }}>
+              <Typography
+                sx={{
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  color: "#FFFFFF",
+                  textAlign: "center",
+                  px: 0.5,
+                  width: "100%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {column.label}
               </Typography>
             </Box>
@@ -673,6 +691,8 @@ const AgentFlightBooking = ({
                 onMouseLeave={() => setHoveredRowIndex(null)}
                 sx={{
                   display: "grid",
+                  width: "100%",
+                  minWidth: 0,
                   gridTemplateColumns: tableGridTemplate,
                   alignItems: "stretch",
                   backgroundColor: "#FFFFFF",
@@ -682,7 +702,6 @@ const AgentFlightBooking = ({
                   ...(isRowHovered && {
                     backgroundColor: "#FFFFFF",
                     boxShadow: "0 8px 20px -2px rgba(0, 0, 0, 0.1)",
-                    width: "100%",
                   }),
                 }}
               >
@@ -697,10 +716,12 @@ const AgentFlightBooking = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        minWidth: 0,
                         px: 1,
                         py: 0.5,
                         borderBottom: "1px solid #E5E7EB",
                         backgroundColor: "transparent",
+                        overflow: "hidden",
                       }}
                     >
                       {renderCell(column.key, value, originalBookingId, carrierCode)}
@@ -719,33 +740,40 @@ const AgentFlightBooking = ({
     <Box
       sx={{
         minHeight: "100vh",
-     px:"30px",
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+        boxSizing: "border-box",
+        px: { xs: 1.5, sm: 2, md: "30px" },
         py: 4,
       }}
     >
-      <Box
-        sx={{
-          backgroundColor: "#FFFFFF",
-          borderRadius: 2,
-          border: "1px solid #E5E7EB",
-          px: { xs: 2, md: 3 },
-          py: { xs: 2.5, md: 3 },
-          display: "flex",
-          flexDirection: "column",
-          gap: 2.5,
-        }}
-      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%",
+            minWidth: 0,
+            boxSizing: "border-box",
+            backgroundColor: "#FFFFFF",
+            borderRadius: 2,
+            border: "1px solid #E5E7EB",
+            px: { xs: 2, md: 3 },
+            py: { xs: 2.5, md: 3 },
+            display: "flex",
+            flexDirection: "column",
+            gap: 2.5,
+            alignItems: "stretch",
+          }}
+        >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             gap: 2,
             flexWrap: "wrap",
           }}
         >
-          <Typography sx={headerTitleSx}>{title}</Typography>
-
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             {getStatusCards().map((card) => (
               <Box

@@ -1,5 +1,7 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Layouts
@@ -31,6 +33,8 @@ import SearchReport from "./pages/agent/SearchReport";
 import AllTraveler from "./pages/agent/AllTraveler";
 import AddTraveler from "./pages/agent/AddTraveler";
 import ActivityLogPage from "./pages/agent/ActivityLogPage";
+import SubUserList from "./pages/agent/SubUserList";
+import AddUser from "./pages/agent/AddUser";
 import Support from "./pages/dashboard/Support";
 import HotelDashboard from "./pages/hotel/HotelDashboard";
 import HotelBookings from "./pages/hotel/HotelBookings";
@@ -44,10 +48,55 @@ import VisaBookings from "./pages/visa/VisaBookings";
 import VisaConfirmedBooking from "./pages/visa/VisaConfirmedBooking";
 import VisaCancelledBooking from "./pages/visa/VisaCancelledBooking";
 import VisaRefundsBooking from "./pages/visa/VisaRefundsBooking";
+import useAuth from "./hooks/useAuth";
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { agentToken, tokenExpireIn, clearAuthSession } = useAuth();
+  const sessionTimeoutRef = useRef(null);
   const isDashboard = location.pathname.startsWith("/dashboard");
+
+  useEffect(() => {
+    if (sessionTimeoutRef.current) {
+      window.clearTimeout(sessionTimeoutRef.current);
+      sessionTimeoutRef.current = null;
+    }
+
+    if (!agentToken || !tokenExpireIn) return;
+
+    const expiresAt = new Date(tokenExpireIn).getTime();
+    if (Number.isNaN(expiresAt)) return;
+
+    const logoutForExpiry = () => {
+      clearAuthSession();
+      toast.error("Your session has expired. Please login again.", {
+        position: "top-right",
+        autoClose: 3500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      navigate("/login", { replace: true });
+    };
+
+    const remainingMs = expiresAt - Date.now();
+
+    if (remainingMs <= 0) {
+      logoutForExpiry();
+      return;
+    }
+
+    sessionTimeoutRef.current = window.setTimeout(logoutForExpiry, remainingMs);
+
+    return () => {
+      if (sessionTimeoutRef.current) {
+        window.clearTimeout(sessionTimeoutRef.current);
+        sessionTimeoutRef.current = null;
+      }
+    };
+  }, [agentToken, tokenExpireIn, clearAuthSession, navigate]);
 
   return (
     <>
@@ -65,17 +114,16 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route
           path="bookings"
-          element={<AgentFlightBooking title="All Booking" buttonLabel="All Booking" />}
+          element={<AgentFlightBooking buttonLabel="Bookings History" />}
         />
         <Route
           path="bookings/confirmed"
-          element={<AgentFlightBooking title="Confirmed Booking" buttonLabel="Confirmed Booking" />}
+          element={<AgentFlightBooking buttonLabel="Confirmed Booking" />}
         />
         <Route
           path="bookings/refund"
           element={
             <AgentFlightBooking
-              title="Refund Booking"
               buttonLabel="Refund Booking"
               defaultStatus="REFUND"
             />
@@ -85,7 +133,6 @@ export default function App() {
           path="bookings/ticketed"
           element={
             <AgentFlightBooking
-              title="Ticketed"
               buttonLabel="Ticketed"
               defaultStatus=""
               viewMode="TICKETED"
@@ -96,7 +143,6 @@ export default function App() {
           path="bookings/cancelled"
           element={
             <AgentFlightBooking
-              title="Cancelled"
               buttonLabel="Cancelled"
               defaultStatus=""
               viewMode="CANCELLED"
@@ -105,7 +151,7 @@ export default function App() {
         />
         <Route
           path="bookings/reissue"
-          element={<AgentFlightBooking title="Reissue Booking" buttonLabel="Reissue Booking" defaultStatus="REISSUE" />}
+          element={<AgentFlightBooking buttonLabel="Reissue Booking" defaultStatus="REISSUE" />}
         />
         <Route path="flightinfo" element={<Dashboard />} />
         <Route path="reschedulepax" element={<Dashboard />} />
@@ -138,6 +184,8 @@ export default function App() {
         <Route path="account/activitylog" element={<ActivityLogPage />} />
         <Route path="account/alltraveler" element={<AllTraveler />} />
         <Route path="account/addtraveler" element={<AddTraveler />} />
+        <Route path="sub-users/sub-user-list" element={<SubUserList />} />
+        <Route path="sub-users/add-user" element={<AddUser />} />
         <Route path="manage" element={<Dashboard />} />
         <Route path="ledgerreport" element={<LedgerReport />} />
         <Route path="salesreport" element={<SalesReport />} />

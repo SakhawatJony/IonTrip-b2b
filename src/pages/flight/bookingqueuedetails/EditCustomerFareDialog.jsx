@@ -172,23 +172,23 @@ const EditCustomerFareDialog = ({ open, onClose, data, onUpdate }) => {
         <Box sx={{ overflow: "auto" }}>
           <Table size="small" sx={{ "& .MuiTableCell-root": { borderBottom: "1px solid #E5E7EB" } }}>
             <TableHead>
-              <TableRow sx={{ backgroundColor: "#E5E7EB" }}>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25 }}>
+              <TableRow sx={{ backgroundColor: "var(--secondary-color, #024DAF)" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25 }}>
                   Pax Type
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25, textAlign: "right" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25, textAlign: "right" }}>
                   Base Price
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25, textAlign: "right" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25, textAlign: "right" }}>
                   Tax
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25, textAlign: "right" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25, textAlign: "right" }}>
                   Discount
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25, textAlign: "right" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25, textAlign: "right" }}>
                   Pax Count
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#374151", py: 1.25, textAlign: "right" }}>
+                <TableCell sx={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", py: 1.25, textAlign: "right" }}>
                   Total Price
                 </TableCell>
               </TableRow>

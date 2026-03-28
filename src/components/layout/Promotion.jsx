@@ -38,11 +38,10 @@ const Promotion = () => {
   return (
     <Box
       sx={{
-        my: "50px",
-        mx: "auto",
+        mb: 5,
+        mx: { xs: 1, sm: "60px" },
         position: "relative",
-        maxWidth: 1200,
-        px: { xs: 1, sm: 2 },
+        px: 4,
       }}
     >
       {/* Previous – far left, circular light grey */}
@@ -127,7 +126,7 @@ const Promotion = () => {
                 >
                   {slide.description}
                 </Typography>
-               
+
               </Box>
             </Box>
           </Grid>

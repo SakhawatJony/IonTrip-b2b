@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 const SectionTitle = ({ children }) => (
-  <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#2A2A2A", mb: 1 }}>
+  <Typography sx={{ fontSize: 14, fontWeight: 600, color: "var", mb: 1 }}>
     {children}
   </Typography>
 );
@@ -269,7 +269,7 @@ const OnewayFlightFilter = ({
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1F1F1F" }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, color: "var(--secondary-color, #024DAF)" }}>
           Filter
         </Typography>
         <Button
@@ -277,8 +277,13 @@ const OnewayFlightFilter = ({
           onClick={onReset}
           sx={{
             textTransform: "none",
+            border: "1px solid var(--secondary-color, #024DAF)",
             fontWeight: 600,
-            color: "var(--primary-color)",
+            color: "var(--secondary-color, #024DAF)",
+            hover: {
+              backgroundColor: "var(--secondary-color, #024DAF)",
+              color: "#FFFFFF",
+            },
           }}
         >
           Reset
@@ -305,13 +310,13 @@ const OnewayFlightFilter = ({
               sx={{
                 color: "var(--primary-color)",
                 "& .MuiSlider-thumb": {
-                  width: 16,
-                  height: 16,
+                  width: 13,
+                  height: 13,
                 },
               }}
             />
           </Box>
-          <Typography sx={{ fontSize: 12, color: "#4B5563", fontWeight: 600 }}>
+          <Typography sx={{ fontSize: 11, color: "#4B5563", fontWeight: 600 }}>
             {currency} {selectedMin.toLocaleString("en-US")} - {currency}{" "}
             {selectedMax.toLocaleString("en-US")}
           </Typography>
@@ -322,7 +327,7 @@ const OnewayFlightFilter = ({
 
       <Divider sx={{ my: 2 }} />
 
-      <SectionTitle>Stops</SectionTitle>
+      <SectionTitle sx={{color: "var(--secondary-color, #024DAF)"}}>Stops</SectionTitle>
       <FormGroup>
         {stopsToRender.map((label) => {
           const normalizedLabel = normalizeStopLabel(label);

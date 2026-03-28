@@ -392,7 +392,7 @@ const Section = ({
 
 const AgentProfile = () => {
   const { agentToken, agentData } = useAuth();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
   const agentEmail = agentData?.email || "";
 
   const [profileData, setProfileData] = useState(null);
@@ -568,7 +568,7 @@ const AgentProfile = () => {
   };
 
   const getDocumentDisplayUrl = (field) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
     const docUrl = getDocumentUrl(field);
     if (!docUrl) return null;
     return docUrl.startsWith("http") ? docUrl : `${baseUrl}/${docUrl}`;
@@ -576,7 +576,7 @@ const AgentProfile = () => {
 
   const handleViewDocument = (field) => {
     const token = agentToken || localStorage.getItem("agentToken") || "";
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
     
     // Check if there's a newly selected file
     if (fileData[field]) {

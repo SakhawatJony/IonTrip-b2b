@@ -1,6 +1,6 @@
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
 
 export const AuthContext = createContext({
   currency: "MYR",

@@ -5,7 +5,7 @@ import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 const apiBaseUrl =
   process.env.VITE_API_BASE_URL ||
-  'https://iontrip-backend-production-da13.up.railway.app'
+  'https://iontrip-backend-production-2d3b.up.railway.app'
 
 export default defineConfig({
   plugins: [react(), svgr()],

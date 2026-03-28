@@ -33,14 +33,16 @@ import {
   Menu as MenuIcon,
   ChevronLeft,
 } from "@mui/icons-material";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import BalanceNoticeBar from "./BalanceNoticeBar";
 import DashboardNavbar from "./DashboardNavbar";
+import DashboardPageHeading from "./DashboardPageHeading";
+import { getDashboardPageTitle, shouldShowDashboardPageHeading } from "../../utils/dashboardPageMeta";
 
 const DashboardLayout = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const showPageHeading = shouldShowDashboardPageHeading(location.pathname);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(!isMobile);
@@ -120,6 +122,12 @@ const DashboardLayout = () => {
                 }}
               >
                 {/* <BalanceNoticeBar /> */}
+                {showPageHeading ? (
+                  <DashboardPageHeading
+                    title={getDashboardPageTitle(location.pathname)}
+                    pathname={location.pathname}
+                  />
+                ) : null}
                 <Outlet />
               </Box>
             </Grid>

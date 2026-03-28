@@ -121,7 +121,7 @@ const ActivityLog = ({ logs = [] }) => {
               display: "grid",
               gridTemplateColumns: tableGridTemplate,
               alignItems: "stretch",
-              backgroundColor: "#F8FAFC",
+              backgroundColor: "var(--secondary-color, #024DAF)",
             }}
           >
             {activityLogColumns.map((column) => (
@@ -133,11 +133,11 @@ const ActivityLog = ({ logs = [] }) => {
                   justifyContent: column.key === "srlNo" ? "center" : "flex-start",
                   px: 2,
                   py: 1,
-                  borderBottom: "1px solid #E5E7EB",
-                  backgroundColor: "#F8FAFC",
+                  borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  backgroundColor: "var(--secondary-color, #024DAF)",
                 }}
               >
-                <Typography sx={{ fontSize: 11, fontWeight: 600, color: "var(--primary-color, #123D6E)", whiteSpace: "nowrap" }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#FFFFFF", whiteSpace: "nowrap" }}>
                   {column.label}
                 </Typography>
               </Box>

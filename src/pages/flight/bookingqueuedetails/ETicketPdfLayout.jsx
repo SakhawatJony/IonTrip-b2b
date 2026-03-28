@@ -200,12 +200,12 @@ const ETicketPdfLayout = ({ data, showFareSummary = true }) => {
       {/* PASSENGER TABLE */}
       <Table size="small">
         <TableHead>
-          <TableRow sx={{ background: "#E5E7EB" }}>
-            <TableCell sx={{ fontSize: 11 }}>Name</TableCell>
-            <TableCell sx={{ fontSize: 11 }}>Type</TableCell>
-            <TableCell sx={{ fontSize: 11 }}>E-Ticket No</TableCell>
-            <TableCell sx={{ fontSize: 11 }}>Check-in Baggage</TableCell>
-            <TableCell sx={{ fontSize: 11 }}>Cabin Baggage</TableCell>
+          <TableRow sx={{ backgroundColor: "var(--secondary-color, #024DAF)" }}>
+            <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Name</TableCell>
+            <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Type</TableCell>
+            <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>E-Ticket No</TableCell>
+            <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Check-in Baggage</TableCell>
+            <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Cabin Baggage</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -268,12 +268,12 @@ const ETicketPdfLayout = ({ data, showFareSummary = true }) => {
           <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#2F3A55", mt: 2 }}>Fare Summary</Typography>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ background: "#E5E7EB" }}>
-                <TableCell sx={{ fontSize: 11 }}>Passenger Type</TableCell>
-                <TableCell sx={{ fontSize: 11 }}>Base Fare</TableCell>
-                <TableCell sx={{ fontSize: 11 }}>Taxes</TableCell>
-                <TableCell sx={{ fontSize: 11 }}>Total Pax</TableCell>
-                <TableCell sx={{ fontSize: 11 }}>Total Fare</TableCell>
+              <TableRow sx={{ backgroundColor: "var(--secondary-color, #024DAF)" }}>
+                <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Passenger Type</TableCell>
+                <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Base Fare</TableCell>
+                <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Taxes</TableCell>
+                <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Total Pax</TableCell>
+                <TableCell sx={{ fontSize: 11, color: "#FFFFFF", fontWeight: 600 }}>Total Fare</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

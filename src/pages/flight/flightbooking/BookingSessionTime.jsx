@@ -1,7 +1,37 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const BookingSessionTime = () => {
+  const navigate = useNavigate();
+  const totalSeconds = 20 * 60;
+  const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, []);
+
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [secondsLeft, navigate]);
+
+  const timeLabel = useMemo(() => {
+    const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
+    const seconds = String(secondsLeft % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }, [secondsLeft]);
+
+  const progressValue = useMemo(
+    () => (secondsLeft / totalSeconds) * 100,
+    [secondsLeft, totalSeconds]
+  );
+
   return (
     <Box
       sx={{
@@ -17,7 +47,7 @@ const BookingSessionTime = () => {
     >
       <Box>
         <Typography fontSize={12} color="#0F172A" fontWeight={700}>
-          Time Remaining 14:30
+          Time Remaining {timeLabel}
         </Typography>
         <Typography fontSize={10} color="#64748B">
           For security reason your session will close automatically
@@ -25,7 +55,7 @@ const BookingSessionTime = () => {
       </Box>
       <CircularProgress
         variant="determinate"
-        value={70}
+        value={progressValue}
         size={32}
         thickness={5}
         sx={{ color: "#0F2F56" }}

@@ -26,7 +26,7 @@ import {
 } from "../../hooks/useAgentWalletBalance";
 import { useNavigate } from "react-router-dom";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production.up.railway.app";
+const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
 
 const CURRENCIES = ["MYR", "USD", "BDT", "EUR", "GBP"];
 
