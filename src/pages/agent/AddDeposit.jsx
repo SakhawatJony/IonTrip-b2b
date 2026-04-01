@@ -153,7 +153,8 @@ const TAB_LABELS = [
   { label: "Online Top Up", icon: <CreditCardIcon sx={{ fontSize: 18, mr: 0.5 }} /> },
 ];
 
-const PAYMENT_METHODS = ["Bank Transfer", "Bank Transfer", "Cash", "Cheque", "Mobile Transfer"];
+// Must match backend enums: Bank Deposit tab cannot use the same value as Fund Transfer.
+const PAYMENT_METHODS = ["Bank Transfer", "Bank Deposit", "Cash", "Cheque", "Mobile Transfer"];
 
 const AddDeposit = () => {
   const { agentToken, agentData } = useAuth();
@@ -261,7 +262,6 @@ const AddDeposit = () => {
     }
 
     const paymentMethod = PAYMENT_METHODS[selectedTab];
-    const isCheque = paymentMethod === "Cheque";
     const needDoc = true; // matches the UI (Upload Attachments *) for all tabs
     const isBankDeposit = selectedTab === 1;
     const isCashDeposit = selectedTab === 2;
@@ -319,6 +319,7 @@ const AddDeposit = () => {
         fd.append("issueDate", dayjs(formData.issueDate).format("YYYY-MM-DD"));
         fd.append("transferTime", String(formData.transferTime || ""));
         fd.append("depositBankLocation", String(formData.depositBankLocation || ""));
+        fd.append("bankName", String(formData.bankName || ""));
       }
       if (isCashDeposit) {
         fd.append("issueDate", dayjs(formData.issueDate).format("YYYY-MM-DD"));

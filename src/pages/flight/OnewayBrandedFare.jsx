@@ -89,6 +89,26 @@ const toCapitalizedText = (value) => {
     .trim();
 };
 
+/** Resolve a numeric fare from API shapes: number, numeric string, or nested { data: { netprice } }. */
+const pickNumericFare = (raw, depth = 0) => {
+  if (depth > 5 || raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  if (typeof raw === "string") {
+    const n = parseFloat(String(raw).replace(/[^\d.-]/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+  if (typeof raw === "object") {
+    return (
+      pickNumericFare(raw?.data?.netprice, depth + 1) ??
+      pickNumericFare(raw?.data?.netPrice, depth + 1) ??
+      pickNumericFare(raw?.netprice, depth + 1) ??
+      pickNumericFare(raw?.netPrice, depth + 1) ??
+      null
+    );
+  }
+  return null;
+};
+
 const getAmenityIcon = (description) => {
   const text = String(description || "").toLowerCase();
   if (text.includes("seat")) return AirlineSeatReclineNormalOutlinedIcon;
@@ -156,8 +176,25 @@ const OnewayBrandedFare = ({ fares, data }) => {
       data?.AirFareData?.price?.grandTotal ??
       data?.AirFareData?.price?.total ??
       null;
+
+    const baseFareFromBreakdown =
+      Array.isArray(priceBreakdown) && priceBreakdown.length > 0
+        ? priceBreakdown.reduce(
+            (sum, row) =>
+              sum + Number(row?.BaseFare || 0) * Number(row?.PaxCount || 1),
+            0
+          )
+        : null;
     const baseFareValue =
-      data?.basePrice ?? data?.AirFareData?.price?.base ?? null;
+      pickNumericFare(data?.netPrice) ??
+      pickNumericFare(data?.netprice) ??
+      pickNumericFare(data?.USD?.netPrice) ??
+      (Number.isFinite(baseFareFromBreakdown) && baseFareFromBreakdown > 0
+        ? baseFareFromBreakdown
+        : null) ??
+      pickNumericFare(data?.basePrice) ??
+      pickNumericFare(data?.AirFareData?.price?.base) ??
+      null;
 
     const firstFareDetail = travelerPricings?.[0]?.fareDetailsBySegment?.[0] || {};
     const firstBreakdown = priceBreakdown?.[0] || {};
