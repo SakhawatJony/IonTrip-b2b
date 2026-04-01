@@ -478,7 +478,12 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
           isOpen: expandedMenu === "hotel",
           onClick: () => handleMainMenuClick("hotel", "/dashboard/hotel/bookings"),
           onToggleClick: () => handleToggle("hotel"),
-          activePaths: ["/dashboard/hotel/bookings", "/dashboard/hotel/confirmed", "/dashboard/hotel/cancelled"],
+          activePaths: [
+            "/dashboard/hotel/search",
+            "/dashboard/hotel/bookings",
+            "/dashboard/hotel/confirmed",
+            "/dashboard/hotel/cancelled",
+          ],
         }, location, collapsed)}
         <Collapse in={expandedMenu === "hotel"} timeout="auto" unmountOnExit>
           <Box
@@ -499,6 +504,7 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
             }}
           >
            
+            <SubMenuItem collapsed={collapsed} text="Search Hotels" path="/dashboard/hotel/search" location={location} />
             <SubMenuItem collapsed={collapsed} text="All Bookings" path="/dashboard/hotel/bookings" location={location} />
             <SubMenuItem collapsed={collapsed} text="Confirmed Booking" path="/dashboard/hotel/confirmed" location={location} />
             <SubMenuItem collapsed={collapsed} text="Cancelled Booking" path="/dashboard/hotel/cancelled" location={location} />

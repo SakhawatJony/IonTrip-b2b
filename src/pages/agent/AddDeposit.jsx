@@ -37,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../components/pickers/CalendarMonthYearSelectHeader";
 import dayjs from "dayjs";
 
 const secondaryColor = "var(--secondary-color, #024DAF)";
@@ -303,9 +304,16 @@ const AddDeposit = () => {
       // If Bank Deposit tab doesn't collect beneficiary name, use agent display name to keep payload valid.
       fd.append("receiverName", formData.beneficiaryName || agentDisplayName);
       fd.append("depositerName", formData.beneficiaryName || agentDisplayName);
-      if (formData.bankName) fd.append("chequeBankName", formData.bankName);
-      if (formData.chequeNumber) fd.append("chequeNumber", formData.chequeNumber);
-      if (formData.chequeIssueDate) fd.append("chequeIssueDate", formData.chequeIssueDate.format("YYYY-MM-DD"));
+      // Keep cheque fields as strings for API DTO validation across all payment methods.
+      fd.append("chequeBankName", String(formData.bankName || ""));
+      fd.append("chequeNumber", String(formData.chequeNumber || ""));
+      fd.append("chequeFrom", String(formData.chequeFrom || ""));
+      fd.append("depositedInAccount", String(formData.depositedInAccount || ""));
+      if (formData.chequeIssueDate) {
+        fd.append("chequeIssueDate", formData.chequeIssueDate.format("YYYY-MM-DD"));
+      } else {
+        fd.append("chequeIssueDate", "");
+      }
       if (formData.documentFile) fd.append("file", formData.documentFile);
       if (isBankDeposit) {
         fd.append("issueDate", dayjs(formData.issueDate).format("YYYY-MM-DD"));
@@ -319,9 +327,9 @@ const AddDeposit = () => {
       }
       if (isChequeDepositTab) {
         fd.append("issueDate", dayjs(formData.issueDate).format("YYYY-MM-DD"));
-        fd.append("chequeNumber", String(formData.chequeNumber || ""));
-        fd.append("chequeFrom", String(formData.chequeFrom || ""));
-        fd.append("depositedInAccount", String(formData.depositedInAccount || ""));
+        fd.set("chequeNumber", String(formData.chequeNumber || ""));
+        fd.set("chequeFrom", String(formData.chequeFrom || ""));
+        fd.set("depositedInAccount", String(formData.depositedInAccount || ""));
       }
 
       await axios.post(`${baseUrl}/deposit`, fd, {
@@ -671,6 +679,12 @@ const AddDeposit = () => {
                     onOpen={() => setDateOpen(true)}
                     onClose={() => setDateOpen(false)}
                     format="DD/MM/YYYY"
+                    views={["year", "month", "day"]}
+                    openTo="day"
+                    slots={{
+                      openPickerIcon: CalendarTodayIcon,
+                      calendarHeader: CalendarMonthYearSelectHeader,
+                    }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -680,7 +694,7 @@ const AddDeposit = () => {
                         onClick: () => setDateOpen(true),
                         inputProps: { readOnly: true },
                       },
-                      openPickerIcon: { sx: { color: TEXT_MUTED } },
+                      openPickerIcon: { sx: { color: TEXT_MUTED, fontSize: 18 } },
                     }}
                   />
                 </Grid>

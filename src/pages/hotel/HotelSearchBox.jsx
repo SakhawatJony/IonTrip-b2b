@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../components/pickers/CalendarMonthYearSelectHeader";
+import { IONTRIP_CALENDAR_MENU_CONTAINER_ID } from "../../constants/calendarMenuContainer";
 import dayjs from "dayjs";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -73,7 +75,23 @@ function HotelFieldColumn({
   flex,
   children,
   shellSx,
+  compact,
 }) {
+  const resolvedLabelSx = compact
+    ? { ...sectionLabelSx, fontSize: 11, fontWeight: 700, color: "#A3A3A3", letterSpacing: 0.04 }
+    : sectionLabelSx;
+  const resolvedShell = {
+    ...fieldShellSx,
+    ...(compact
+      ? {
+          backgroundColor: "#1A1A1A",
+          borderColor: "#333333",
+          minHeight: 56,
+          py: 1,
+        }
+      : {}),
+    ...shellSx,
+  };
   const interactive = Boolean(onShellClick);
   return (
     <Box
@@ -88,7 +106,7 @@ function HotelFieldColumn({
       <Typography
         component={htmlFor ? "label" : "div"}
         htmlFor={htmlFor}
-        sx={sectionLabelSx}
+        sx={resolvedLabelSx}
       >
         {label}
       </Typography>
@@ -107,21 +125,29 @@ function HotelFieldColumn({
             : undefined
         }
         sx={{
-          ...fieldShellSx,
+          ...resolvedShell,
           cursor: interactive ? "pointer" : "default",
           transition: "box-shadow 0.2s ease, border-color 0.2s ease",
           ...(interactive
             ? {
                 "&:hover": {
-                  boxShadow: "0 2px 10px rgba(2, 77, 175, 0.12)",
+                  boxShadow: compact
+                    ? "0 2px 12px rgba(91, 159, 255, 0.15)"
+                    : "0 2px 10px rgba(2, 77, 175, 0.12)",
                 },
               }
             : {}),
-          ...shellSx,
         }}
       >
         {icon ? (
-          <Box component="span" sx={shellIconSx} aria-hidden>
+          <Box
+            component="span"
+            sx={{
+              ...shellIconSx,
+              ...(compact ? { color: "var(--secondary-color, #5B9FFF)", opacity: 0.85 } : {}),
+            }}
+            aria-hidden
+          >
             {icon}
           </Box>
         ) : null}
@@ -132,11 +158,22 @@ function HotelFieldColumn({
   );
 }
 
-const HotelSearchBox = () => {
+const valueSxCompact = {
+  fontSize: 14,
+  fontWeight: 600,
+  color: "#F5F5F5",
+  lineHeight: 1.35,
+};
+
+/**
+ * @param {{ variant?: "default" | "compact"; initialSearch?: { destination?: string; checkIn?: string; checkOut?: string; rooms?: number; adults?: number } | null }} props
+ */
+const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const normalizedPathname = location.pathname.replace(/\/+$/, "");
   const isDashboardHome = normalizedPathname === "/dashboard";
+  const isCompact = variant === "compact";
 
   const [destination, setDestination] = useState("Dhaka");
   const [checkIn, setCheckIn] = useState(() => dayjs());
@@ -149,12 +186,44 @@ const HotelSearchBox = () => {
 
   const [guestAnchorEl, setGuestAnchorEl] = useState(null);
 
+  useEffect(() => {
+    if (!initialSearch) return;
+    const { destination: d, checkIn: ci, checkOut: co, rooms: r, adults: ad } = initialSearch;
+    if (d != null && d !== "") setDestination(d);
+    if (ci) {
+      const nextIn = dayjs(ci);
+      if (nextIn.isValid()) setCheckIn(nextIn);
+    }
+    if (co) {
+      const nextOut = dayjs(co);
+      if (nextOut.isValid()) setCheckOut(nextOut);
+    }
+    if (typeof r === "number" && r >= 1) setRooms(r);
+    if (typeof ad === "number" && ad >= 1) setAdults(ad);
+  }, [
+    initialSearch?.destination,
+    initialSearch?.checkIn,
+    initialSearch?.checkOut,
+    initialSearch?.rooms,
+    initialSearch?.adults,
+  ]);
+
   const secondaryColor = "var(--secondary-color, #024DAF)";
-  const searchButtonColor = isDashboardHome ? secondaryColor : "#525371";
-  const searchButtonHoverColor = isDashboardHome ? secondaryColor : "#424055";
-  const searchButtonShadow = isDashboardHome
-    ? "0px 6px 16px rgba(18,61,110,0.25)"
-    : "0px 6px 16px rgba(82,83,113,0.25)";
+  const searchButtonColor = isCompact
+    ? "var(--primary-color, #123D6E)"
+    : isDashboardHome
+      ? secondaryColor
+      : "#525371";
+  const searchButtonHoverColor = isCompact
+    ? "var(--primary-dark, #0F2F56)"
+    : isDashboardHome
+      ? secondaryColor
+      : "#424055";
+  const searchButtonShadow = isCompact
+    ? "0px 6px 16px rgba(18,61,110,0.35)"
+    : isDashboardHome
+      ? "0px 6px 16px rgba(18,61,110,0.25)"
+      : "0px 6px 16px rgba(82,83,113,0.25)";
 
   const formatDateLine = (d) =>
     d && d.isValid() ? d.format("ddd, DD MMM YY").toUpperCase() : "—";
@@ -186,7 +255,7 @@ const HotelSearchBox = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate("/dashboard/hotel/bookings", {
+    navigate("/dashboard/hotel/search", {
       state: {
         destination,
         checkIn: checkIn.format("YYYY-MM-DD"),
@@ -200,15 +269,19 @@ const HotelSearchBox = () => {
   const calendarValue = datePickerTarget === "out" ? checkOut : checkIn;
   const minCalendarDate = datePickerTarget === "out" ? checkIn : undefined;
 
+  const valueTypographySx = isCompact ? valueSxCompact : valueSx;
+  const popoverTitleColor = isCompact ? "#E5E5E5" : "var(--primary-color, #123D6E)";
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
         sx={{
-          backgroundColor: "#FFFFFF",
-          borderRadius: "10px",
-          p: 1.5,
+          backgroundColor: isCompact ? "#151515" : "#FFFFFF",
+          border: isCompact ? "1px solid #2A2A2A" : "none",
+          borderRadius: "12px",
+          p: isCompact ? 1.5 : 1.5,
           position: "relative",
-          pb: 4,
+          pb: isCompact ? 1.5 : 4,
         }}
       >
         <Box component="form" onSubmit={handleSearch} noValidate>
@@ -217,13 +290,14 @@ const HotelSearchBox = () => {
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               gap: 1.25,
-              alignItems: "stretch",
+              alignItems: { xs: "stretch", md: isCompact ? "flex-end" : "stretch" },
             }}
           >
             <HotelFieldColumn
               label="Location"
               htmlFor="hotel-location-input"
               flex={{ xs: "1 1 auto", md: "1.35 1 0%" }}
+              compact={isCompact}
             >
               <TextField
                 id="hotel-location-input"
@@ -234,7 +308,7 @@ const HotelSearchBox = () => {
                 InputProps={{
                   disableUnderline: true,
                   sx: {
-                    ...valueSx,
+                    ...valueTypographySx,
                     p: 0,
                   },
                 }}
@@ -250,14 +324,16 @@ const HotelSearchBox = () => {
               label="Check In Date"
               onShellClick={openDatePicker("in")}
               icon={<CalendarTodayIcon sx={{ fontSize: 20 }} />}
-              valueNode={<Typography sx={valueSx}>{formatDateLine(checkIn)}</Typography>}
+              valueNode={<Typography sx={valueTypographySx}>{formatDateLine(checkIn)}</Typography>}
+              compact={isCompact}
             />
 
             <HotelFieldColumn
               label="Check Out Date"
               onShellClick={openDatePicker("out")}
               icon={<CalendarTodayIcon sx={{ fontSize: 20 }} />}
-              valueNode={<Typography sx={valueSx}>{formatDateLine(checkOut)}</Typography>}
+              valueNode={<Typography sx={valueTypographySx}>{formatDateLine(checkOut)}</Typography>}
+              compact={isCompact}
             />
 
             <HotelFieldColumn
@@ -265,8 +341,37 @@ const HotelSearchBox = () => {
               onShellClick={(e) => setGuestAnchorEl(e.currentTarget)}
               icon={<PersonIcon sx={{ fontSize: 20 }} />}
               shellSx={{ pr: 4 }}
-              valueNode={<Typography sx={valueSx}>{guestSummary}</Typography>}
+              valueNode={<Typography sx={valueTypographySx}>{guestSummary}</Typography>}
+              compact={isCompact}
             />
+
+            {isCompact ? (
+              <Box sx={{ flexShrink: 0, width: { xs: "100%", md: "auto" } }}>
+                <Typography sx={{ ...sectionLabelSx, visibility: "hidden", mb: 0.75, height: 0 }} aria-hidden>
+                  .
+                </Typography>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  startIcon={<SendIcon sx={{ fontSize: 18 }} />}
+                  sx={{
+                    backgroundColor: searchButtonColor,
+                    color: "#fff",
+                    px: 3,
+                    height: 48,
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    boxShadow: searchButtonShadow,
+                    "&:hover": { backgroundColor: searchButtonHoverColor },
+                  }}
+                >
+                  Search
+                </Button>
+              </Box>
+            ) : null}
           </Box>
 
           <Popover
@@ -277,10 +382,12 @@ const HotelSearchBox = () => {
             transformOrigin={{ vertical: "top", horizontal: "left" }}
             slotProps={{
               paper: {
+                id: IONTRIP_CALENDAR_MENU_CONTAINER_ID,
+                "data-iontrip-calendar-root": true,
                 sx: {
                   mt: 1,
                   borderRadius: 2,
-                  overflow: "hidden",
+                  overflow: "visible",
                   boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                 },
               },
@@ -290,6 +397,30 @@ const HotelSearchBox = () => {
               value={calendarValue}
               onChange={handleCalendarChange}
               minDate={minCalendarDate}
+              views={["day"]}
+              openTo="day"
+              slots={{ calendarHeader: CalendarMonthYearSelectHeader }}
+              slotProps={{
+                day: {
+                  sx: {
+                    "&.Mui-selected": {
+                      backgroundColor: "var(--primary-color, #123D6E) !important",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "var(--primary-dark, #0F2F56) !important",
+                      },
+                    },
+                    "&.MuiPickersDay-today": {
+                      border: "none !important",
+                      fontWeight: 700,
+                      textDecoration: "underline",
+                      textDecorationThickness: 3,
+                      textUnderlineOffset: "4px",
+                      textDecorationColor: "var(--primary-color, #123D6E)",
+                    },
+                  },
+                },
+              }}
             />
           </Popover>
 
@@ -310,7 +441,7 @@ const HotelSearchBox = () => {
                 fontWeight: 700,
                 fontSize: 14,
                 mb: 1.5,
-                color: "var(--primary-color, #123D6E)",
+                color: popoverTitleColor,
               }}
             >
               Guests & rooms
@@ -323,7 +454,7 @@ const HotelSearchBox = () => {
                 key={row.label}
                 sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.25 }}
               >
-                <Typography sx={{ fontSize: 14, color: "#374151" }}>{row.label}</Typography>
+                <Typography sx={{ fontSize: 14, color: isCompact ? "#D1D5DB" : "#374151" }}>{row.label}</Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <IconButton
                     size="small"
@@ -355,35 +486,37 @@ const HotelSearchBox = () => {
             </Button>
           </Popover>
 
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: "-18px",
-              left: "50%",
-              transform: "translateX(-50%)",
-            }}
-          >
-            <Button
-              type="submit"
-              startIcon={<SendIcon sx={{ fontSize: 18 }} />}
+          {!isCompact ? (
+            <Box
               sx={{
-                backgroundColor: searchButtonColor,
-                color: "#fff",
-                px: 4.5,
-                height: "42px",
-                borderRadius: "999px",
-                fontSize: "14px",
-                fontWeight: 600,
-                textTransform: "none",
-                boxShadow: searchButtonShadow,
-                "&:hover": {
-                  backgroundColor: searchButtonHoverColor,
-                },
+                position: "absolute",
+                bottom: "-18px",
+                left: "50%",
+                transform: "translateX(-50%)",
               }}
             >
-              Search Hotels
-            </Button>
-          </Box>
+              <Button
+                type="submit"
+                startIcon={<SendIcon sx={{ fontSize: 18 }} />}
+                sx={{
+                  backgroundColor: searchButtonColor,
+                  color: "#fff",
+                  px: 4.5,
+                  height: "42px",
+                  borderRadius: "999px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  boxShadow: searchButtonShadow,
+                  "&:hover": {
+                    backgroundColor: searchButtonHoverColor,
+                  },
+                }}
+              >
+                Search Hotels
+              </Button>
+            </Box>
+          ) : null}
         </Box>
       </Box>
     </LocalizationProvider>

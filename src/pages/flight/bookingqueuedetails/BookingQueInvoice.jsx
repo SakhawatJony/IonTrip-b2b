@@ -53,31 +53,6 @@ const BookingQueInvoice = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", width: "100%" }}>
-      {/* Full-width back row, no heading, no bg */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-          bgcolor: "var(--primary-color)",
-          py: 1,
-          mt:5,
-          color: "white",
-        }}
-      >
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{
-            textTransform: "capitalize",
-            color: "white",
-            minWidth: 0,
-            "& .MuiButton-startIcon": { color: "white" },
-          }}
-        >
-          Invoice Download
-        </Button>
-      </Box>
       <Box sx={{ px: 4, py: 4, width: "100%" }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3, justifyContent: "flex-end" }}>
           {invoiceType === "Agent Invoice" && (

@@ -31,6 +31,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../components/pickers/CalendarMonthYearSelectHeader";
+import { IONTRIP_CALENDAR_MENU_CONTAINER_ID } from "../../constants/calendarMenuContainer";
 import dayjs from "dayjs";
 import FlightData from "../../common/FlightData";
 import useAuth from "../../hooks/useAuth";
@@ -632,9 +634,15 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                 onClose={() => setTravelPickerOpen(false)}
                 disablePast
                 minDate={dayjs()}
+                views={["day"]}
+                openTo="day"
                 format="ddd, DD MMM YY"
-                slots={{ openPickerIcon: CalendarTodayIcon }}
+                slots={{
+                  openPickerIcon: CalendarTodayIcon,
+                  calendarHeader: CalendarMonthYearSelectHeader,
+                }}
                 slotProps={{
+                  toolbar: { hidden: true },
                   textField: {
                     fullWidth: true,
                     variant: "outlined",
@@ -652,6 +660,30 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                   openPickerIcon: {
                     sx: { fontSize: 18, color: "#93A3B8" },
                   },
+                  day: {
+                    sx: {
+                      "&.Mui-selected": {
+                        backgroundColor: "var(--secondary-color, #024DAF) !important",
+                        color: "#fff",
+                        "&:hover": {
+                          backgroundColor: "var(--secondary-color, #024DAF) !important",
+                        },
+                      },
+                      "&.MuiPickersDay-today": {
+                        border: "none !important",
+                        fontWeight: 700,
+                        textDecoration: "underline",
+                        textDecorationThickness: 3,
+                        textUnderlineOffset: "4px",
+                        textDecorationColor: "var(--secondary-color, #024DAF)",
+                      },
+                    },
+                  },
+                  desktopPaper: {
+                    id: IONTRIP_CALENDAR_MENU_CONTAINER_ID,
+                    "data-iontrip-calendar-root": true,
+                    sx: { overflow: "visible" },
+                  },
                   popper: {
                     sx: {
                       "& .MuiPickersDay-root.Mui-selected": {
@@ -661,22 +693,7 @@ const OneWay = ({ onAddReturn, initialSearchParams, tripType = "one-way" }) => {
                       "& .MuiPickersDay-root.Mui-selected:hover": {
                         backgroundColor: "var(--secondary-color, #024DAF) !important",
                       },
-                      "& .MuiPickersDay-root.MuiPickersDay-today": {
-                        borderColor: "var(--secondary-color, #024DAF) !important",
-                      },
-                      "& .MuiPickersArrowSwitcher-button": {
-                        color: "var(--secondary-color, #024DAF) !important",
-                      },
-                      "& .MuiPickersYear-yearButton.Mui-selected": {
-                        backgroundColor: "var(--secondary-color, #024DAF)",
-                      },
                     },
-                  },
-                }}
-                sx={{
-                  "& .MuiPickersCalendarHeader-label": {
-                    color: "#1F2A44",
-                    fontWeight: 600,
                   },
                 }}
               />

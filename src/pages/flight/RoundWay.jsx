@@ -31,6 +31,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../components/pickers/CalendarMonthYearSelectHeader";
+import { IONTRIP_CALENDAR_MENU_CONTAINER_ID } from "../../constants/calendarMenuContainer";
 import dayjs from "dayjs";
 import FlightData from "../../common/FlightData";
 import useAuth from "../../hooks/useAuth";
@@ -377,28 +379,43 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
       <PickersDay
         {...props}
         selected={isStart || isEnd}
-        sx={{
+        sx={[
+          props.sx,
+          {
+            "&.MuiPickersDay-today": {
+              border: "none !important",
+              fontWeight: 700,
+              textDecoration: "underline",
+              textDecorationThickness: 3,
+              textUnderlineOffset: "4px",
+              textDecorationColor: "var(--secondary-color, #024DAF)",
+            },
+          },
           ...(isInRange
-            ? {
-                backgroundColor: "rgba(18, 61, 110, 0.12)",
-                borderRadius: 0,
-                "&:hover": {
-                  backgroundColor: "rgba(18, 61, 110, 0.18)",
+            ? [
+                {
+                  backgroundColor: "rgba(18, 61, 110, 0.12)",
+                  borderRadius: 0,
+                  "&:hover": {
+                    backgroundColor: "rgba(18, 61, 110, 0.18)",
+                  },
                 },
-              }
-            : {}),
+              ]
+            : []),
           ...(isStart || isEnd
-            ? {
-                backgroundColor: "var(--primary-color) !important",
-                color: "#FFFFFF !important",
-                borderRadius: "50%",
-                "&:hover": {
+            ? [
+                {
                   backgroundColor: "var(--primary-color) !important",
-                  opacity: 0.92,
+                  color: "#FFFFFF !important",
+                  borderRadius: "50%",
+                  "&:hover": {
+                    backgroundColor: "var(--primary-color) !important",
+                    opacity: 0.92,
+                  },
                 },
-              }
-            : {}),
-        }}
+              ]
+            : []),
+        ]}
       />
     );
   };
@@ -766,9 +783,12 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
               PaperProps={{
+                id: IONTRIP_CALENDAR_MENU_CONTAINER_ID,
+                "data-iontrip-calendar-root": true,
                 sx: {
                   mt: 1,
                   borderRadius: 2,
+                  overflow: "visible",
                   border: "1px solid var(--secondary-color, #024DAF)",
                   boxShadow: "0px 8px 24px rgba(18,61,110,0.18)",
                 },
@@ -789,7 +809,9 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
                   onMonthChange={(month) => setCalendarBaseMonth(month.startOf("month"))}
                   disablePast
                   minDate={dayjs()}
-                  slots={{ day: RangePickerDay }}
+                  views={["day"]}
+                  openTo="day"
+                  slots={{ day: RangePickerDay, calendarHeader: CalendarMonthYearSelectHeader }}
                     sx={dateCalendarSx}
                   />
                   <Box
@@ -807,7 +829,9 @@ const RoundWay = ({ onRemoveReturn, initialSearchParams, tripType = "round-way" 
                     }
                     disablePast
                     minDate={dayjs()}
-                    slots={{ day: RangePickerDay }}
+                    views={["day"]}
+                    openTo="day"
+                    slots={{ day: RangePickerDay, calendarHeader: CalendarMonthYearSelectHeader }}
                     sx={dateCalendarSx}
                 />
                 </Box>

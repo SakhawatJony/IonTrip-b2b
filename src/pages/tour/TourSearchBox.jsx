@@ -18,6 +18,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../components/pickers/CalendarMonthYearSelectHeader";
+import { IONTRIP_CALENDAR_MENU_CONTAINER_ID } from "../../constants/calendarMenuContainer";
 import dayjs from "dayjs";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -280,10 +282,12 @@ const TourSearchBox = () => {
             transformOrigin={{ vertical: "top", horizontal: "left" }}
             slotProps={{
               paper: {
+                id: IONTRIP_CALENDAR_MENU_CONTAINER_ID,
+                "data-iontrip-calendar-root": true,
                 sx: {
                   mt: 1,
                   borderRadius: 2,
-                  overflow: "hidden",
+                  overflow: "visible",
                   boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                 },
               },
@@ -293,6 +297,30 @@ const TourSearchBox = () => {
               value={calendarValue}
               onChange={handleCalendarChange}
               minDate={minCalendarDate}
+              views={["day"]}
+              openTo="day"
+              slots={{ calendarHeader: CalendarMonthYearSelectHeader }}
+              slotProps={{
+                day: {
+                  sx: {
+                    "&.Mui-selected": {
+                      backgroundColor: "var(--primary-color, #123D6E) !important",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "var(--primary-dark, #0F2F56) !important",
+                      },
+                    },
+                    "&.MuiPickersDay-today": {
+                      border: "none !important",
+                      fontWeight: 700,
+                      textDecoration: "underline",
+                      textDecorationThickness: 3,
+                      textUnderlineOffset: "4px",
+                      textDecorationColor: "var(--primary-color, #123D6E)",
+                    },
+                  },
+                },
+              }}
             />
           </Popover>
 

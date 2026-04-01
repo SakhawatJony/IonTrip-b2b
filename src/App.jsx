@@ -40,6 +40,7 @@ import HotelDashboard from "./pages/hotel/HotelDashboard";
 import HotelBookings from "./pages/hotel/HotelBookings";
 import HotelConfirmedBooking from "./pages/hotel/HotelConfirmedBooking";
 import HotelCancelledBooking from "./pages/hotel/HotelCancelledBooking";
+import HotelSearchResult from "./pages/hotel/HotelSearchResult";
 import TourBookings from "./pages/tour/TourBookings";
 import TourConfirmedBooking from "./pages/tour/TourConfirmedBooking";
 import TourCancelledBooking from "./pages/tour/TourCancelledBooking";
@@ -156,6 +157,7 @@ export default function App() {
         <Route path="flightinfo" element={<Dashboard />} />
         <Route path="reschedulepax" element={<Dashboard />} />
      
+        <Route path="hotel/search" element={<HotelSearchResult />} />
         <Route path="hotel/bookings" element={<HotelBookings />} />
         <Route path="hotel/confirmed" element={<HotelConfirmedBooking />} />
         <Route path="hotel/cancelled" element={<HotelCancelledBooking />} />

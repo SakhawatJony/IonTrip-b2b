@@ -17,6 +17,7 @@ const EXACT_TITLES = {
   "/dashboard/bookings/reissue": "Reissue Booking",
   "/dashboard/flightinfo": "Flight Info",
   "/dashboard/reschedulepax": "Reschedule Pax",
+  "/dashboard/hotel/search": "Hotel Search",
   "/dashboard/hotel/bookings": "Hotel All Bookings",
   "/dashboard/hotel/confirmed": "Hotel Confirmed Booking",
   "/dashboard/hotel/cancelled": "Hotel Cancelled Booking",
@@ -76,6 +77,7 @@ export function getDashboardPageTitle(pathname) {
 
 const EXACT_BACK = {
   "/dashboard/sub-users/add-user": "/dashboard/sub-users/sub-user-list",
+  "/dashboard/hotel/search": "/dashboard",
 };
 
 const PREFIX_BACK = [

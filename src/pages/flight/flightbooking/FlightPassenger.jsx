@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CalendarMonthYearSelectHeader from "../../../components/pickers/CalendarMonthYearSelectHeader";
 import useAuth from "../../../hooks/useAuth";
 
 const titleButtonSx = (active) => ({
@@ -595,7 +596,12 @@ const FlightPassenger = ({ index, type, values = {}, onFieldChange }) => {
             format="DD MMM YYYY"
             minDate={dobRules.minDate || undefined}
             maxDate={dobRules.maxDate || undefined}
-            slots={{ openPickerIcon: CalendarTodayIcon }}
+            views={["year", "month", "day"]}
+            openTo="day"
+            slots={{
+              openPickerIcon: CalendarTodayIcon,
+              calendarHeader: CalendarMonthYearSelectHeader,
+            }}
             slotProps={{
               textField: {
                 size: "small",
@@ -704,7 +710,12 @@ const FlightPassenger = ({ index, type, values = {}, onFieldChange }) => {
             format="DD MMM YYYY"
             disablePast
             minDate={today}
-            slots={{ openPickerIcon: CalendarTodayIcon }}
+            views={["year", "month", "day"]}
+            openTo="day"
+            slots={{
+              openPickerIcon: CalendarTodayIcon,
+              calendarHeader: CalendarMonthYearSelectHeader,
+            }}
             slotProps={{
               textField: {
                 size: "small",
