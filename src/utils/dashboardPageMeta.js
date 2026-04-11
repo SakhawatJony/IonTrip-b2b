@@ -18,6 +18,7 @@ const EXACT_TITLES = {
   "/dashboard/flightinfo": "Flight Info",
   "/dashboard/reschedulepax": "Reschedule Pax",
   "/dashboard/hotel/search": "Hotel Search",
+  "/dashboard/hotel/details": "Hotel Details",
   "/dashboard/hotel/bookings": "Hotel All Bookings",
   "/dashboard/hotel/confirmed": "Hotel Confirmed Booking",
   "/dashboard/hotel/cancelled": "Hotel Cancelled Booking",
@@ -107,6 +108,7 @@ export function isDashboardRootPath(pathname) {
 const DASHBOARD_PATHS_WITHOUT_HEADING = new Set([
   "/dashboard",
   "/dashboard/reschedulepax",
+  "/dashboard/hotel/details",
 ]);
 
 export function shouldShowDashboardPageHeading(pathname) {

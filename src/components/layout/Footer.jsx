@@ -123,12 +123,12 @@ const Footer = () => {
           }}
         >
           <Typography sx={{ fontSize: 11 }}>
-            © 2018, All Rights Reserved. Use of Fly Far Tech websites means
+            © 2018, All Rights Reserved. Use of ion Trip & Travel SDN. BHD. websites means
             acceptance of Terms & Conditions and Privacy Policy.
           </Typography>
 
           <Typography sx={{ fontSize: 11 }}>
-            Developed by Fly Far Tech
+            Developed by ionozia Technology
           </Typography>
         </Box>
       </Container>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 280" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="fuselage" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="45%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <!-- Simplified wide-body jet, side view (nose right) -->
+  <g filter="url(#soft)">
+    <path fill="url(#fuselage)" d="M120 118c0-18 14-32 32-32h388c28 0 52 18 58 44l18 78c2 8-4 16-12 16H152c-18 0-32-14-32-32V118z"/>
+    <path fill="url(#wing)" d="M280 150l160-88c12-7 28 2 28 16v132c0 14-16 23-28 16l-160-88c-10-6-10-20 0-26z"/>
+    <path fill="url(#wing)" d="M320 150L180 62c-10-6-10-22 0-28l40-24c8-5 18-2 22 6l120 200c6 10 0 22-12 22h-8c-8 0-15-4-18-12l-4-76z"/>
+    <ellipse cx="780" cy="138" rx="42" ry="34" fill="#f1f5f9"/>
+    <path fill="#94a3b8" d="M688 128h72c8 0 14 6 14 14v12c0 8-6 14-14 14h-72c-6 0-10-4-10-10v-20c0-6 4-10 10-10z"/>
+    <path fill="#cbd5e1" d="M140 124h24c6 0 10 4 10 10v32c0 6-4 10-10 10h-24c-14 0-26-12-26-26s12-26 26-26z"/>
+  </g>
+</svg>

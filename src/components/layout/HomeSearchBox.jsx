@@ -4,7 +4,7 @@ import FlightTakeoffOutlined from "@mui/icons-material/FlightTakeoffOutlined";
 import LocationCityOutlined from "@mui/icons-material/LocationCityOutlined";
 import TravelExploreOutlined from "@mui/icons-material/TravelExploreOutlined";
 import ContactPageOutlined from "@mui/icons-material/ContactPageOutlined";
-import homeBg1 from "../../assets/Home/home1.png";
+import homeBg1 from "../../assets/Home/home3.jpeg";
 import FlightSearchBox from "../../pages/flight/FlightSearchBox";
 import TourSearchBox from "../../pages/tour/TourSearchBox";
 import HotelSearchBox from "../../pages/hotel/HotelSearchBox";

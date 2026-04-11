@@ -16,14 +16,18 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
+const SECONDARY = "var(--secondary-color, #024DAF)";
+
 const PANEL = {
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid #E5E7EB",
   pb: 1.5,
   mb: 1.5,
 };
 
-const LABEL_MUTED = "#A3A3A3";
-const LINK = "var(--secondary-color, #5B9FFF)";
+const TEXT_HEADING = SECONDARY;
+const TEXT_BODY = "var(--secondary-color, #024DAF)";
+const TEXT_MUTED = "#6B7280";
+const BORDER_SUBTLE = "#D1D5DB";
 
 function FilterSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -40,10 +44,10 @@ function FilterSection({ title, children, defaultOpen = true }) {
           mb: open ? 1.25 : 0,
         }}
       >
-        <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#FAFAFA", textTransform: "capitalize" }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: TEXT_HEADING, textTransform: "capitalize" }}>
           {title}
         </Typography>
-        <IconButton size="small" sx={{ color: LABEL_MUTED, p: 0.25 }}>
+        <IconButton size="small" sx={{ color: TEXT_MUTED, p: 0.25 }}>
           {open ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
         </IconButton>
       </Box>
@@ -78,7 +82,7 @@ export const createDefaultHotelFilters = () => ({
 });
 
 /**
- * Left sidebar filters — dark theme (controlled).
+ * Left sidebar filters — white panel, secondary accents (controlled).
  */
 const HotelFilter = ({ filters, onChange }) => {
   const patch = (partial) => onChange({ ...filters, ...partial });
@@ -88,18 +92,28 @@ const HotelFilter = ({ filters, onChange }) => {
   return (
     <Box
       sx={{
-        width: { xs: "100%", md: 300 },
+      
         flexShrink: 0,
-        bgcolor: "#151515",
-        border: "1px solid #2A2A2A",
+        bgcolor: "#FFFFFF",
+        border: `1px solid ${BORDER_SUBTLE}`,
         borderRadius: "12px",
         p: 2,
         position: { md: "sticky" },
         top: { md: 16 },
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-        <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#FFFFFF", letterSpacing: 0.08 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 2,
+          pb: 1.5,
+          borderBottom: `2px solid ${SECONDARY}`,
+        }}
+      >
+        <Typography sx={{ fontSize: 14, fontWeight: 800, color: TEXT_HEADING, letterSpacing: 0.08 }}>
           FILTER
         </Typography>
         <Link
@@ -107,7 +121,13 @@ const HotelFilter = ({ filters, onChange }) => {
           type="button"
           onClick={handleReset}
           underline="hover"
-          sx={{ fontSize: 13, fontWeight: 600, color: LINK, cursor: "pointer" }}
+          sx={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: SECONDARY,
+            cursor: "pointer",
+            "&:hover": { opacity: 0.85 },
+          }}
         >
           Reset
         </Link>
@@ -118,12 +138,16 @@ const HotelFilter = ({ filters, onChange }) => {
           fullWidth
           variant="outlined"
           sx={{
-            borderColor: "#404040",
-            color: "#E5E5E5",
+            borderColor: SECONDARY,
+            color: SECONDARY,
             textTransform: "none",
             py: 1,
             borderRadius: 1,
-            "&:hover": { borderColor: LINK, color: LINK },
+            "&:hover": {
+              borderColor: SECONDARY,
+              bgcolor: "rgba(2, 77, 175, 0.06)",
+              color: SECONDARY,
+            },
           }}
         >
           VIEW
@@ -139,14 +163,18 @@ const HotelFilter = ({ filters, onChange }) => {
           max={80000}
           step={500}
           sx={{
-            color: LINK,
-            "& .MuiSlider-thumb": { bgcolor: LINK },
-            "& .MuiSlider-track": { bgcolor: LINK },
+            color: SECONDARY,
+            "& .MuiSlider-thumb": {
+              bgcolor: SECONDARY,
+              "&:hover, &.Mui-focusVisible": { boxShadow: "0 0 0 8px rgba(2, 77, 175, 0.22)" },
+            },
+            "& .MuiSlider-track": { bgcolor: SECONDARY },
+            "& .MuiSlider-rail": { bgcolor: "#E5E7EB" },
           }}
         />
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
-          <Typography sx={{ fontSize: 12, color: LABEL_MUTED }}>৳ {filters.priceRange[0].toLocaleString()}</Typography>
-          <Typography sx={{ fontSize: 12, color: LABEL_MUTED }}>৳ {filters.priceRange[1].toLocaleString()}</Typography>
+          <Typography sx={{ fontSize: 12, color: TEXT_MUTED }}>৳ {filters.priceRange[0].toLocaleString()}</Typography>
+          <Typography sx={{ fontSize: 12, color: TEXT_MUTED }}>৳ {filters.priceRange[1].toLocaleString()}</Typography>
         </Box>
       </FilterSection>
 
@@ -165,10 +193,13 @@ const HotelFilter = ({ filters, onChange }) => {
                       : [...filters.roomTypes, rt];
                     patch({ roomTypes: next });
                   }}
-                  sx={{ color: LABEL_MUTED, "&.Mui-checked": { color: LINK } }}
+                  sx={{
+                    color: BORDER_SUBTLE,
+                    "&.Mui-checked": { color: SECONDARY },
+                  }}
                 />
               }
-              label={<Typography sx={{ fontSize: 13, color: "#D4D4D4" }}>{rt}</Typography>}
+              label={<Typography sx={{ fontSize: 13, color: TEXT_BODY }}>{rt}</Typography>}
             />
           ))}
         </FormGroup>
@@ -189,10 +220,13 @@ const HotelFilter = ({ filters, onChange }) => {
                       : [...filters.fareTypes, ft];
                     patch({ fareTypes: next });
                   }}
-                  sx={{ color: LABEL_MUTED, "&.Mui-checked": { color: LINK } }}
+                  sx={{
+                    color: BORDER_SUBTLE,
+                    "&.Mui-checked": { color: SECONDARY },
+                  }}
                 />
               }
-              label={<Typography sx={{ fontSize: 13, color: "#D4D4D4" }}>{ft}</Typography>}
+              label={<Typography sx={{ fontSize: 13, color: TEXT_BODY }}>{ft}</Typography>}
             />
           ))}
         </FormGroup>
@@ -213,14 +247,14 @@ const HotelFilter = ({ filters, onChange }) => {
                 cursor: "pointer",
                 borderRadius: 1,
                 px: 0.5,
-                bgcolor: selected ? "rgba(91,159,255,0.12)" : "transparent",
+                bgcolor: selected ? "rgba(2, 77, 175, 0.08)" : "transparent",
               }}
             >
               {[1, 2, 3, 4, 5].map((i) =>
                 i <= stars ? (
                   <StarIcon key={i} sx={{ fontSize: 20, color: "#FBBF24" }} />
                 ) : (
-                  <StarBorderIcon key={i} sx={{ fontSize: 20, color: "#525252" }} />
+                  <StarBorderIcon key={i} sx={{ fontSize: 20, color: "#9CA3AF" }} />
                 )
               )}
             </Box>
@@ -243,14 +277,21 @@ const HotelFilter = ({ filters, onChange }) => {
                       : [...filters.amenities, a.id];
                     patch({ amenities: next });
                   }}
-                  sx={{ color: LABEL_MUTED, "&.Mui-checked": { color: LINK } }}
+                  sx={{
+                    color: BORDER_SUBTLE,
+                    "&.Mui-checked": { color: SECONDARY },
+                  }}
                 />
               }
-              label={<Typography sx={{ fontSize: 13, color: "#D4D4D4" }}>{a.label}</Typography>}
+              label={<Typography sx={{ fontSize: 13, color: TEXT_BODY }}>{a.label}</Typography>}
             />
           ))}
         </FormGroup>
-        <Link href="#" onClick={(e) => e.preventDefault()} sx={{ fontSize: 12, color: LINK, mt: 0.5, display: "block" }}>
+        <Link
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          sx={{ fontSize: 12, color: SECONDARY, mt: 0.5, display: "block", fontWeight: 600 }}
+        >
           view all
         </Link>
       </FilterSection>
@@ -270,14 +311,21 @@ const HotelFilter = ({ filters, onChange }) => {
                       : [...filters.locations, l.id];
                     patch({ locations: next });
                   }}
-                  sx={{ color: LABEL_MUTED, "&.Mui-checked": { color: LINK } }}
+                  sx={{
+                    color: BORDER_SUBTLE,
+                    "&.Mui-checked": { color: SECONDARY },
+                  }}
                 />
               }
-              label={<Typography sx={{ fontSize: 13, color: "#D4D4D4" }}>{l.label}</Typography>}
+              label={<Typography sx={{ fontSize: 13, color: TEXT_BODY }}>{l.label}</Typography>}
             />
           ))}
         </FormGroup>
-        <Link href="#" onClick={(e) => e.preventDefault()} sx={{ fontSize: 12, color: LINK, mt: 0.5, display: "block" }}>
+        <Link
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          sx={{ fontSize: 12, color: SECONDARY, mt: 0.5, display: "block", fontWeight: 600 }}
+        >
           view all
         </Link>
       </FilterSection>

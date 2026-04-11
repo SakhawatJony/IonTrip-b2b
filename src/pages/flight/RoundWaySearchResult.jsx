@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Box, Grid, Typography, Pagination, LinearProgress } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Typography,
+  Pagination,
+  LinearProgress,
+  Dialog,
+  Button,
+} from "@mui/material";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import dayjs from "dayjs";
 import ModifySearchBar from "../../components/layout/ModifySearchBar";
 import OnewayFlightFilter from "./OnewayFlightFilter";
@@ -46,6 +56,7 @@ const RoundWaySearchResult = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [progress, setProgress] = useState(18);
   const flightsPerPage = 10;
+  const [remainingSeconds, setRemainingSeconds] = useState(20 * 60);
   
   // Use ref to track the last search params to prevent duplicate API calls
   const lastSearchParamsRef = useRef(null);
@@ -185,6 +196,16 @@ const RoundWaySearchResult = () => {
     ]
   );
 
+  const isSessionExpired = remainingSeconds <= 0;
+
+  useEffect(() => {
+    if (remainingSeconds <= 0) return undefined;
+    const timer = setInterval(() => {
+      setRemainingSeconds((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [remainingSeconds]);
+
   // Reset state and refs when location changes (new search)
   useEffect(() => {
     setFlights([]);
@@ -209,6 +230,7 @@ const RoundWaySearchResult = () => {
     // Reset refs when location changes
     lastSearchParamsRef.current = null;
     isSearchingRef.current = false;
+    setRemainingSeconds(20 * 60);
   }, [location.key, location.state]);
 
   useEffect(() => {
@@ -226,6 +248,11 @@ const RoundWaySearchResult = () => {
   }, [loading, location.key]);
 
   useEffect(() => {
+    if (isSessionExpired) {
+      setLoading(false);
+      setHasSearched(true);
+      return;
+    }
     if (!requestBody.journeyfrom || !requestBody.journeyto || !requestBody.departuredate || !requestBody.returndate) {
       return;
     }
@@ -426,7 +453,7 @@ const RoundWaySearchResult = () => {
       controller.abort();
       isSearchingRef.current = false;
     };
-  }, [requestBody, agentToken]);
+  }, [requestBody, isSessionExpired, agentToken]);
 
   const handleFilterChange = (filterType, value, checked) => {
     setFilterState((prev) => {
@@ -715,6 +742,16 @@ const RoundWaySearchResult = () => {
     return prices.length > 0 ? Math.min(...prices) : null;
   }, [flights]);
 
+  const formatRemainingTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins} min : ${String(secs).padStart(2, "0")} sec`;
+  };
+
+  const handleSearchAgain = () => {
+    navigate("/");
+  };
+
   return (
     <Box>
       <Box
@@ -799,6 +836,9 @@ const RoundWaySearchResult = () => {
             ) : (
             <Box
               sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
                 height: "calc(100vh - 120px)",
                 overflowY: "auto",
                 overflowX: "hidden",
@@ -818,6 +858,36 @@ const RoundWaySearchResult = () => {
                 },
               }}
             >
+              {!isSessionExpired ? (
+                <Box
+                  sx={{
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "10px",
+                    px: 2,
+                    py: 1,
+                    boxShadow: "0 1px 4px rgba(0, 27, 72, 0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                  }}
+                >
+                  <AccessTimeOutlinedIcon sx={{ fontSize: 20, color: "#003366", flexShrink: 0 }} />
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "#003366",
+                      lineHeight: 1.2,
+                      fontFamily: "inherit",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {formatRemainingTime(remainingSeconds)}
+                  </Typography>
+                </Box>
+              ) : null}
               <OnewayFlightFilter
                 stops={filterData.stops}
                 airlines={filterData.airlines}
@@ -941,6 +1011,98 @@ const RoundWaySearchResult = () => {
           </Grid>
         </Grid>
       </Box>
+
+      <Dialog
+        open={isSessionExpired}
+        aria-labelledby="roundway-session-expired-title"
+        aria-describedby="roundway-session-expired-description"
+      >
+        <Box
+          sx={{
+            p: 3,
+            minWidth: { xs: 280, sm: 420 },
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.5,
+          }}
+        >
+          <Box
+            sx={{
+              width: 320,
+              maxWidth: "100%",
+              height: 150,
+              borderRadius: 3,
+              bgcolor: "#FFFFFF",
+              boxShadow: "0px 10px 30px rgba(0,0,0,0.08)",
+              border: "1px solid rgba(2, 77, 175, 0.08)",
+              px: 2,
+              pt: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  width: 56,
+                  height: 36,
+                  bgcolor: "#EAF2FB",
+                  borderRadius: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <SearchOutlinedIcon sx={{ color: "var(--secondary-color, #024DAF)", fontSize: 20 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ height: 10, bgcolor: "#EAF2FB", borderRadius: 2, mb: 1 }} />
+                <Box sx={{ height: 10, bgcolor: "#EAF2FB", borderRadius: 2 }} />
+              </Box>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#A9C8F7", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#0FA3A3", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 38, height: 28, bgcolor: "#F2C94C", borderRadius: 1 }} />
+                <Box sx={{ flex: 1, height: 8, bgcolor: "#DCE6FA", borderRadius: 2 }} />
+              </Box>
+            </Box>
+          </Box>
+
+          <Typography id="roundway-session-expired-title" sx={{ fontSize: 18, fontWeight: 800, color: "#1F2E72", mt: 0.5 }}>
+            Your Results are outdated
+          </Typography>
+          <Typography id="roundway-session-expired-description" sx={{ fontSize: 14, color: "#5F6B7A" }}>
+            To see the latest availability and prices, please refresh results
+          </Typography>
+
+          <Button
+            variant="contained"
+            onClick={handleSearchAgain}
+            sx={{
+              mt: 0.5,
+              textTransform: "none",
+              backgroundColor: "var(--primary-color)",
+              borderRadius: 1.5,
+              px: 3,
+              "&:hover": { backgroundColor: "var(--primary-color)", opacity: 0.9 },
+            }}
+          >
+            Start a new Search
+          </Button>
+        </Box>
+      </Dialog>
     </Box>
   );
 };

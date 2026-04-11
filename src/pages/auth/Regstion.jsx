@@ -385,12 +385,12 @@ const Regstion = () => {
         `${baseUrl}/agent/signup`,
         formPayload
       );
-      // Extract success message from response
-      const successMessage =
-        response?.data?.message ||
-        response?.data?.agent?.name
-          ? `Agent ${response.data.agent.name} registered successfully.`
-          : "Registration successful.";
+      // Extract success message (avoid optional agent — API may return only { message })
+      const agentName = response?.data?.agent?.name;
+      const apiMessage = response?.data?.message;
+      const successMessage = agentName
+        ? `Agent ${agentName} registered successfully.`
+        : (typeof apiMessage === "string" && apiMessage.trim()) || "Registration successful.";
       notifySuccess(successMessage);
       
       // Store email for OTP verification
@@ -398,16 +398,15 @@ const Regstion = () => {
       if (emailToVerify) {
         localStorage.setItem("verificationEmail", emailToVerify);
         
-        // Navigate to OTP verification page after a short delay
+        // Navigate to OTP verification after a brief delay so the success toast is visible
         setTimeout(() => {
           try {
-            navigate("/verify-otp", { state: { email: emailToVerify } });
+            navigate("/verify-otp", { state: { email: emailToVerify }, replace: true });
           } catch (navError) {
             console.error("Navigation error:", navError);
-            // Fallback: try without state
-            navigate("/verify-otp");
+            navigate("/verify-otp", { replace: true });
           }
-        }, 1500);
+        }, 500);
       } else {
         console.error("No email found for OTP verification");
       }

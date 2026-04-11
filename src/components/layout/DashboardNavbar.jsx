@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  IconButton,
   Menu,
   MenuItem,
   TextField,
@@ -12,71 +11,35 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import PersonIcon from "@mui/icons-material/Person";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import HistoryIcon from "@mui/icons-material/History";
 import useAuth from "../../hooks/useAuth";
+import AgentProfileNavActions from "./AgentProfileNavActions";
 import {
   useAgentWalletBalance,
   formatWalletBalance,
 } from "../../hooks/useAgentWalletBalance";
 import { useNavigate } from "react-router-dom";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://iontrip-backend-production-2d3b.up.railway.app";
-
 const CURRENCIES = ["MYR", "USD", "BDT", "EUR", "GBP"];
 
 const DashboardNavbar = () => {
-  const { agentData, currency, setCurrency, clearAuthSession } = useAuth();
+  const { currency, setCurrency } = useAuth();
   const {
     balance: walletApiBalance,
     loading: walletLoading,
     refetch: refetchWallet,
     displayNumeric,
-    currencySymbol,
   } = useAgentWalletBalance();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [profileAnchor, setProfileAnchor] = useState(null);
-  const [logoError, setLogoError] = useState(false);
   const [balanceAnchorEl, setBalanceAnchorEl] = useState(null);
-
-  const agentLogoUrl = agentData?.logoUrl || agentData?.logo;
-  const agentLogoFullUrl = agentLogoUrl
-    ? agentLogoUrl.startsWith("http")
-      ? agentLogoUrl
-      : `${baseUrl}/${agentLogoUrl.replace(/^\//, "")}`
-    : null;
-
-  const balanceLine =
-    displayNumeric !== null && displayNumeric !== undefined
-      ? `${currencySymbol} ${formatWalletBalance(displayNumeric)}`
-      : walletLoading
-        ? null
-        : "--";
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
     if (!searchValue?.trim()) return;
     navigate(`/dashboard/bookings?search=${encodeURIComponent(searchValue.trim())}`);
-  };
-
-  const handleProfileClick = (event) => setProfileAnchor(event.currentTarget);
-  const handleProfileClose = () => setProfileAnchor(null);
-
-  const handleMyProfile = () => {
-    handleProfileClose();
-    navigate("/dashboard/account");
-  };
-
-  const handleLogout = () => {
-    handleProfileClose();
-    clearAuthSession();
-    navigate("/login");
   };
 
   const primaryColor = "var(--primary-color, #024DAF)";
@@ -220,68 +183,7 @@ const DashboardNavbar = () => {
             ))}
           </Select>
         </FormControl>
-        {/* Circular icons: headset, bell, profile – white bg, 1px black border, black icon */}
-        <IconButton
-          aria-label="Support"
-          onClick={() => navigate("/dashboard/support")}
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: "#FFFFFF",
-            border: "1px solid #1F2937",
-            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
-          }}
-        >
-          <HeadsetMicIcon sx={{ fontSize: 20, color: "#1F2937" }} />
-        </IconButton>
-        <IconButton
-          aria-label="Notifications"
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: "#FFFFFF",
-            border: "1px solid #1F2937",
-            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
-          }}
-        >
-          <NotificationsNoneIcon sx={{ fontSize: 20, color: "#1F2937" }} />
-        </IconButton>
-        <IconButton
-          aria-label="Profile"
-          onClick={handleProfileClick}
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: "#FFFFFF",
-            border: "1px solid #1F2937",
-            "&:hover": { bgcolor: "#F9FAFB", borderColor: "#1F2937" },
-          }}
-        >
-          <Box
-            sx={{
-              width: 22,
-              height: 22,
-              borderRadius: "50%",
-              bgcolor: agentLogoFullUrl ? "transparent" : "#1F2937",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }}
-          >
-            {agentLogoFullUrl && !logoError ? (
-              <Box
-                component="img"
-                src={agentLogoFullUrl}
-                alt="Profile"
-                sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onError={() => setLogoError(true)}
-              />
-            ) : (
-              <PersonIcon sx={{ fontSize: 14, color: "#FFFFFF" }} />
-            )}
-          </Box>
-        </IconButton>
+        <AgentProfileNavActions includeUtilityIcons />
       </Box>
 
       {/* Balance Summary popup – opens below navbar $ Balance */}
@@ -358,40 +260,6 @@ const DashboardNavbar = () => {
             Reload History
           </Button>
         </Box>
-      </Menu>
-
-      <Menu
-        anchorEl={profileAnchor}
-        open={Boolean(profileAnchor)}
-        onClose={handleProfileClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        slotProps={{
-          paper: {
-            sx: {
-              mt: 1.5,
-              minWidth: 180,
-              py: 1,
-              borderRadius: "12px",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-            },
-          },
-        }}
-      >
-        <MenuItem
-          onClick={handleMyProfile}
-          sx={{ mx: 1, mb: 0.5, borderRadius: "8px", display: "flex", alignItems: "center", gap: 1.5, py: 1.25 }}
-        >
-          <PersonIcon sx={{ fontSize: 20, color: "#6B7280" }} />
-          <Typography sx={{ fontSize: 14 }}>My Profile</Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={handleLogout}
-          sx={{ mx: 1, borderRadius: "8px", display: "flex", alignItems: "center", gap: 1.5, py: 1.25, color: "#6B7280" }}
-        >
-          <LogoutIcon sx={{ fontSize: 20 }} />
-          <Typography sx={{ fontSize: 14 }}>Logout</Typography>
-        </MenuItem>
       </Menu>
     </Box>
   );

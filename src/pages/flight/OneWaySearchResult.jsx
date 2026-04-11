@@ -1051,30 +1051,30 @@ const OneWaySearchResult = () => {
                   <Box
                     sx={{
                       backgroundColor: "#FFFFFF",
-                      borderRadius: 2,
-                      px: 1.5,
-                      py: 1.25,
-                      border: "1px solid #E5E7EB",
+                      borderRadius: "10px",
+                      px: 2,
+                      py: 1,
+                      boxShadow: "0 1px 4px rgba(0, 27, 72, 0.08)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, minWidth: 0 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
-                        <AccessTimeOutlinedIcon sx={{ fontSize: 14, color: "var(--primary-color)", flexShrink: 0 }} />
-
-                      </Box>
-                      <Typography
-                        sx={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: "var(--primary-color)",
-                          lineHeight: 1,
-                          flexShrink: 0,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {formatRemainingTime(remainingSeconds)}
-                      </Typography>
-                    </Box>
+                    <AccessTimeOutlinedIcon sx={{ fontSize: 20, color: "#003366", flexShrink: 0 }} />
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "#003366",
+                        lineHeight: 1.2,
+                        fontFamily: "inherit",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatRemainingTime(remainingSeconds)}
+                    </Typography>
                   </Box>
                 ) : null}
 

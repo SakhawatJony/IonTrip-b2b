@@ -28,7 +28,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import companyLogo from "../../assets/companylogo.jpg";
+import brandLogo from "../../assets/updatedslogo2.jpeg";
 
 const MENU_TEXT_COLOR = "#4B5563";
 const MENU_ICON_COLOR = "#6B7280";
@@ -351,13 +351,13 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
       >
         <Box
           component="img"
-          src={companyLogo}
-          alt="mynztrip"
+          src={brandLogo}
+          alt="IonTrip"
           sx={{
-            width: 28,
-            height: 28,
-            borderRadius: "6px",
-            objectFit: "cover",
+            height: 32,
+            width: "auto",
+            maxWidth: 140,
+            objectFit: "contain",
             display: collapsed ? "none" : "block",
           }}
         />

@@ -78,14 +78,18 @@ function HotelFieldColumn({
   compact,
 }) {
   const resolvedLabelSx = compact
-    ? { ...sectionLabelSx, fontSize: 11, fontWeight: 700, color: "#A3A3A3", letterSpacing: 0.04 }
+    ? {
+        ...sectionLabelSx,
+        fontSize: 11,
+        fontWeight: 700,
+        color: "var(--secondary-color, #024DAF)",
+        letterSpacing: 0.04,
+      }
     : sectionLabelSx;
   const resolvedShell = {
     ...fieldShellSx,
     ...(compact
       ? {
-          backgroundColor: "#1A1A1A",
-          borderColor: "#333333",
           minHeight: 56,
           py: 1,
         }
@@ -131,9 +135,7 @@ function HotelFieldColumn({
           ...(interactive
             ? {
                 "&:hover": {
-                  boxShadow: compact
-                    ? "0 2px 12px rgba(91, 159, 255, 0.15)"
-                    : "0 2px 10px rgba(2, 77, 175, 0.12)",
+                  boxShadow: "0 2px 10px rgba(2, 77, 175, 0.12)",
                 },
               }
             : {}),
@@ -144,7 +146,7 @@ function HotelFieldColumn({
             component="span"
             sx={{
               ...shellIconSx,
-              ...(compact ? { color: "var(--secondary-color, #5B9FFF)", opacity: 0.85 } : {}),
+              ...(compact ? { color: "var(--secondary-color, #024DAF)", opacity: 0.75 } : {}),
             }}
             aria-hidden
           >
@@ -157,13 +159,6 @@ function HotelFieldColumn({
     </Box>
   );
 }
-
-const valueSxCompact = {
-  fontSize: 14,
-  fontWeight: 600,
-  color: "#F5F5F5",
-  lineHeight: 1.35,
-};
 
 /**
  * @param {{ variant?: "default" | "compact"; initialSearch?: { destination?: string; checkIn?: string; checkOut?: string; rooms?: number; adults?: number } | null }} props
@@ -210,17 +205,17 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
 
   const secondaryColor = "var(--secondary-color, #024DAF)";
   const searchButtonColor = isCompact
-    ? "var(--primary-color, #123D6E)"
+    ? secondaryColor
     : isDashboardHome
       ? secondaryColor
       : "#525371";
   const searchButtonHoverColor = isCompact
-    ? "var(--primary-dark, #0F2F56)"
+    ? secondaryColor
     : isDashboardHome
       ? secondaryColor
       : "#424055";
   const searchButtonShadow = isCompact
-    ? "0px 6px 16px rgba(18,61,110,0.35)"
+    ? "0px 6px 16px rgba(2, 77, 175, 0.35)"
     : isDashboardHome
       ? "0px 6px 16px rgba(18,61,110,0.25)"
       : "0px 6px 16px rgba(82,83,113,0.25)";
@@ -269,15 +264,15 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
   const calendarValue = datePickerTarget === "out" ? checkOut : checkIn;
   const minCalendarDate = datePickerTarget === "out" ? checkIn : undefined;
 
-  const valueTypographySx = isCompact ? valueSxCompact : valueSx;
-  const popoverTitleColor = isCompact ? "#E5E5E5" : "var(--primary-color, #123D6E)";
+  const valueTypographySx = valueSx;
+  const popoverTitleColor = secondaryColor;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
         sx={{
-          backgroundColor: isCompact ? "#151515" : "#FFFFFF",
-          border: isCompact ? "1px solid #2A2A2A" : "none",
+          backgroundColor: "#FFFFFF",
+          border: isCompact ? `1px solid ${secondaryColor}` : "none",
           borderRadius: "12px",
           p: isCompact ? 1.5 : 1.5,
           position: "relative",
@@ -365,7 +360,10 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
                     fontWeight: 600,
                     textTransform: "none",
                     boxShadow: searchButtonShadow,
-                    "&:hover": { backgroundColor: searchButtonHoverColor },
+                    "&:hover": {
+                      backgroundColor: searchButtonHoverColor,
+                      opacity: isCompact ? 0.92 : 1,
+                    },
                   }}
                 >
                   Search
@@ -404,10 +402,11 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
                 day: {
                   sx: {
                     "&.Mui-selected": {
-                      backgroundColor: "var(--primary-color, #123D6E) !important",
+                      backgroundColor: "var(--secondary-color, #024DAF) !important",
                       color: "#fff",
                       "&:hover": {
-                        backgroundColor: "var(--primary-dark, #0F2F56) !important",
+                        backgroundColor: "var(--secondary-color, #024DAF) !important",
+                        opacity: 0.92,
                       },
                     },
                     "&.MuiPickersDay-today": {
@@ -416,7 +415,7 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
                       textDecoration: "underline",
                       textDecorationThickness: 3,
                       textUnderlineOffset: "4px",
-                      textDecorationColor: "var(--primary-color, #123D6E)",
+                      textDecorationColor: "var(--secondary-color, #024DAF)",
                     },
                   },
                 },
@@ -454,7 +453,7 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
                 key={row.label}
                 sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.25 }}
               >
-                <Typography sx={{ fontSize: 14, color: isCompact ? "#D1D5DB" : "#374151" }}>{row.label}</Typography>
+                <Typography sx={{ fontSize: 14, color: "#374151" }}>{row.label}</Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <IconButton
                     size="small"
@@ -480,7 +479,12 @@ const HotelSearchBox = ({ variant = "default", initialSearch = null }) => {
               fullWidth
               variant="contained"
               onClick={() => setGuestAnchorEl(null)}
-              sx={{ mt: 1, textTransform: "none" }}
+              sx={{
+                mt: 1,
+                textTransform: "none",
+                backgroundColor: secondaryColor,
+                "&:hover": { backgroundColor: secondaryColor, opacity: 0.92 },
+              }}
             >
               Done
             </Button>
