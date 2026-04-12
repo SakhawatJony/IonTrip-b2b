@@ -139,7 +139,7 @@ export default function HomeLanding() {
                   variant="contained"
                   disableElevation
                   startIcon={<LockOutlinedIcon sx={{ fontSize: 20 }} />}
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/login")}
                   sx={{
                     textTransform: "none",
                     borderRadius: "8px",
@@ -152,7 +152,7 @@ export default function HomeLanding() {
                     "&:hover": { bgcolor: HERO.loginBlueHover },
                   }}
                 >
-                  Login to Dashboard
+                  Login to Agent
                 </Button>
                 <Button
                   variant="contained"
