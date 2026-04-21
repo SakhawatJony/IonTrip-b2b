@@ -8,7 +8,7 @@ import {
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import AgentProfileNavActions from "./AgentProfileNavActions";
-import brandLogo from "../../assets/updatedslogo2.png";
+import brandLogo from "../../assets/logo1.png";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -39,10 +39,11 @@ export default function Navbar() {
   };
 
   const whiteColor = getCSSVariable("--white") || "#FFFFFF";
+  const secondaryColor = getCSSVariable("--secondary-color") || "#024DAF";
+  const secondaryHover = getCSSVariable("--secondary-color-hover") || "#02358f";
   const linkMuted = "rgba(229, 231, 235, 0.92)";
   const linkActive = "#FFFFFF";
   const linkHover = "#93C5FD";
-  const signInBlue = "#2563EB";
 
   return (
     <Box
@@ -141,13 +142,13 @@ export default function Navbar() {
               <Button
                 onClick={() => navigate("/login")}
                 sx={{
-                  backgroundColor: signInBlue,
+                  backgroundColor: secondaryColor,
                   color: whiteColor,
                   borderRadius: "17px",
                   minWidth: "100px",
                   textTransform: "capitalize",
                   "&:hover": {
-                    backgroundColor: "#1d4ed8",
+                    backgroundColor: secondaryHover,
                   },
                 }}
               >

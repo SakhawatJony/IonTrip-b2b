@@ -11,6 +11,8 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 // Pages
 import Home from "./pages/home/Home";
 import Login from "./pages/auth/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import Regstion from "./pages/auth/Regstion";
 import OtpVerification from "./pages/auth/OtpVerification";
 import Contact from "./pages/home/Contact";
@@ -106,6 +108,8 @@ export default function App() {
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/register" element={<Regstion />} />
       <Route path="/verify-otp" element={<OtpVerification />} />
       <Route path="/contact" element={<Contact />} />

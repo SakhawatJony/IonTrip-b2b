@@ -1107,7 +1107,7 @@ const Regstion = () => {
                 component="span"
                 sx={{
                   fontSize: "14px",
-                  color: "#1976d2",
+                  color: "var(--secondary-color)",
                   cursor: "pointer",
                   "&:hover": {
                     textDecoration: "underline",
@@ -1162,7 +1162,7 @@ const Regstion = () => {
                 onClick={() => navigate("/login")}
                 sx={{
                   fontSize: "14px",
-                  color: "#1976d2",
+                  color: "var(--secondary-color)",
                   fontWeight: 600,
                   cursor: "pointer",
                   "&:hover": {

@@ -6,7 +6,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PublicLayout from "../../components/layout/PublicLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
@@ -285,11 +285,12 @@ const Login = () => {
           {/* Forgot Password Link */}
           <Box sx={{ mb: 3, textAlign: "right" }}>
             <Typography
-              component="a"
-              href="#"
+              component={RouterLink}
+              to="/forgot-password"
               sx={{
                 fontSize: "14px",
-                color: "#1976d2",
+                color: "var(--secondary-color, #024DAF)",
+                fontWeight: 600,
                 textDecoration: "none",
                 "&:hover": {
                   textDecoration: "underline",
@@ -338,7 +339,7 @@ const Login = () => {
                 onClick={() => navigate("/register")}
                 sx={{
                   fontSize: "14px",
-                  color: "#1976d2",
+                  color: "var(--secondary-color)",
                   fontWeight: 600,
                   cursor: "pointer",
                   "&:hover": {
