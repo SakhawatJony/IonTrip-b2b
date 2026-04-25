@@ -3,6 +3,7 @@ import {
   Container,
   Box,
   Button,
+  Stack,
   Typography,
 } from "@mui/material";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -80,9 +81,9 @@ export default function Navbar() {
         <Toolbar
           sx={{
             justifyContent: "space-between",
-            px: { xs: 0, sm: 2 },
-            flexWrap: "wrap",
-            gap: 1,
+            px: { xs: 0, sm: 1.5 },
+            minHeight: { xs: 62, md: 70 },
+            gap: 1.5,
           }}
         >
           <Box
@@ -100,9 +101,9 @@ export default function Navbar() {
               src={brandLogo}
               alt="IonTrip"
               sx={{
-                height: { xs: 36, sm: 44 },
+                height: { xs: 34, sm: 40 },
                 width: "auto",
-                maxWidth: { xs: 200, sm: 280 },
+                maxWidth: { xs: 190, sm: 240 },
                 objectFit: "contain",
                 display: "block",
               }}
@@ -113,8 +114,7 @@ export default function Navbar() {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: { xs: 1.5, md: 3 },
-              flexWrap: "wrap",
+              gap: { xs: 1.1, md: 2.4 },
               justifyContent: "flex-end",
             }}
           >
@@ -124,12 +124,15 @@ export default function Navbar() {
                 component={Link}
                 to={path}
                 sx={{
-                  color: location.pathname === path ? linkActive : linkMuted,
+                  color: linkMuted,
                   cursor: "pointer",
-                  fontWeight: 700,
-                  fontSize: { xs: "14px", sm: "16px" },
+                  fontWeight: 600,
+                  fontSize: { xs: "12px", sm: "13.5px" },
                   whiteSpace: "nowrap",
                   textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                   "&:hover": { color: linkHover },
                 }}
               >
@@ -139,21 +142,45 @@ export default function Navbar() {
             {isLoggedIn ? (
               <AgentProfileNavActions />
             ) : (
-              <Button
-                onClick={() => navigate("/login")}
-                sx={{
-                  backgroundColor: secondaryColor,
-                  color: whiteColor,
-                  borderRadius: "17px",
-                  minWidth: "100px",
-                  textTransform: "capitalize",
-                  "&:hover": {
-                    backgroundColor: secondaryHover,
-                  },
-                }}
-              >
-                Sign In
-              </Button>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  onClick={() => navigate("/login")}
+                  sx={{
+                    color: whiteColor,
+                    borderRadius: "10px",
+                    minWidth: "86px",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    fontSize: 12.5,
+                    py: 0.6,
+                    "&:hover": {
+                      borderColor: "rgba(255,255,255,0.6)",
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                    },
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => navigate("/register")}
+                  sx={{
+                    backgroundColor: secondaryColor,
+                    color: whiteColor,
+                    borderRadius: "10px",
+                    minWidth: "92px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    fontSize: 12.5,
+                    py: 0.6,
+                    "&:hover": {
+                      backgroundColor: secondaryHover,
+                    },
+                  }}
+                >
+                  Register
+                </Button>
+              </Stack>
             )}
           </Box>
         </Toolbar>
