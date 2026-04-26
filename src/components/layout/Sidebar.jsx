@@ -28,20 +28,20 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import brandLogo from "../../assets/updatedslogo2.jpeg";
+import brandLogo from "../../assets/logo1.png";
 
-const MENU_TEXT_COLOR = "#4B5563";
-const MENU_ICON_COLOR = "#6B7280";
-const MENU_ACTIVE_COLOR = "#1F2A44";
-const SIDEBAR_BORDER = "#E5E7EB";
-const BRAND_PRIMARY = "#1F2A44";
+const MENU_TEXT_COLOR = "rgba(255,255,255,0.92)";
+const MENU_ICON_COLOR = "rgba(255,255,255,0.92)";
+const MENU_ACTIVE_COLOR = "#FFFFFF";
+const SIDEBAR_BORDER = "rgba(255,255,255,0.14)";
+const BRAND_PRIMARY = "#0a3a93";
 const BRAND_ACCENT = "#5BA2D4";
-const DROPDOWN_ICON_BG = "#111827";
+const DROPDOWN_ICON_BG = "rgba(255,255,255,0.18)";
 
-const SUBMENU_TEXT_COLOR = "#6B7C93";
-const SUBMENU_ACTIVE_COLOR = "#1F4D8B";
-const SUBMENU_ICON_BORDER = "#D1D5DB";
-const SUBMENU_ICON_ACTIVE = "#1F4D8B";
+const SUBMENU_TEXT_COLOR = "rgba(235,245,255,0.9)";
+const SUBMENU_ACTIVE_COLOR = "#FFFFFF";
+const SUBMENU_ICON_BORDER = "rgba(255,255,255,0.55)";
+const SUBMENU_ICON_ACTIVE = "#FFFFFF";
 
 const menuItem = (icon, text, options = {}, location = null, collapsed = false) => {
   const {
@@ -82,9 +82,9 @@ const menuItem = (icon, text, options = {}, location = null, collapsed = false) 
         borderLeft: isActive
           ? "3px solid var(--primary-color, #024DAF)"
           : "3px solid transparent",
-        bgcolor: isActive ? "rgba(31, 42, 68, 0.08)" : "transparent",
+        bgcolor: isActive ? "rgba(255,255,255,0.16)" : "transparent",
         "&.active": {
-          bgcolor: "rgba(31, 42, 68, 0.08)",
+          bgcolor: "rgba(255,255,255,0.16)",
         },
         "&.active .MuiListItemIcon-root, &.active .MuiListItemText-primary": {
           color: MENU_ACTIVE_COLOR,
@@ -181,7 +181,7 @@ const SubMenuItem = ({ text, path, location, collapsed = false }) => {
           width: 14,
           height: 14,
           borderRadius: 1,
-          bgcolor: isActive ? SUBMENU_ICON_ACTIVE : "#fff",
+          bgcolor: isActive ? SUBMENU_ICON_ACTIVE : "transparent",
           border: `1px solid ${isActive ? SUBMENU_ICON_ACTIVE : SUBMENU_ICON_BORDER}`,
           flexShrink: 0,
           zIndex: 1,
@@ -315,7 +315,8 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
         borderRight: collapsed ? "none" : `1px solid ${SIDEBAR_BORDER}`,
         display: "flex",
         flexDirection: "column",
-        bgcolor: "#ffffff",
+        bgcolor: "#0b45aa",
+        backgroundImage: "linear-gradient(180deg, #0c54ca 0%, #0b45aa 40%, #083582 100%)",
         px: 0,
         overflowY: "hidden",
         overflowX: "hidden",
@@ -323,14 +324,14 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
           width: "2px",
         },
         "&::-webkit-scrollbar-track": {
-          background: "#f1f1f1",
+          background: "rgba(255,255,255,0.2)",
           borderRadius: "2px",
         },
         "&::-webkit-scrollbar-thumb": {
           background: BRAND_PRIMARY,
           borderRadius: "2px",
           "&:hover": {
-            background: "#0F172A",
+            background: "#ffffff",
           },
         },
       }}
@@ -362,22 +363,7 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
           }}
         />
 
-        <Typography
-          sx={{
-            fontWeight: 800,
-            fontSize: 18,
-            color: "var(--secondary-color, #024DAF)",
-            lineHeight: 1,
-            whiteSpace: "nowrap",
-            flex: 1,
-            minWidth: 0,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            display: collapsed ? "none" : "block",
-          }}
-        >
-          iontrip.com
-        </Typography>
+       
 
         <Box sx={{ ml: collapsed ? 0 : "auto", display: "flex", alignItems: "center", flexShrink: 0 }}>
           <IconButton
@@ -387,13 +373,13 @@ const Sidebar = ({ collapsed = false, onToggleCollapsed } = {}) => {
             sx={{
               width: 28,
               height: 28,
-              border: "1px solid #D1D5DB",
-              bgcolor: "#FFFFFF",
-              "&:hover": { bgcolor: "#F9FAFB" },
+              border: "1px solid rgba(255,255,255,0.4)",
+              bgcolor: "rgba(255,255,255,0.08)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
               flexShrink: 0,
             }}
           >
-            <MenuOpenIcon sx={{ fontSize: 18, color: "#6B7280" }} />
+            <MenuOpenIcon sx={{ fontSize: 18, color: "#ffffff" }} />
           </IconButton>
         </Box>
       </Box>

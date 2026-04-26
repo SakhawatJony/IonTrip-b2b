@@ -12,6 +12,8 @@ import ApartmentIcon from "@mui/icons-material/Apartment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import StorageIcon from "@mui/icons-material/Storage";
 import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import PercentIcon from "@mui/icons-material/Percent";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import MonitorIcon from "@mui/icons-material/Monitor";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -19,6 +21,8 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
+import PersonAddAlt1OutlinedIcon from "@mui/icons-material/PersonAddAlt1Outlined";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import MapIcon from "@mui/icons-material/Map";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -30,6 +34,7 @@ const ACCENT = "var(--secondary-color)";
 const DARK = "#0b1f4e";
 const ICON_BLUE = "#1d4ed8";
 const ICON_LIGHT_BG = "#eaf2ff";
+const HERO_BG_IMAGE = "/src/assets/hero.jpeg";
 
 const PARTNERS = [
   { name: "Emirates", country: "UAE", domain: "emirates.com" },
@@ -169,9 +174,9 @@ const HERO_FEATURES = [
 ];
 
 const HERO_STATS = [
-  { value: "500+", label: "Airlines", icon: <AirplanemodeActiveIcon sx={{ fontSize: 21, color: "#2f62ff" }} /> },
-  { value: "1M+", label: "Hotels", icon: <ApartmentIcon sx={{ fontSize: 20, color: "#2f62ff" }} /> },
-  { value: "250+", label: "Countries", icon: <PublicIcon sx={{ fontSize: 20, color: "#2f62ff" }} /> },
+  { value: "900+", label: "Airlines", icon: <AirplanemodeActiveIcon sx={{ fontSize: 21, color: "#2f62ff" }} /> },
+  { value: "2M+", label: "Hotels", icon: <ApartmentIcon sx={{ fontSize: 20, color: "#2f62ff" }} /> },
+  { value: "150+", label: "Countries", icon: <PublicIcon sx={{ fontSize: 20, color: "#2f62ff" }} /> },
   { value: "24/7", label: "Support", icon: <AccessTimeIcon sx={{ fontSize: 20, color: "#2f62ff" }} /> },
 ];
 
@@ -194,8 +199,7 @@ export default function HomeLanding() {
           sx={{
             position: "absolute",
             inset: 0,
-            background:
-              "linear-gradient(90deg, rgba(3,20,58,0.97) 0%, rgba(3,20,58,0.93) 42%, rgba(3,20,58,0.44) 58%, rgba(0,103,195,0.08) 100%), url('https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1800&q=70')",
+            background: `linear-gradient(90deg, rgba(3,20,58,0.97) 0%, rgba(3,20,58,0.93) 42%, rgba(3,20,58,0.44) 58%, rgba(0,103,195,0.08) 100%), url('${HERO_BG_IMAGE}')`,
             backgroundSize: "cover",
             backgroundPosition: "center right",
             opacity: 0.95,
@@ -226,7 +230,7 @@ export default function HomeLanding() {
                 All-in-one B2B travel booking platform with real-time access to flights, hotels, holidays, transfers, and
                 visa services - designed for modern travel agents.
               </Typography>
-              <Grid container  >
+              {/* <Grid container  >
                 {HERO_FEATURES.map((item) => (
                   <Grid item xs={6} md={3} key={item.label}>
                     <Stack
@@ -244,27 +248,28 @@ export default function HomeLanding() {
                     </Stack>
                   </Grid>
                 ))}
-              </Grid>
+              </Grid> */}
               <Stack direction="row" spacing={1.3} sx={{ mt: 2.2 }}>
                 <Button
-                  onClick={() => navigate("/register")}
-                  endIcon={<ArrowForwardIcon sx={{ fontSize: 17 }} />}
+                  onClick={() => navigate("/login")}
+                  startIcon={<DashboardCustomizeOutlinedIcon sx={{ fontSize: 17 }} />}
                   sx={{
                     textTransform: "none",
                     bgcolor: ACCENT,
                     color: "#fff",
                     borderRadius: 1.3,
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 13,
                     px: 3.2,
-                    py: 1.08,
+                    py: 1,
                     "&:hover": { bgcolor: "var(--secondary-color-hover)" },
                   }}
                 >
-                  Get Started Now
+                  Login to Dashboard
                 </Button>
                 <Button
-                  onClick={() => navigate("/contact")}
+                  onClick={() => navigate("/register")}
+                  startIcon={<PersonAddAlt1OutlinedIcon sx={{ fontSize: 17, color: "#fff" }} />}
                   sx={{
                     textTransform: "none",
                     border: "1px solid rgba(255,255,255,0.45)",
@@ -277,7 +282,7 @@ export default function HomeLanding() {
                     backgroundColor: "transparent",
                   }}
                 >
-                  Request Demo
+                  Start Selling as an Agent
                 </Button>
               </Stack>
             </Grid>
@@ -342,14 +347,14 @@ export default function HomeLanding() {
                     sx={{
                       position: { md: "absolute" },
                       right: { md: 14 },
-                      top: { md: 74 },
+                      top: { md: 76 },
                     
-                      width: { xs: "100%", md: 140 },
-                      height: { md: 190 },
+                      width: { xs: "100%", md: 142 },
+                      height: { md: 194 },
                       borderRadius: 1.8,
-                      bgcolor: "#0f3270",
+                      background: "linear-gradient(180deg, #0a357e 0%, #08275f 100%)",
                       color: "#fff",
-                      p: 1.3,
+                      p: 1.5,
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
@@ -358,15 +363,23 @@ export default function HomeLanding() {
                     }}
                   >
                     <Box>
-                      <Typography sx={{ fontWeight: 800, fontSize: 29, lineHeight: 1, mb: 1.1 }}>%</Typography>
-                      <Typography sx={{ fontWeight: 800, fontSize: 15.2, lineHeight: 1.3 }}>
-                        Exclusive B2B Net Fares
+                      <Typography sx={{ fontWeight: 800, fontSize: 14.8, lineHeight: 1.32 }}>
+                        Exclusive B2B
+                        <Box component="span" sx={{ display: "block" }}>
+                          Net Fares
+                        </Box>
                       </Typography>
-                      <Typography sx={{ fontSize: 11.7, mt: 0.65, color: "rgba(255,255,255,0.9)" }}>
-                        Best Prices for your Business
+                      <Typography sx={{ fontSize: 11.7, mt: 1, color: "rgba(255,255,255,0.92)", lineHeight: 1.28, fontWeight: 600 }}>
+                        Best Prices for
+                        <Box component="span" sx={{ display: "block" }}>
+                          your Business
+                        </Box>
                       </Typography>
                     </Box>
-                    <Typography sx={{ fontSize: 28, fontWeight: 800, textAlign: "right", opacity: 0.84 }}>%</Typography>
+                    <Box sx={{ display: "flex", justifyContent: "center", pb: 0.45, position: "relative" }}>
+                      <LocalOfferOutlinedIcon sx={{ fontSize: 46, color: "#ffffff", opacity: 0.98, transform: "rotate(90deg) translateX(2px)" }} />
+                      <PercentIcon sx={{ fontSize: 15, color: "#ffffff", position: "absolute", top: 13, left: "52%", transform: "translateX(-50%)" }} />
+                    </Box>
                   </Box>
                   <Grid container spacing={0.85} sx={{ pr: { md: "150px" }, position: "relative" }}>
                     <Grid item xs={6}><TextField fullWidth size="small" label="From" placeholder="Select City or Airport" /></Grid>
@@ -432,12 +445,12 @@ export default function HomeLanding() {
       </Box>
 
       <Container sx={{ mt: -1.4, position: "relative", zIndex: 3 }}>
-        <Paper sx={{ borderRadius: 1, overflow: "hidden", boxShadow: "0 10px 24px rgba(13,30,60,0.12)" }}>
-          <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} sx={{ alignItems: "center", flexWrap: "nowrap", justifyContent: "center" }}>
-            <Box sx={{ py: 1.4, px: 2, minWidth: 220, flexShrink: 0, textAlign: "center" }}>
+        <Paper sx={{ borderRadius: 1, overflow: "hidden", boxShadow: "0 10px 24px rgba(13,30,60,0.12)", height: "80px", display: "flex", alignItems: "center" }}>
+          <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} sx={{ alignItems: "center", flexWrap: "nowrap", justifyContent: "center", width: "100%", height: "100%" }}>
+            <Box sx={{ px: 2, minWidth: 220, flexShrink: 0, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
               <Typography sx={{ color: "#6A778D", fontSize: 13, fontWeight: 700, textAlign: "center" }}>Connected with Leading Partners</Typography>
             </Box>
-            <Box sx={{ py: 1.2, px: 2, minHeight: 58, flex: 1, minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center" }}>
+            <Box sx={{ px: 2, minHeight: 58, flex: 1, minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Stack
                 direction="row"
                 spacing={2}
@@ -680,7 +693,7 @@ export default function HomeLanding() {
                 <Stack spacing={1.1} alignItems={{ xs: "stretch", md: "flex-end" }} sx={{ width: { xs: "100%", md: 318 }, maxWidth: { xs: "100%", md: 318 }, ml: { md: "auto" } }}>
                   <Button
                     onClick={() => navigate("/register")}
-                    endIcon={<ArrowForwardIcon sx={{ fontSize: 18, color: "#0d47a1" }} />}
+                    startIcon={<DashboardCustomizeOutlinedIcon sx={{ fontSize: 18, color: "#0d47a1" }} />}
                     sx={{
                       width: "100%",
                       bgcolor: "#fff",
@@ -695,11 +708,11 @@ export default function HomeLanding() {
                       "&:hover": { bgcolor: "#f0f4ff" },
                     }}
                   >
-                    Create Free Account
+                    Login to Dashboard
                   </Button>
                   <Button
                     onClick={() => navigate("/contact")}
-                    startIcon={<HeadsetMicIcon sx={{ fontSize: 20, color: "#fff" }} />}
+                    startIcon={<PersonAddAlt1OutlinedIcon sx={{ fontSize: 20, color: "#fff" }} />}
                     sx={{
                       width: "100%",
                       color: "#fff",
@@ -714,7 +727,7 @@ export default function HomeLanding() {
                       "&:hover": { bgcolor: "rgba(255,255,255,0.08)" },
                     }}
                   >
-                    Talk to Our Team
+                    Start Selling as an Agent
                   </Button>
                 </Stack>
               </Grid>

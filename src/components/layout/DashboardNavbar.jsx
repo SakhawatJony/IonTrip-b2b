@@ -57,8 +57,9 @@ const DashboardNavbar = () => {
         gap: 2,
         px: 2.5,
         py: 1.25,
-        bgcolor: "#FFFFFF",
-        borderBottom: "1px solid #E5E7EB",
+        bgcolor: "#0b45aa",
+        backgroundImage: "linear-gradient(90deg, #0d56cc 0%, #0b45aa 45%, #08357f 100%)",
+        borderBottom: "1px solid rgba(255,255,255,0.2)",
         flexWrap: "wrap",
       }}
     >
@@ -85,12 +86,12 @@ const DashboardNavbar = () => {
             flex: 1,
             "& .MuiOutlinedInput-root": {
               height: "100%",
-              bgcolor: "#FFFFFF",
+              bgcolor: "rgba(255,255,255,0.98)",
               borderRadius: `${pillRadius} 0 0 ${pillRadius}`,
               borderRight: "none",
               fontSize: 13,
               "& fieldset": {
-                borderColor: "#E5E7EB",
+                borderColor: "rgba(255,255,255,0.9)",
                 borderWidth: "1px",
                 borderRight: "none",
               },
@@ -112,15 +113,15 @@ const DashboardNavbar = () => {
           sx={{
             height: "100%",
             borderRadius: `0 ${pillRadius} ${pillRadius} 0`,
-            bgcolor: secondaryColor,
+            bgcolor: "#0b45aa",
             color: "#FFFFFF",
             fontSize: 13,
             fontWeight: 600,
             px: 2.25,
             boxShadow: "none",
-            border: `1px solid ${secondaryColor}`,
+            border: "1px solid rgba(255,255,255,0.8)",
             borderLeft: "none",
-            "&:hover": { bgcolor: secondaryColor, opacity: 0.9, boxShadow: "none", borderColor: secondaryColor },
+            "&:hover": { bgcolor: "#0a3f99", boxShadow: "none", borderColor: "rgba(255,255,255,0.9)" },
           }}
         >
           Search
@@ -142,7 +143,7 @@ const DashboardNavbar = () => {
             px: 1.5,
             py: 0.5,
             bgcolor: "#FFFFFF",
-            border: "1px solid #D1D5DB",
+            border: "1px solid rgba(255,255,255,0.85)",
             borderRadius: pillRadius,
             minWidth: 140,
             cursor: "pointer",
@@ -169,9 +170,9 @@ const DashboardNavbar = () => {
               borderRadius: pillRadius,
               fontSize: 15,
               fontWeight: 400,
-              color: "#374151",
+              color: "#0b2d6b",
               "& .MuiOutlinedInput-notchedOutline": {
-                border: "1px solid #D1D5DB",
+                border: "1px solid rgba(255,255,255,0.85)",
                 borderRadius: pillRadius,
               },
               "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#9CA3AF" },
